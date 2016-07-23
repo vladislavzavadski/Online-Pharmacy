@@ -1,0 +1,102 @@
+
+.brand-logo{
+    float: left;
+    height: 60px;
+    line-height: 80px;
+    font-size: 30px;
+    color: azure;
+    font-family: 'Oswald Regular',Tahoma,sans-serif;
+    text-transform: uppercase;
+    text-decoration: none;
+    font-style: italic;
+}
+
+.name{
+    height: 60px;
+    line-height: 80px;
+    font-size: 30px;
+    color: azure;
+    font-family: 'Oswald Regular',Tahoma,sans-serif;
+    text-transform: uppercase;
+    text-decoration: none;
+    font-style: italic;
+}
+
+.image-logo{
+    border: 3px solid azure;
+    border-radius: 100%;
+}
+
+.content{
+    padding-top: 80px;
+}
+
+body{
+    background: #DCDCDC;
+}
+
+.img-responsive-height
+{
+    display: block;
+    width: auto;
+    max-height: 100%
+}
+
+.drug-block{
+    height: 60px;
+}
+
+
+.navbar-toggle {
+    float: left;
+    margin-left: 15px;
+}
+
+div.wrapper {
+    width:450px;
+}
+
+div.left_block {
+    float:left;
+    width:200px;
+}
+
+div.right_block {
+    float:right;
+    width:200px;
+}
+
+.border-between > [class*='col-']:before {
+    background: #e3e3e3;
+    bottom: 0;
+    content: " ";
+    left: 0;
+    position: absolute;
+    width: 1px;
+    top: 0;
+}
+.border-between > [class*='col-']:first-child:before {
+    display: none;
+}
+
+@media (max-width:1006px)
+{ .name{display:none;} }
+
+@media (max-width:1548px){
+    .content{
+        padding-top: 140px;
+    }
+}
+
+@media (max-width:768px){
+    .content{
+        padding-top: 80px;
+    }
+}
+
+.badge-notify{
+    background:red;
+    position:relative;
+    top: -20px;
+    left: -35px;
+}

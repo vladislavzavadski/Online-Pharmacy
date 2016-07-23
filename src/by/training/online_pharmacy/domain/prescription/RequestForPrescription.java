@@ -1,7 +1,8 @@
 package by.training.online_pharmacy.domain.prescription;
 
-import by.training.pharmacy.domain.drug.Drug;
-import by.training.pharmacy.domain.user.User;
+
+import by.training.online_pharmacy.domain.drug.Drug;
+import by.training.online_pharmacy.domain.user.User;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -59,15 +60,14 @@ public class RequestForPrescription {
     @Override
     public int hashCode() {
         int result = id;
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         result = 31 * result + (client != null ? client.hashCode() : 0);
         result = 31 * result + (drug != null ? drug.hashCode() : 0);
         result = 31 * result + (doctor != null ? doctor.hashCode() : 0);
-        result = 31 * result + (prolongDate != null ? simpleDateFormat.format(prolongDate).hashCode() : 0);
+        result = 31 * result + (prolongDate != null ? prolongDate.hashCode() : 0);
         result = 31 * result + (requestStatus != null ? requestStatus.hashCode() : 0);
         result = 31 * result + (clientComment != null ? clientComment.hashCode() : 0);
         result = 31 * result + (doctorComment != null ? doctorComment.hashCode() : 0);
-        result = 31 * result + (requestDate != null ? simpleDateFormat.format(requestDate).hashCode() : 0);
+        result = 31 * result + (requestDate != null ? requestDate.hashCode() : 0);
         return result;
     }
 

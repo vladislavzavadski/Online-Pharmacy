@@ -1,8 +1,8 @@
 package by.training.online_pharmacy.domain.order;
 
 
-import by.training.pharmacy.domain.drug.Drug;
-import by.training.pharmacy.domain.user.User;
+import by.training.online_pharmacy.domain.drug.Drug;
+import by.training.online_pharmacy.domain.user.User;
 
 import java.util.Date;
 

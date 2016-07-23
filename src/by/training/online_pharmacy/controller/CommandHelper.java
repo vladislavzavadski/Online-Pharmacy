@@ -16,8 +16,14 @@ public class CommandHelper {
             case USER_REGISTRATION:{
                 return new UserRegistrationCommand();
             }
-            case USER_REGISTRATION_VK:{
-                return new UserRegistrationVKCommand();
+            case USER_LOGIN_FB:{
+                return new UserLoginFBCommand();
+            }
+            case USER_LOGIN_LI:{
+                return new UserLoginLICommand();
+            }
+            case GET_PROFILE_IMAGE:{
+                return new GetProfileImageCommand();
             }
             default:{
                 return null;

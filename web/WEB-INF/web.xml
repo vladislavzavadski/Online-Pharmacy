@@ -3,10 +3,29 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
+    <welcome-file-list>
+        <welcome-file>/index.jsp</welcome-file>
+    </welcome-file-list>
     <servlet>
         <servlet-name>Controller</servlet-name>
         <servlet-class>by.training.online_pharmacy.controller.Controller</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>MainPage</servlet-name>
+        <jsp-file>/WEB-INF/pages/main.jsp</jsp-file>
+    </servlet>
+    <servlet>
+        <servlet-name>AuthorizationPage</servlet-name>
+        <jsp-file>/WEB-INF/pages/authorization.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AuthorizationPage</servlet-name>
+        <url-pattern>/authorization.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MainPage</servlet-name>
+        <url-pattern>/main.jsp</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>Controller</servlet-name>
         <url-pattern>/controller</url-pattern>
