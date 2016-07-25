@@ -5,10 +5,7 @@ import by.training.online_pharmacy.dao.UserDAO;
 import by.training.online_pharmacy.dao.connection_pool.exception.ConnectionPoolException;
 import by.training.online_pharmacy.dao.exception.DaoException;
 import by.training.online_pharmacy.dao.impl.database.util.DatabaseOperation;
-import by.training.online_pharmacy.domain.user.RegistrationType;
-import by.training.online_pharmacy.domain.user.User;
-import by.training.online_pharmacy.domain.user.UserDescription;
-import by.training.online_pharmacy.domain.user.UserRole;
+import by.training.online_pharmacy.domain.user.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,15 +19,15 @@ import java.util.List;
  */
 public class DatabaseUserDAO implements UserDAO {
 
-    private static final String GET_USER_QUERY = "select us_login, us_first_name, us_second_name, us_image, us_mail, us_phone, us_group, sd_description, sd_specialization from users left join staff_descriptions on sd_user_login=us_login WHERE  us_login=? and us_password=md5(?) and login_via=?;";
-    private static  final String GET_USER_BY_LOGIN_QUERY = "SELECT us_login, us_first_name, us_second_name, us_group, us_mail, us_phone, us_image, sd_specialization, sd_description FROM users LEFT JOIN staff_descriptions ON users.us_login = staff_descriptions.sd_user_login WHERE us_login=?;";
-    private static final String SEARCH_USER_BY_ROLE_QUERY = "SELECT us_login, us_first_name, us_second_name, us_mail, us_phone, us_image, sd_specialization, sd_description FROM users LEFT JOIN staff_descriptions ON us_login=sd_user_login WHERE us_group=? LIMIT ?, ?;";
-    private static final String SEARCH_USERS_QUERY = "select us_login, us_first_name, us_second_name, us_image, us_mail, us_phone, us_group, sd_specialization, sd_description from users LEFT JOIN staff_descriptions on sd_user_login=us_login where us_first_name LIKE ? and us_second_name LIKE ? LIMIT ?, ?;";
-    private static final String INSERT_USER_QUERY = "INSERT INTO users (us_login, us_password, us_first_name, us_second_name, us_group, us_image, us_mail, us_phone, login_via) VALUES (?,md5(?),?,?,?,?,?,?,?)";
-    private static final String INSERT_USER_IF_NOT_EXIST_QUERY = "INSERT INTO users (us_login, us_first_name, us_second_name, us_group, us_mail, us_phone, login_via) VALUES (?, ?, ?, ?, ?, ?, ?) ON duplicate key update us_login=us_login;";
-    private static final String UPDATE_USER_QUERY = "UPDATE users SET us_password=md5(?), us_first_name=?, us_second_name=?, us_image=?, us_mail=?, us_phone=? WHERE us_login=?;";
+    private static final String GET_USER_QUERY = "select us_login, us_first_name, us_second_name, us_image, us_mail, us_phone, us_group, us_gender, login_via, sd_description, sd_specialization from users left join staff_descriptions on sd_user_login=us_login WHERE  us_login=? and us_password=md5(?) and login_via=?;";
+    private static  final String GET_USER_BY_LOGIN_QUERY = "SELECT us_login, us_first_name, us_second_name, us_group, us_mail, us_phone, us_image, us_gender, login_via, sd_specialization, sd_description FROM users LEFT JOIN staff_descriptions ON users.us_login = staff_descriptions.sd_user_login WHERE us_login=?;";
+    private static final String SEARCH_USER_BY_ROLE_QUERY = "SELECT us_login, us_first_name, us_second_name, us_mail, us_phone, us_image, us_gender, login_via, sd_specialization, sd_description FROM users LEFT JOIN staff_descriptions ON us_login=sd_user_login WHERE us_group=? LIMIT ?, ?;";
+    private static final String SEARCH_USERS_QUERY = "select us_login, us_first_name, us_second_name, us_image, us_mail, us_phone, us_group, us_gender, login_via, sd_specialization, sd_description from users LEFT JOIN staff_descriptions on sd_user_login=us_login where us_first_name LIKE ? and us_second_name LIKE ? LIMIT ?, ?;";
+    private static final String INSERT_USER_QUERY = "INSERT INTO users (us_login, us_password, us_first_name, us_second_name, us_group, us_image, us_mail, us_phone, login_via, us_gender) VALUES (?,md5(?),?,?,?,?,?,?,?,?)";
+    private static final String INSERT_USER_IF_NOT_EXIST_QUERY = "INSERT INTO users (us_login, us_first_name, us_second_name, us_group, us_mail, us_phone, login_via, us_gender) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON duplicate key update us_login=us_login;";
+    private static final String UPDATE_USER_QUERY = "UPDATE users SET us_password=md5(?), us_first_name=?, us_second_name=?, us_image=?, us_mail=?, us_phone=?, us_gender=? WHERE us_login=?;";
     private static final String DELETE_USER_QUERY = "DELETE FROM users WHERE us_login=?";
-    private static final String SEARCH_USER_BY_SPECIALIZATION_QUERY = "SELECT us_first_name, us_second_name, us_image, us_group, us_mail, us_phone sd_specialization, sd_description FROM users INNER JOIN staff_descriptions ON users.us_login = staff_descriptions.sd_user_login WHERE sd_specialization=? LIMIT ?, ?;";
+    private static final String SEARCH_USER_BY_SPECIALIZATION_QUERY = "SELECT us_first_name, us_second_name, us_image, us_group, us_mail, us_phone, us_gender, login_via, sd_specialization, sd_description FROM users INNER JOIN staff_descriptions ON users.us_login = staff_descriptions.sd_user_login WHERE sd_specialization=? LIMIT ?, ?;";
     private static final Logger logger = LogManager.getLogger(DatabaseUserDAO.class);
 
     @Override
@@ -52,8 +49,8 @@ public class DatabaseUserDAO implements UserDAO {
     }
 
     @Override
-    public User userAuthentication(User user, RegistrationType registrationType) throws DaoException {
-        try(DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_USER_IF_NOT_EXIST_QUERY, user.getLogin(), user.getFirstName(), user.getSecondName(), user.getUserRole().toString().toLowerCase(), user.getMail(), user.getPhone(), registrationType.toString().toLowerCase())) {
+    public User userAuthentication(User user) throws DaoException {
+        try(DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_USER_IF_NOT_EXIST_QUERY, user.getLogin(), user.getFirstName(), user.getSecondName(), user.getUserRole().toString().toLowerCase(), user.getMail(), user.getPhone(), user.getRegistrationType().toString().toLowerCase(), user.getGender().toString().toLowerCase())) {
             int insertsCount = databaseOperation.invokeWriteOperation();
             if(insertsCount==1){
                 return user;
@@ -179,6 +176,8 @@ public class DatabaseUserDAO implements UserDAO {
             user.setMail(resultSet.getString(TableColumn.USER_MAIL));
             user.setPhone(resultSet.getString(TableColumn.USER_PHONE));
             user.setUserImage(resultSet.getBytes(TableColumn.USER_IMAGE));
+            user.setRegistrationType(RegistrationType.valueOf(resultSet.getString(TableColumn.LOGIN_VIA).toUpperCase()));
+            user.setGender(Gender.valueOf(resultSet.getString(TableColumn.USER_GENDER).toUpperCase()));
             userDescription.setDescription(resultSet.getString(TableColumn.USER_DESCRIPTION));
             userDescription.setSpecialization(resultSet.getString(TableColumn.USER_SPECIALIZATION));
             result.add(user);

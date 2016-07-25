@@ -1,6 +1,7 @@
 package by.training.online_pharmacy.service.util;
 
 
+import by.training.online_pharmacy.domain.user.Gender;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -40,7 +41,7 @@ public class VkApi implements Api {
         String accessToken = jsonObject.getString("access_token");
         params.clear();
         params.put("user_ids", userId);
-        params.put("fields", "photo_200,contacts");
+        params.put("fields", "photo_200,contacts,sex");
         params.put("name_case", "norm");
         params.put("access_token", accessToken);
         result = RequestSender.sendRequest(params, null, "GET", BASE_URL);
@@ -67,6 +68,23 @@ public class VkApi implements Api {
     @Override
     public String getImage(){
         return getProperty(PHOTO_PROPERTY);
+    }
+
+    @Override
+    public Gender getGender() {
+        JSONObject jsonObject = new JSONObject(result);
+        int gender = jsonObject.getJSONArray("response").getJSONObject(0).getInt("sex");
+        switch (gender){
+            case 1:{
+                return Gender.FEMALE;
+            }
+            case 2:{
+                return Gender.MALE;
+            }
+            default:{
+                return Gender.UNKNOWN;
+            }
+        }
     }
 
     @Override

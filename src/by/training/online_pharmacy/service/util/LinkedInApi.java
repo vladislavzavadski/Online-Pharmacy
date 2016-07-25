@@ -1,5 +1,6 @@
 package by.training.online_pharmacy.service.util;
 
+import by.training.online_pharmacy.domain.user.Gender;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -60,6 +61,11 @@ public class LinkedInApi implements Api {
             return null;
         }
         return jsonObject.getJSONArray("values").getString(0);
+    }
+
+    @Override
+    public Gender getGender() {
+        return Gender.UNKNOWN;
     }
 
     @Override

@@ -13,7 +13,35 @@ public class User {
     private String mail;
     private String phone;
     private UserRole userRole;
+    private Gender gender;
+    private String pathToAlternativeImage;
     private UserDescription userDescription;
+    private RegistrationType registrationType;
+
+    public String getPathToAlternativeImage() {
+        return pathToAlternativeImage;
+    }
+
+    public void setPathToAlternativeImage(String pathToAlternativeImage) {
+        this.pathToAlternativeImage = pathToAlternativeImage;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+
+    public RegistrationType getRegistrationType() {
+        return registrationType;
+    }
+
+    public void setRegistrationType(RegistrationType registrationType) {
+        this.registrationType = registrationType;
+    }
+
     private byte[] userImage;
 
 

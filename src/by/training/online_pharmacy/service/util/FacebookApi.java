@@ -1,5 +1,6 @@
 package by.training.online_pharmacy.service.util;
 
+import by.training.online_pharmacy.domain.user.Gender;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ public class FacebookApi implements Api {
         params.put("redirect_uri", "http://localhost:8080/controller?command=USER_LOGIN_FB");
         String response = RequestSender.sendRequest(params, null, "GET", API_TOKEN_URI);
         String accessToken = new JSONObject(response).getString("access_token");
-        params.put("fields", "first_name,last_name,email,picture.width(400)");
+        params.put("fields", "first_name,last_name,email,picture.width(400),gender");
         params.put("access_token", accessToken);
         result = RequestSender.sendRequest(params, null, "GET", API_URL);
     }
@@ -58,5 +59,12 @@ public class FacebookApi implements Api {
         jsonObject = jsonObject.getJSONObject("picture");
         jsonObject = jsonObject.getJSONObject("data");
         return jsonObject.getString("url");
+    }
+
+    @Override
+    public Gender getGender() {
+        JSONObject jsonObject = new JSONObject(result);
+        String gender = jsonObject.getString("gender");
+        return Gender.valueOf(gender.toUpperCase());
     }
 }

@@ -1,5 +1,7 @@
 package by.training.online_pharmacy.service.util;
 
+import by.training.online_pharmacy.domain.user.Gender;
+
 import java.io.IOException;
 
 /**
@@ -12,6 +14,7 @@ public interface Api {
     String getEmail();
     String getId();
     String getImage();
+    Gender getGender();
     default String getPhone(){
         return null;
     }

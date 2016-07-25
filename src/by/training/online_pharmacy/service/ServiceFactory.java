@@ -1,5 +1,6 @@
 package by.training.online_pharmacy.service;
 
+import by.training.online_pharmacy.service.impl.SocialNetworkServiceImpl;
 import by.training.online_pharmacy.service.impl.UserServiceImpl;
 
 /**
@@ -24,4 +25,5 @@ public class ServiceFactory {
     public UserService getUserService(){
         return new UserServiceImpl();
     }
+    public SocialNetworkService getSocialNetworkService(){return new SocialNetworkServiceImpl();}
 }

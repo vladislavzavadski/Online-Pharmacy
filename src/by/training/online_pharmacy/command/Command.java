@@ -1,4 +1,4 @@
-package by.training.online_pharmacy.controller;
+package by.training.online_pharmacy.command;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

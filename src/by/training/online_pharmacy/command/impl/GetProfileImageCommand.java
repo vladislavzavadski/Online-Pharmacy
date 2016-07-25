@@ -1,5 +1,6 @@
-package by.training.online_pharmacy.controller;
+package by.training.online_pharmacy.command.impl;
 
+import by.training.online_pharmacy.command.Command;
 import by.training.online_pharmacy.domain.user.User;
 
 import javax.servlet.ServletException;

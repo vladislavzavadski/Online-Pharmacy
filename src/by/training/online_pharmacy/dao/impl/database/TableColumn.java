@@ -5,6 +5,8 @@ package by.training.online_pharmacy.dao.impl.database;
  */
 public class TableColumn {
     public static final String DRUG_CLASS_NAME = "dr_class_name";
+    public static final String LOGIN_VIA = "login_via";
+    public static final String USER_GENDER = "us_gender";
     public static final String DRUG_CLASS_DESCRIPTION = "dr_class_description";
     public static final String DRUG_ID = "dr_id";
     public static final String DRUG_NAME = "dr_name";

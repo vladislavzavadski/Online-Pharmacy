@@ -13,7 +13,7 @@ import java.util.List;
  */
 public interface UserDAO {
     User userAuthentication(String login, String password, RegistrationType registrationType) throws DaoException;
-    User userAuthentication(User user, RegistrationType registrationType) throws DaoException;
+    User userAuthentication(User user) throws DaoException;
     User getUserByLogin(String login) throws DaoException;
     List<User> searchUsersByRole(UserRole userRole, int startFrom, int limit) throws DaoException;
     List<User> searchUsersByName(String firstName, String secondName, int limit, int startFrom) throws DaoException;

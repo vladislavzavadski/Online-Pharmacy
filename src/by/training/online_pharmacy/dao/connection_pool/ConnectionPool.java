@@ -25,20 +25,13 @@ public class ConnectionPool {
     private String driver;
     private int poolSize;
 
-    private static ConnectionPool instance;
+    private static final ConnectionPool instance = new ConnectionPool();
 
-    public static ConnectionPool getInstance() throws ConnectionPoolException {
-        if(instance==null){
-            synchronized (ConnectionPool.class){
-                if(instance==null){
-                    instance = new ConnectionPool();
-                }
-            }
-        }
+    public static ConnectionPool getInstance(){
         return instance;
     }
 
-    private ConnectionPool() throws ConnectionPoolException {
+    private ConnectionPool() {
         DBResourceManager dbResourceManager = DBResourceManager.getInstance();
         databaseURL = dbResourceManager.getProperty(DBParameter.DB_URL);
         username = dbResourceManager.getProperty(DBParameter.DB_USERNAME);
@@ -50,10 +43,9 @@ public class ConnectionPool {
         catch (NumberFormatException ex){
             poolSize = 5;
         }
-        initConnectionPool();
     }
 
-    private void initConnectionPool() throws ConnectionPoolException{
+    public void initConnectionPool() throws ConnectionPoolException{
         try {
             Class.forName(driver);
             for(int i=0; i<poolSize; i++) {
@@ -85,7 +77,7 @@ public class ConnectionPool {
         return connection;
     }
 
-    public synchronized void dispose(){
+    public void dispose(){
         clearConnectionList();
     }
 

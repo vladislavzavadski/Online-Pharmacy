@@ -1,5 +1,8 @@
 package by.training.online_pharmacy.controller;
 
+import by.training.online_pharmacy.command.*;
+import by.training.online_pharmacy.command.impl.*;
+
 /**
  * Created by vladislav on 18.07.16.
  */
@@ -24,6 +27,9 @@ public class CommandHelper {
             }
             case GET_PROFILE_IMAGE:{
                 return new GetProfileImageCommand();
+            }
+            case SWITCH_LOCALE:{
+                return new SwitchLocaleCommand();
             }
             default:{
                 return null;
