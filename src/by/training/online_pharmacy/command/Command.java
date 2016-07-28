@@ -1,5 +1,7 @@
 package by.training.online_pharmacy.command;
 
+import by.training.online_pharmacy.service.exception.InternalServerException;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

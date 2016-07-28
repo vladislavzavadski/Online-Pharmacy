@@ -1,4 +1,9 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
+
+<c:if test="${sessionScope.user ne null}">
+   <jsp:forward page="/main.jsp"/>
+</c:if>
 <!DOCTYPE html>
 <html lang="ru">
    <head>
@@ -125,8 +130,14 @@
                         <div id="icon-login-msg" class="glyphicon glyphicon-chevron-right"></div>
                         <span id="text-login-msg">Введите логин и пароль</span>
                      </div>
-                     <input id="sign-login" class="form-control" type="text" placeholder="Логин" name="login" required>
-                     <input id="sign-password" class="form-control" type="password" placeholder="Пароль" name="password" required>
+                     <div class="form-group">
+                        <label for="sign-login">Логин: </label>
+                        <input id="sign-login" class="form-control" type="text" placeholder="Логин" name="login" required>
+                     </div>
+                     <div class="form-group">
+                        <label for="sign-password">Пароль:</label>
+                        <input id="sign-password" class="form-control" type="password" placeholder="Пароль" name="password" required>
+                     </div>
                      <div class="checkbox">
                         <label>
                         <input type="checkbox"> запомнить меня
@@ -160,7 +171,7 @@
                      </div>
                      <div class="form_group">    
                         <label for="register_username">Логин: </label>
-                        <input id="register_username" class="form-control" type="text" placeholder="Логин" required name="login">
+                        <input id="register_username" class="form-control" type="text" placeholder="Логин" required name="login" autofocus>
                      </div>
                      <div class="form_group">    
                         <label for="register_first_name">Имя: </label>
@@ -168,19 +179,11 @@
                      </div>
                      <div class="form_group">    
                         <label for="register_second_name">Фамилия: </label>
-                        <input id="register_second_name" class="form-control" type="text" placeholder="Фамилия" required name="last_name">
+                        <input id="register_second_name" class="form-control" type="text" placeholder="Фамилия" required name="second_name">
                      </div>
                      <div class="form_group">
                         <label for="register_email">E-mail: </label>     
-                        <input id="register_email" class="form-control" type="text" placeholder="E-Mail" required name="email">
-                     </div>
-                     <div class="form_group">
-                        <label for="register_password">Пароль: </label> 
-                        <input id="register_password" class="form-control" type="password" placeholder="Пароль" required name="password">
-                     </div>
-                     <div class="form_group">
-                        <label for="confirm_password">Подтвердите пароль: </label> 
-                        <input id="confirm_password" class="form-control" type="password" placeholder="Подтвердите пароль" required>
+                        <input id="register_email" class="form-control" type="email" placeholder="E-Mail" required name="email">
                      </div>
                   </div>
                   <div class="modal-footer">
@@ -192,6 +195,7 @@
             </div>
          </div>
       </div>
+
       <div class="modal fade" id="about-modal" tabindex="-1" role="dialog"   aria-hidden="true" style="display: none;">
          <div class="modal-dialog">
             <div class="modal-content">
@@ -241,5 +245,18 @@
                </div>
            </div>
        </footer>
+   <script>
+      $("#register_username").blur(function () {
+         $.ajax({
+            url:"controller",
+            type:"POST",
+            dataType:'json',
+            success:function (data) {
+               alert(data.isExist);
+            },
+            data: {login: $("#register_username").val(), command:"CHECK_LOGIN"}
+         });
+      });
+   </script>
    </body>
 </html>

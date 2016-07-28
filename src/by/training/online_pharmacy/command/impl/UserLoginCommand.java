@@ -32,10 +32,7 @@ public class UserLoginCommand implements Command {
         }
         try {
             user = userService.userLogin(request.getParameter("login"), request.getParameter("password"), RegistrationType.NATIVE);
-        } catch (InternalServerException e) {
-            e.printStackTrace();
-        } catch (UserNotFoundException e) {
-            request.setAttribute("login", request.getParameter("login"));
+        }  catch (UserNotFoundException e) {
             request.getRequestDispatcher("/authorization.jsp").forward(request, response);
             return;
         }
@@ -43,6 +40,5 @@ public class UserLoginCommand implements Command {
         httpSession.setAttribute("user", user);
         httpSession.setAttribute("prevRequest", UrlBuilder.build(request));
         request.getRequestDispatcher("/main.jsp").forward(request, response);
-        //TODO:перенаправление на страницу
     }
 }

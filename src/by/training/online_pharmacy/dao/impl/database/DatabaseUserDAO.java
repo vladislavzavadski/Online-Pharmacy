@@ -20,7 +20,7 @@ import java.util.List;
 public class DatabaseUserDAO implements UserDAO {
 
     private static final String GET_USER_QUERY = "select us_login, us_first_name, us_second_name, us_image, us_mail, us_phone, us_group, us_gender, login_via, sd_description, sd_specialization from users left join staff_descriptions on sd_user_login=us_login WHERE  us_login=? and us_password=md5(?) and login_via=?;";
-    private static  final String GET_USER_BY_LOGIN_QUERY = "SELECT us_login, us_first_name, us_second_name, us_group, us_mail, us_phone, us_image, us_gender, login_via, sd_specialization, sd_description FROM users LEFT JOIN staff_descriptions ON users.us_login = staff_descriptions.sd_user_login WHERE us_login=?;";
+    private static final String GET_USER_BY_LOGIN_QUERY = "SELECT us_login, us_first_name, us_second_name, us_group, us_mail, us_phone, us_image, us_gender, login_via, sd_specialization, sd_description FROM users LEFT JOIN staff_descriptions ON users.us_login = staff_descriptions.sd_user_login WHERE us_login=?;";
     private static final String SEARCH_USER_BY_ROLE_QUERY = "SELECT us_login, us_first_name, us_second_name, us_mail, us_phone, us_image, us_gender, login_via, sd_specialization, sd_description FROM users LEFT JOIN staff_descriptions ON us_login=sd_user_login WHERE us_group=? LIMIT ?, ?;";
     private static final String SEARCH_USERS_QUERY = "select us_login, us_first_name, us_second_name, us_image, us_mail, us_phone, us_group, us_gender, login_via, sd_specialization, sd_description from users LEFT JOIN staff_descriptions on sd_user_login=us_login where us_first_name LIKE ? and us_second_name LIKE ? LIMIT ?, ?;";
     private static final String INSERT_USER_QUERY = "INSERT INTO users (us_login, us_password, us_first_name, us_second_name, us_group, us_image, us_mail, us_phone, login_via, us_gender) VALUES (?,md5(?),?,?,?,?,?,?,?,?)";
@@ -28,7 +28,7 @@ public class DatabaseUserDAO implements UserDAO {
     private static final String UPDATE_USER_QUERY = "UPDATE users SET us_password=md5(?), us_first_name=?, us_second_name=?, us_image=?, us_mail=?, us_phone=?, us_gender=? WHERE us_login=?;";
     private static final String DELETE_USER_QUERY = "DELETE FROM users WHERE us_login=?";
     private static final String SEARCH_USER_BY_SPECIALIZATION_QUERY = "SELECT us_first_name, us_second_name, us_image, us_group, us_mail, us_phone, us_gender, login_via, sd_specialization, sd_description FROM users INNER JOIN staff_descriptions ON users.us_login = staff_descriptions.sd_user_login WHERE sd_specialization=? LIMIT ?, ?;";
-    private static final Logger logger = LogManager.getLogger(DatabaseUserDAO.class);
+    private static final String GET_COUNT_OF_USERS_WITH_LOGIN = "select count(us_login) login_count from users where us_login=?;";
 
     @Override
     public User userAuthentication(String login, String password, RegistrationType registrationType) throws DaoException {
@@ -42,7 +42,6 @@ public class DatabaseUserDAO implements UserDAO {
             }
             return user;
         } catch (Exception e) {
-            logger.error("Method: DatabaseUserDAO.userAuthentication", e);
             throw new DaoException("Cannot load user from database with login = \'"+login+"\' and password = \'"+password+"\'",e);
         }
 
@@ -60,7 +59,6 @@ public class DatabaseUserDAO implements UserDAO {
                 return resultSetToUser(resultSet).get(0);
             }
         } catch (Exception e) {
-            logger.error("Method: DatabaseUserDao.userAuthentication", e);
             throw new DaoException(e);
         }
         return null;
@@ -77,7 +75,6 @@ public class DatabaseUserDAO implements UserDAO {
             }
             return user;
         } catch (Exception e) {
-            logger.error("Method: DatabaseUserDAO.getUserByLogin", e);
             throw new DaoException("Can not get user with login = \'"+login+"\'", e);
         }
 
@@ -92,7 +89,6 @@ public class DatabaseUserDAO implements UserDAO {
             users = resultSetToUser(resultSet);
             return users;
         } catch (Exception e) {
-            logger.error("Method: DatabaseUserDAO.searchUsersByRole", e);
             throw new DaoException("Can not search user with role \'"+userRole+"\'", e);
         }
 
@@ -107,7 +103,6 @@ public class DatabaseUserDAO implements UserDAO {
             users = resultSetToUser(resultSet);
             return users;
         } catch (Exception ex) {
-            logger.error("Method: DatabaseUserDAO.searchUsersByName", ex);
             throw new DaoException("Can not search users in database", ex);
         }
     }
@@ -117,11 +112,11 @@ public class DatabaseUserDAO implements UserDAO {
 
         try (DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_USER_QUERY, user.getLogin(), user.getPassword(),
                 user.getFirstName(), user.getSecondName(), user.getUserRole().toString().toLowerCase(),
-                user.getUserImage(), user.getMail(), user.getPhone())){
+                user.getUserImage(), user.getMail(), user.getPhone(), user.getRegistrationType().toString().toLowerCase(),
+                user.getGender().toString().toLowerCase())){
             databaseOperation.invokeWriteOperation();
 
         } catch (Exception e) {
-            logger.error("Method: DatabaseUserDAO.insertUser", e);
             throw new DaoException("Can not insert user to database", e);
         }
     }
@@ -134,7 +129,6 @@ public class DatabaseUserDAO implements UserDAO {
                 user.getUserImage(), user.getMail(), user.getPhone(), user.getLogin())){
             databaseOperation.invokeWriteOperation();
         } catch (Exception e) {
-            logger.error("Method: DatabaseUserDAO.updateUser", e);
             throw new DaoException("Cannot update user", e);
         }
     }
@@ -145,7 +139,6 @@ public class DatabaseUserDAO implements UserDAO {
         try (DatabaseOperation databaseOperation = new DatabaseOperation(DELETE_USER_QUERY, login)){
             databaseOperation.invokeWriteOperation();
         } catch (Exception e) {
-            logger.error("Method: DatabaseUserDAO.deleteUser", e);
             throw new DaoException("Can not delete user with login \'"+login+"\'", e);
         }
     }
@@ -159,10 +152,22 @@ public class DatabaseUserDAO implements UserDAO {
             users = resultSetToUser(resultSet);
             return users;
         } catch (Exception e) {
-            logger.error("Method: DatabaseUserDAO.getUsersBySpecialization", e);
             throw new DaoException("Can not search users with specialization = \'"+specialization+"\'", e);
         }
     }
+
+    @Override
+    public boolean isLoginUsed(String login) throws DaoException {
+        try(DatabaseOperation databaseOperation = new DatabaseOperation(GET_COUNT_OF_USERS_WITH_LOGIN, login)) {
+            ResultSet resultSet = databaseOperation.invokeReadOperation();
+            resultSet.next();
+            int usersCount = resultSet.getInt(TableColumn.LOGIN_COUNT);
+            return usersCount>=1;
+        } catch (Exception e) {
+            throw new DaoException("Can not get count of users", e);
+        }
+    }
+
     private List<User> resultSetToUser(ResultSet resultSet) throws SQLException {
         List<User> result = new ArrayList<>();
         while (resultSet.next()) {

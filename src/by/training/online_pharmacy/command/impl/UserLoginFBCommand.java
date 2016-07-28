@@ -33,7 +33,6 @@ public class UserLoginFBCommand implements Command {
             user = socialNetworkService.userLoginFb(request.getParameter("code"));
         } catch (CanceledAuthorizationException e) {
             e.printStackTrace();
-            //TODO:дописать
         } catch (InternalServerException e) {
             e.printStackTrace();
         }

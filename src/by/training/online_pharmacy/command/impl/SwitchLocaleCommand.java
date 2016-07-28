@@ -20,7 +20,6 @@ public class SwitchLocaleCommand implements Command {
         if(prevRequest==null){
             response.sendRedirect("/index.jsp");
         }else {
-            //request.getRequestDispatcher("/controller"+prevRequest).forward(request, response);
             response.sendRedirect(prevRequest);
         }
 

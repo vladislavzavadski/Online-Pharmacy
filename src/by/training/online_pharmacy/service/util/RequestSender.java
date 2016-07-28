@@ -12,7 +12,7 @@ import java.util.Map;
  * Created by vladislav on 21.07.16.
  */
 class RequestSender {
-    static String sendRequest(Map<String, String> params, Map<String, String> headers, String requestMethod, String url) throws IOException {
+    private static String processRequestSending(Map<String, String> params, Map<String, String> headers, String requestMethod, String url) throws IOException {
         StringBuilder result = new StringBuilder();
         if (params != null){
             for (Map.Entry<String, String> entry : params.entrySet()) {
@@ -34,4 +34,13 @@ class RequestSender {
         bufferedReader.close();
         return result.toString();
     }
+
+    public static String sendRequest(Map<String, String> params, String requestMethod, String url) throws IOException {
+        return processRequestSending(params, null, requestMethod, url);
+    }
+
+    public static String sendRequest(Map<String, String> params, Map<String, String> headers, String requestMethod, String url) throws IOException {
+        return processRequestSending(params, headers, requestMethod, url);
+    }
+
 }

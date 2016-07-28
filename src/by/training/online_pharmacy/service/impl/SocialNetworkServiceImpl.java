@@ -12,11 +12,13 @@ import by.training.online_pharmacy.service.exception.InternalServerException;
 import by.training.online_pharmacy.service.util.*;
 
 import java.io.IOException;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 /**
  * Created by vladislav on 25.07.16.
  */
 public class SocialNetworkServiceImpl implements SocialNetworkService {
+    private static final Logger logger = LogManager.getRootLogger();
     @Override
     public User userLoginVk(String code) throws CanceledAuthorizationException, InternalServerException {
         if(code==null){
@@ -29,6 +31,7 @@ public class SocialNetworkServiceImpl implements SocialNetworkService {
             user = requestToDao(vkApi, user);
             return user;
         } catch (IOException | DaoException e) {
+            logger.error("Something went wrong when trying to log in via VK", e);
             throw new InternalServerException(e);
         }
     }
@@ -45,6 +48,7 @@ public class SocialNetworkServiceImpl implements SocialNetworkService {
             user = requestToDao(facebookApi, user);
             return user;
         } catch (IOException|DaoException e) {
+            logger.error("Something went wrong when trying to log in via Facebook", e);
             throw new InternalServerException(e);
         }
     }
@@ -61,6 +65,7 @@ public class SocialNetworkServiceImpl implements SocialNetworkService {
             user = requestToDao(linkedInApi, user);
             return user;
         } catch (IOException|DaoException e) {
+            logger.error("Something went wrong when trying to log in via Linked in", e);
             throw new InternalServerException(e);
         }
     }

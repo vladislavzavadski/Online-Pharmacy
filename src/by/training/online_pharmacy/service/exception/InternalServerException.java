@@ -3,7 +3,7 @@ package by.training.online_pharmacy.service.exception;
 /**
  * Created by vladislav on 23.07.16.
  */
-public class InternalServerException extends ServiceException {
+public class InternalServerException extends RuntimeException {
     public InternalServerException(String message) {
         super(message);
     }

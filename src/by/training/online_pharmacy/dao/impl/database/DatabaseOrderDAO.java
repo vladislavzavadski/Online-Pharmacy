@@ -34,7 +34,6 @@ public class DatabaseOrderDAO implements OrderDAO {
     private static final String INSERT_ORDER_QUERY = "INSERT INTO orders (or_id, or_client_login, or_drug_id, or_drug_count, or_drug_dosage, or_status, or_date) VALUES(?, ?, ?, ?, ?, ?, ?);";
     private static final String DELETE_ORDER_QUERY = "delete from orders where or_id=?;";
     private static final String UPDATE_ORDER_QUERY = "UPDATE orders SET or_drug_id=?, or_drug_count=?, or_drug_dosage=?, or_status=? WHERE or_id=?";
-    private static final Logger logger = LogManager.getLogger(DatabaseOrderDAO.class);
 
 
     @Override
@@ -45,7 +44,6 @@ public class DatabaseOrderDAO implements OrderDAO {
             orders = resultSetToOrder(resultSet);
             return orders;
         } catch (Exception e) {
-            logger.error("Method: DatabaseOrderDAO.getUserOrders", e);
             throw new DaoException("Cannot load orders with or_client_login = \'"+userLogin+"\' from database", e);
         }
 
@@ -60,7 +58,6 @@ public class DatabaseOrderDAO implements OrderDAO {
                 return result.get(0);
             }
         } catch (Exception e) {
-            logger.error("Method: DatabaseOrderDAO.getOrderById", e);
             throw new DaoException("Can not read order with id = \'"+orderId+"\' from database", e);
         }
         return null;
@@ -74,7 +71,6 @@ public class DatabaseOrderDAO implements OrderDAO {
             orders = resultSetToOrder(resultSet);
             return orders;
         } catch (Exception e) {
-            logger.error("Method: DatabaseOrderDAO.getOrdersByStatus", e);
             throw new DaoException("Can not load orders with status = \'"+orderStatus+"\' from database", e);
         }
     }
@@ -87,7 +83,6 @@ public class DatabaseOrderDAO implements OrderDAO {
             orders = resultSetToOrder(resultSet);
             return orders;
         } catch (Exception e) {
-            logger.error("Method: DatabaseOrderDAO.getOrdersByDrugId", e);
             throw new DaoException("Can not load orders with drugId = \'"+drugId+"\'", e);
         }
     }
@@ -113,7 +108,6 @@ public class DatabaseOrderDAO implements OrderDAO {
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             orders = resultSetToOrder(resultSet);
         }catch (Exception e){
-            logger.error("Method: DatabaseOrderDAO.getOrdersByDate", e);
             throw new DaoException("Can not load orders from database", e);
         }
 
@@ -126,7 +120,6 @@ public class DatabaseOrderDAO implements OrderDAO {
                 order.getOrderStatus().toString().toLowerCase(), order.getId())){
             databaseOperation.invokeWriteOperation();
         } catch (Exception e) {
-            logger.error("Method: DatabaseOrderDAO.updateOrder", e);
             throw new DaoException("Can not update order "+order, e);
         }
     }
@@ -139,7 +132,6 @@ public class DatabaseOrderDAO implements OrderDAO {
                 order.getDrugCount(), order.getDrugDosage(), order.getOrderStatus().toString().toLowerCase(), order.getOrderDate())){
             databaseOperation.invokeWriteOperation();
         } catch (Exception e) {
-            logger.error("Method: DatabaseOrderDAO.insertOrder", e);
             throw new DaoException("Can not insert new order "+ order +" to database", e);
         }
     }
@@ -149,7 +141,6 @@ public class DatabaseOrderDAO implements OrderDAO {
         try (DatabaseOperation databaseOperation = new DatabaseOperation(DELETE_ORDER_QUERY, orderId)){
             databaseOperation.invokeWriteOperation();
         } catch (Exception e) {
-            logger.error("Method: DatabaseOrderDAO.deleteOrder", e);
             throw new DaoException("Can not delete order with id = \'"+orderId+"\'", e);
         }
     }

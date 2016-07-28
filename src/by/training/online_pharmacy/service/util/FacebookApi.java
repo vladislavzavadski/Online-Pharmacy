@@ -22,11 +22,11 @@ public class FacebookApi implements Api {
         params.put("client_secret", "feaea6b55522d84a2efcae4e9a1728c8");
         params.put("code", code);
         params.put("redirect_uri", "http://localhost:8080/controller?command=USER_LOGIN_FB");
-        String response = RequestSender.sendRequest(params, null, "GET", API_TOKEN_URI);
+        String response = RequestSender.sendRequest(params, "GET", API_TOKEN_URI);
         String accessToken = new JSONObject(response).getString("access_token");
         params.put("fields", "first_name,last_name,email,picture.width(400),gender");
         params.put("access_token", accessToken);
-        result = RequestSender.sendRequest(params, null, "GET", API_URL);
+        result = RequestSender.sendRequest(params, "GET", API_URL);
     }
 
     @Override

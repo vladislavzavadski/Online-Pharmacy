@@ -11,4 +11,5 @@ import by.training.online_pharmacy.service.exception.UserNotFoundException;
 public interface UserService {
     User userLogin(String login, String password, RegistrationType registrationType) throws InternalServerException, UserNotFoundException;
     void userRegistration(User user);
+    boolean isUserExist(String login);
 }

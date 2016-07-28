@@ -28,7 +28,6 @@ public class DatabaseDrugDAO implements DrugDAO {
     private static final String INSERT_DRUG_QUERY = "insert into drugs (dr_class, dr_description, dr_image, dr_in_stock, dr_manufacturer, dr_name, dr_prescription_enable, dr_price, dr_type,  dr_dosage, dr_active_substance) values (?,?,?,?,?,?,?,?,?,?,?);";
     private static final String UPDATE_DRUG_QUERY = "update drugs set dr_description = ?, dr_image = ?, dr_in_stock = ?, dr_prescription_enable = ?, dr_dosage = ? where dr_id=?;";
     private static final String DELETE_DRUG_QUERY = "delete from drugs where dr_id=?;";
-    private static final Logger logger = LogManager.getLogger(DatabaseDrugClassDAO.class);
 
 
     @Override
@@ -44,7 +43,6 @@ public class DatabaseDrugDAO implements DrugDAO {
             }
             return drug;
         } catch (Exception e) {
-            logger.error("Method: DatabaseDrugDAO.getDrugById", e);
             throw new DaoException("Can not load drug with id = \'"+drugId+"\' from database", e);
         }
 
@@ -58,7 +56,6 @@ public class DatabaseDrugDAO implements DrugDAO {
             drugs = resultSetToDrug(resultSet);
             return drugs;
         } catch (Exception e) {
-            logger.error("Method: DatabaseDrugDAO.getDrugsByName", e);
             throw new DaoException("Can not load drugs with name like \'"+name+"\' from database", e);
         }
     }
@@ -72,7 +69,6 @@ public class DatabaseDrugDAO implements DrugDAO {
             drugs = resultSetToDrug(resultSet);
             return drugs;
         } catch (Exception e) {
-            logger.error("Method: DatabaseDrugDAO.getDrugsByClass", e);
             throw new DaoException("Can not load drugs with class = \'"+drugClass+"\' from database", e);
         }
 
@@ -87,7 +83,6 @@ public class DatabaseDrugDAO implements DrugDAO {
             drugs = resultSetToDrug(resultSet);
             return drugs;
         } catch (Exception e) {
-            logger.error("Method: DatabaseDrugDAO.getDrugsByActiveSubstance", e);
             throw new DaoException("Can not load drugs with activeSubstance = \'"+activeSubstance+"\' from database", e);
         }
 
@@ -106,7 +101,6 @@ public class DatabaseDrugDAO implements DrugDAO {
             databaseOperation.invokeWriteOperation();
 
         } catch (Exception e) {
-            logger.error("Method: DatabaseDrugDAO.insertDrug", e);
             throw new DaoException("Can not insert drug into database", e);
         }
 
@@ -121,7 +115,6 @@ public class DatabaseDrugDAO implements DrugDAO {
         try (DatabaseOperation databaseOperation = new DatabaseOperation(UPDATE_DRUG_QUERY, drug.getDescription(), drug.getDrugImage(), drug.isInStock(), drug.isPrescriptionEnable(), dosages.substring(1), drug.getId());){
             databaseOperation.invokeWriteOperation();
         } catch (Exception e) {
-            logger.error("Method: DatabaseDrugDAO.updateDrug", e);
             throw new DaoException("Can not update drug into database", e);
         }
 
@@ -132,7 +125,6 @@ public class DatabaseDrugDAO implements DrugDAO {
         try(DatabaseOperation databaseOperation = new DatabaseOperation(DELETE_DRUG_QUERY, drugId)) {
             databaseOperation.invokeWriteOperation();
         } catch (Exception e) {
-            logger.error("Method: DatabaseDrugDAO.deleteDrug", e);
             throw new DaoException("Can not delete drug with id = \'"+drugId+"\' from database", e);
         }
 

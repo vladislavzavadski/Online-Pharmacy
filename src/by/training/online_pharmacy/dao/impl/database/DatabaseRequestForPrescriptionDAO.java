@@ -33,7 +33,6 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
     private static final String INSERT_REQUEST_QUERY = "INSERT INTO requests_for_prescriptions (re_id, re_client_login, re_drug_id, re_doctor, re_prolong_to, re_status, re_clients_comment, re_doctors_comment, re_request_date) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String UPDATE_REQUEST_QUERY = "UPDATE requests_for_prescriptions SET re_drug_id=?, re_doctor=?, re_prolong_to=?, re_status=?, re_clients_comment=?, re_doctors_comment=? WHERE re_id=?;";
     private static final String DELETE_REQUEST_QUERY = "DELETE FROM requests_for_prescriptions WHERE re_id=?;";
-    private static final Logger logger = LogManager.getLogger(DatabaseRequestForPrescriptionDAO.class);
 
 
     @Override
@@ -43,7 +42,6 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             requestForPrescriptions = resultSetToRequest(resultSet);
         } catch (Exception e) {
-            logger.error("Method: DatabaseRequestForPrescriptionDAO.getRequestsByClient", e);
             throw new DaoException("Can not load requests for user with login = \'"+clientLogin+"\'"+clientLogin, e);
         }
         return requestForPrescriptions;
@@ -56,7 +54,6 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             requestForPrescriptions = resultSetToRequest(resultSet);
         } catch (Exception e) {
-            logger.error("Method: DatabaseRequestForPrescriptionDAO.getRequestsByDrugId", e);
             throw new DaoException("Can not load requests for drugId = \'"+drugId+"\'", e);
         }
         return requestForPrescriptions;
@@ -69,7 +66,6 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             requestForPrescriptions = resultSetToRequest(resultSet);
         } catch (Exception e) {
-            logger.error("Method: DatabaseRequestForPrescriptionDAO.getRequestsByDoctor", e);
             throw new DaoException("Can not load requests with doctorLogin = \'"+doctorLogin+"\'", e);
         }
         return requestForPrescriptions;
@@ -82,7 +78,6 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             requestForPrescriptions = resultSetToRequest(resultSet);
         } catch (Exception e) {
-            logger.error("Method: DatabaseRequestForPrescriptionDAO.getRequestsByStatus", e);
             throw new DaoException("Can not load requests with requestStatus \'"+requestStatus+"\'", e);
         }
         return requestForPrescriptions;
@@ -112,7 +107,6 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             requestForPrescriptions = resultSetToRequest(resultSet);
         }catch (Exception e){
-            logger.error("Method: DatabaseRequestForPrescriptionDAO.getRequestsByDate", e);
             throw new DaoException("Can not load requests from database with requestDate = \'"+requestDate+"\'", e);
         }
         return requestForPrescriptions;
@@ -127,7 +121,6 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
                 return results.get(0);
             }
         } catch (Exception e) {
-            logger.error("Method: DatabaseRequestForPrescriptionDAO.getRequestById", e);
             throw new DaoException("Can not load request with id = \'"+requestId+"\'", e);
         }
         return null;
@@ -138,7 +131,6 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
         try (DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_REQUEST_QUERY, requestForPrescription.getId(), requestForPrescription.getClient().getLogin(), requestForPrescription.getDrug().getId(), requestForPrescription.getDoctor().getLogin(), requestForPrescription.getProlongDate(), requestForPrescription.getRequestStatus().toString().toLowerCase(), requestForPrescription.getClientComment(), requestForPrescription.getDoctorComment(), requestForPrescription.getRequestDate())){
             databaseOperation.invokeWriteOperation();
         } catch (Exception e) {
-            logger.error("Method: DatabaseRequestForPrescriptionDAO.insertRequest", e);
             throw new DaoException("Can not insert new request "+ requestForPrescription, e);
         }
     }
@@ -149,7 +141,6 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
 //"UPDATE requests_for_prescriptions re_drug_id=?, re_doctor=?, re_prolong_to=?, re_status=?, re_clients_comment=?, re_doctors_comment=? WHERE re_id=?;";
             databaseOperation.invokeWriteOperation();
         } catch (Exception e) {
-            logger.error("Method: DatabaseRequestForPrescriptionDAO.updateRequest", e);
             throw new DaoException("Can not update request "+requestForPrescription,e);
         }
     }
@@ -159,7 +150,6 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
         try (DatabaseOperation databaseOperation = new DatabaseOperation(DELETE_REQUEST_QUERY, requestId)){
             databaseOperation.invokeWriteOperation();
         } catch (Exception e) {
-            logger.error("Method: DatabaseRequestForPrescriptionDAO.deleteRequest", e);
             throw new DaoException("Can not delete request with requestId = \'"+requestId+"\'");
         }
     }

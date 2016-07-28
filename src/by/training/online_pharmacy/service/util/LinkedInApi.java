@@ -24,7 +24,7 @@ public class LinkedInApi implements Api {
         params.put("client_id", "78i3k2ihydq5da");
         params.put("client_secret", "45P64u8tNmkChUA0");
 
-        String response = RequestSender.sendRequest(params, null, "GET", OAUTH_URL);
+        String response = RequestSender.sendRequest(params, "GET", OAUTH_URL);
         JSONObject jsonObject = new JSONObject(response);
         String accessToken = jsonObject.getString("access_token");
 

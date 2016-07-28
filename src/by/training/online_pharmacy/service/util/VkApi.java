@@ -30,7 +30,7 @@ public class VkApi implements Api {
         params.put("client_secret", "pLVpHGMyHT6hRvZxHLr6");
         params.put("redirect_uri", "http://localhost:8080/controller?command=USER_LOGIN_VK");
         params.put("code", code);
-        String response = RequestSender.sendRequest(params, null, "GET", API_URL);
+        String response = RequestSender.sendRequest(params, "GET", API_URL);
         JSONObject jsonObject = new JSONObject(response);
         try {
             email = jsonObject.getString("email");
@@ -44,7 +44,7 @@ public class VkApi implements Api {
         params.put("fields", "photo_200,contacts,sex");
         params.put("name_case", "norm");
         params.put("access_token", accessToken);
-        result = RequestSender.sendRequest(params, null, "GET", BASE_URL);
+        result = RequestSender.sendRequest(params, "GET", BASE_URL);
     }
 
     @Override

@@ -31,6 +31,9 @@ public class CommandHelper {
             case SWITCH_LOCALE:{
                 return new SwitchLocaleCommand();
             }
+            case CHECK_LOGIN:{
+                return new CheckLoginCommand();
+            }
             default:{
                 return null;
             }

@@ -19,15 +19,12 @@ public class DatabaseUserDescriptionDAO implements UserDescriptionDAO {
     private static final String GET_DESCRIPTION_QUERY = "SELECT sd_user_login, sd_specialization, sd_description FROM staff_descriptions WHERE sd_user_login=? limit 1;";
     private static final String UPDATE_DESCRIPTION_QUERY = "UPDATE staff_descriptions SET sd_specialization=?, sd_description=? WHERE sd_user_login=?;";
     private static final String DELETE_DESCRIPTION_QUERY = "DELETE FROM staff_descriptions WHERE sd_user_login=?;";
-    private static final Logger logger = LogManager.getLogger(DatabaseUserDescriptionDAO.class);
-
 
     @Override
     public void insertUserDescription(UserDescription userDescription) throws DaoException {
         try (DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_DESCRIPTION_QUERY, userDescription.getUserLogin(), userDescription.getSpecialization(), userDescription.getDescription())){
             databaseOperation.invokeWriteOperation();
         } catch (Exception e) {
-            logger.error("Method: DatabaseUserDescriptionDAO.insertUserDescription", e);
             throw new DaoException("Can not insert new description "+userDescription, e);
         }
     }
@@ -38,7 +35,6 @@ public class DatabaseUserDescriptionDAO implements UserDescriptionDAO {
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             return resultSetToUserDescription(resultSet);
         } catch (Exception e) {
-            logger.error("Method: DatabaseUserDescriptionDAO.getUserDescriptionByLogin", e);
             throw new DaoException("Can load user description with login = \'"+userLogin+"\'", e);
         }
     }
@@ -48,7 +44,6 @@ public class DatabaseUserDescriptionDAO implements UserDescriptionDAO {
         try (DatabaseOperation databaseOperation = new DatabaseOperation(UPDATE_DESCRIPTION_QUERY, userDescription.getSpecialization(), userDescription.getDescription(), userDescription.getUserLogin())){
             databaseOperation.invokeWriteOperation();
         } catch (Exception e) {
-            logger.error("Method: DatabaseUserDescriptionDAO.updateUserDescription", e);
             throw new DaoException("Cannot update user's description with login = \'"+userDescription.getUserLogin()+"\'", e);
         }
     }
@@ -58,7 +53,6 @@ public class DatabaseUserDescriptionDAO implements UserDescriptionDAO {
         try (DatabaseOperation databaseOperation = new DatabaseOperation(DELETE_DESCRIPTION_QUERY, userLogin)){
             databaseOperation.invokeWriteOperation();
         } catch (Exception e) {
-            logger.error("Method: DatabaseUserDescriptionDAO.deleteUserDescription", e);
             throw new DaoException("Can not delete user description with login = \'"+userLogin+"\'", e);
         }
     }

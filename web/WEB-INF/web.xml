@@ -30,6 +30,14 @@
         <servlet-name>Controller</servlet-name>
         <url-pattern>/controller</url-pattern>
     </servlet-mapping>
+    <error-page>
+        <error-code>404</error-code>
+        <location>/WEB-INF/pages/error/404.html</location>
+    </error-page>
+    <error-page>
+        <exception-type>by.training.online_pharmacy.service.exception.InternalServerException</exception-type>
+        <location>/WEB-INF/pages/error/500.html</location>
+    </error-page>
     <listener>
         <listener-class>by.training.online_pharmacy.listener.ContextCreateListener</listener-class>
     </listener>

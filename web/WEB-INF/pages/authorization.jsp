@@ -12,7 +12,7 @@
       <script src="js/bootstrap.js"></script>
    </head>
    <body>
-       
+
 
     <div class="container">
         <div class="card card-container">
@@ -21,7 +21,7 @@
             <form class="form-signin" method="post">
                 <span id="reauth-email" class="reauth-email"></span>
                 <input name="command" value="USER_LOGIN" type="hidden">
-                <input name="login" type="text" id="inputEmail" class="form-control" placeholder="Login" value="${requestScope.login}" required autofocus>
+                <input name="login" type="text" id="inputEmail" class="form-control" placeholder="Login" value="${param.login}" required autofocus>
                 <input name="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
                 <button class="btn btn-lg btn-primary btn-block btn-signin" type="submit">Sign in</button>
             </form><!-- /form -->

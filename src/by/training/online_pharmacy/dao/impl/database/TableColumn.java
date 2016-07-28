@@ -50,5 +50,6 @@ public class TableColumn {
     public static final String USER_SPECIALIZATION = "sd_specialization";
     public static final String USER_IMAGE = "us_image";
     public static final String STAFF_USER_LOGIN = "sd_user_login";
+    public static final String LOGIN_COUNT = "login_count";
 
 }

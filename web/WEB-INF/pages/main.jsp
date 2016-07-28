@@ -63,8 +63,12 @@
                 <button type="submit" class="btn btn-info">${search}</button>
             </form>
             <div class="btn-group" style="padding-top:20px;" role="group">
-                <a href="#" class="btn btn-lg btn-primary">${myOrders}</a>
-                <a href="#" class="btn btn-lg btn-primary">${myPrescriptions}</a>
+                <c:choose>
+                    <c:when test="${user.userRole eq 'CLIENT'}">
+                        <a href="#" class="btn btn-lg btn-primary">${myOrders}</a>
+                        <a href="#" class="btn btn-lg btn-primary">${myPrescriptions}</a>
+                    </c:when>
+                </c:choose>
                 <a href="#" class="btn btn-lg btn-primary">${mySettings}</a>
                 <a href="#" class="btn btn-lg btn-primary">${drugs}</a>
                 <a href="#" class="btn btn-lg btn-primary">${doctors}</a>
@@ -107,12 +111,14 @@
                             <span>${male}</span>
                         </c:when>
                         <c:otherwise>
-                            <c:when test="${user.gender eq 'FEMALE'}">
-                                <span>${female}</span>
-                            </c:when>
-                            <c:otherwise>
-                                <span>${unknown}</span>
-                            </c:otherwise>
+                            <c:choose>
+                                <c:when test="${user.gender eq 'FEMALE'}">
+                                    <span>${female}</span>
+                                </c:when>
+                                <c:otherwise>
+                                    <span>${unknown}</span>
+                                </c:otherwise>
+                            </c:choose>
                         </c:otherwise>
                     </c:choose>
                 </div>

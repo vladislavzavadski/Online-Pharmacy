@@ -22,8 +22,6 @@ public class DatabaseDrugClassDAO implements DrugClassDAO {
     private static final String UPDATE_DRUG_CLASS_QUERY = "update drug_classes set dr_class_name=?, dr_class_description=? WHERE dr_class_name=?;";
     private static final String DELETE_DRUG_CLASS_QUERY = "delete from drug_classes where dr_class_name=?;";
 
-    private static final Logger logger = LogManager.getLogger(DatabaseDrugClassDAO.class);
-
     @Override
     public DrugClass getDrugClassByName(String name) throws DaoException {
         try(DatabaseOperation databaseOperation = new DatabaseOperation(GET_CLASS_BY_NAME_QUERY, name)) {
@@ -33,7 +31,6 @@ public class DatabaseDrugClassDAO implements DrugClassDAO {
                 return result.get(0);
             }
         } catch (Exception ex) {
-            logger.error("Method: DatabaseDrugClassDAO.getDrugClassByName", ex);
             throw new DaoException("Can not load drug class from database with name = \'"+name+"\'", ex);
         }
         return null;
@@ -44,7 +41,6 @@ public class DatabaseDrugClassDAO implements DrugClassDAO {
         try(DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_DRUG_CLASS_QUERY, drugClass.getName(), drugClass.getDescription());) {
             databaseOperation.invokeWriteOperation();
         } catch (Exception e) {
-            logger.error("Method: DatabaseDrugClassDAO.insertDrugClass", e);
             throw new DaoException("Can not insert drug class " + drugClass, e);
         }
     }
@@ -54,7 +50,6 @@ public class DatabaseDrugClassDAO implements DrugClassDAO {
         try(DatabaseOperation databaseOperation  = new DatabaseOperation(UPDATE_DRUG_CLASS_QUERY, drugClass.getName(), drugClass.getDescription(), oldDrugName)) {
             databaseOperation.invokeWriteOperation();
         } catch (Exception e) {
-            logger.error("Method: DatabaseDrugClassDAO.updateDrugClass", e);
             throw new DaoException("Can not update drug class " +drugClass, e);
         }
 
@@ -65,7 +60,6 @@ public class DatabaseDrugClassDAO implements DrugClassDAO {
         try (DatabaseOperation databaseOperation = new DatabaseOperation(DELETE_DRUG_CLASS_QUERY, name)){
             databaseOperation.invokeWriteOperation();
         } catch (Exception e) {
-            logger.error("Method: DatabaseDrugClassDAO.deleteDrugClass", e);
             throw new DaoException("Can not delete drug class with name = \'"+name+"\'", e);
         }
     }

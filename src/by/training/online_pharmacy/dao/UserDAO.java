@@ -21,5 +21,5 @@ public interface UserDAO {
     void updateUser(User user) throws DaoException;
     void deleteUser(String login) throws DaoException;
     List<User> getUsersBySpecialization(String specialization, int limit, int startFrom) throws DaoException;
-
+    boolean isLoginUsed(String login) throws DaoException;
 }

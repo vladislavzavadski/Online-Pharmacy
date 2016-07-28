@@ -32,7 +32,8 @@ public class UserLoginLICommand implements Command {
         try {
             user = socialNetworkService.userLoginLi(request.getParameter("code"));
         } catch (CanceledAuthorizationException e) {
-            e.printStackTrace();
+            response.sendRedirect("/index.jsp");
+            return;
         } catch (InternalServerException e) {
             e.printStackTrace();
         }

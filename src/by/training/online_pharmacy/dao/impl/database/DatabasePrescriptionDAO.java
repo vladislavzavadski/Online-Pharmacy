@@ -34,7 +34,6 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
     private static final String INSERT_PRESCRIPTION_QUERY = "INSERT INTO prescriptions (pr_client_login, pr_drug_id, pr_doctor, pr_appointment_date, pr_expiration_date, pr_drug_count, pr_drug_dosage) VALUES (?, ?, ?, ?, ?, ?, ?);";
     private static final String UPDATE_PRESCRIPTION_QUERY = "UPDATE prescriptions SET pr_doctor=?, pr_appointment_date=?, pr_expiration_date=?, pr_drug_count=?, pr_drug_dosage=? WHERE pr_client_login=? and pr_drug_id=?";
     private static final String DELETE_PRESCRIPTION_QUERY = "DELETE FROM prescriptions WHERE pr_client_login=? and pr_drug_id=?;";
-    private static final Logger logger = LogManager.getLogger(DatabasePrescriptionDAO.class);
 
 
     @Override
@@ -44,7 +43,6 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             prescriptions = resultSetToPrescription(resultSet);
         } catch (Exception e) {
-            logger.error("Method: DatabasePrescriptionDAO.getUsersPrescriptions", e);
             throw new DaoException("Can not load users prescriptions with login = \'" + clientLogin + "\' from database", e);
         }
         return prescriptions;
@@ -57,7 +55,6 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             prescriptions = resultSetToPrescription(resultSet);
         } catch (Exception e) {
-            logger.error("Method: DatabasePrescriptionDAO.getPrescriptionsByDrugId", e);
             throw new DaoException("Can not load prescriptions with drugId = \'" + drugId + "\' from database", e);
         }
         return prescriptions;
@@ -70,7 +67,6 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             prescriptions = resultSetToPrescription(resultSet);
         } catch (Exception e) {
-            logger.error("Method: DatabasePrescriptionDAO.getDoctorsPrescriptions", e);
             throw new DaoException("Can not load prescriptions with doctor login = \'" + doctorLogin + "\' from database", e);
         }
         return prescriptions;
@@ -86,7 +82,6 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
                 return prescriptions.get(0);
             }
         } catch (Exception e) {
-            logger.error("Method: DatabasePrescriptionDAO.getPrescriptionByPrimaryKey", e);
             throw new DaoException("Can not load prescriptions with login = \'" + userLogin + "\' and drugId = \'" + drugId + "\' from database", e);
         }
         return null;
@@ -115,7 +110,6 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             prescriptions = resultSetToPrescription(resultSet);
         } catch (Exception e) {
-            logger.error("Method: DatabasePrescriptionDAO.getPrescriptionsByAppointmentDate", e);
             throw new DaoException("Can not load prescriptions by appointment date = \'" + date + "\'", e);
         }
         return prescriptions;
@@ -144,7 +138,6 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             prescriptions = resultSetToPrescription(resultSet);
         } catch (Exception e) {
-            logger.error("Method: DatabasePrescriptionDAO.getPrescriptionsByExpirationDate", e);
             throw new DaoException("Can not load prescriptions by appointment date = \'" + date + "\'", e);
         }
         return prescriptions;
@@ -155,7 +148,6 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
         try (DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_PRESCRIPTION_QUERY, prescription.getClient().getLogin(), prescription.getDrug().getId(), prescription.getDoctor().getLogin(), prescription.getAppointmentDate(), prescription.getExpirationDate(), prescription.getDrugCount(), prescription.getDrugDosage())){
             databaseOperation.invokeWriteOperation();
         } catch (Exception e) {
-            logger.error("Method: DatabasePrescriptionDAO.insertPrescription", e);
             throw new DaoException("Can not insert prescription " + prescription, e);
         }
     }
@@ -165,7 +157,6 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
         try (DatabaseOperation databaseOperation = new DatabaseOperation(UPDATE_PRESCRIPTION_QUERY, prescription.getDoctor().getLogin(), prescription.getAppointmentDate(), prescription.getExpirationDate(), prescription.getDrugCount(), prescription.getDrugDosage(), prescription.getClient().getLogin(), prescription.getDrug().getId())){
             databaseOperation.invokeWriteOperation();
         } catch (Exception e) {
-            logger.error("Method: DatabasePrescriptionDAO.updatePrescription", e);
             throw new DaoException("Can not update prescription " + prescription, e);
         }
     }
@@ -175,7 +166,6 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
         try (DatabaseOperation databaseOperation = new DatabaseOperation(DELETE_PRESCRIPTION_QUERY, clientLogin, drugId)){
             databaseOperation.invokeWriteOperation();
         } catch (Exception e) {
-            logger.error("Method: DatabasePrescriptionDAO.deletePrescription", e);
             throw new DaoException("Can not delete prescription with clientLogin = \'" + clientLogin + "\' and drugId = \'" + drugId, e);
         }
     }

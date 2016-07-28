@@ -77,21 +77,23 @@ public class ConnectionPool {
         return connection;
     }
 
-    public void dispose(){
-        clearConnectionList();
+    public void dispose() throws ConnectionPoolException {
+        try {
+            clearConnectionList();
+        } catch (SQLException e) {
+            throw new ConnectionPoolException("Can not destroy connection pool", e);
+        }
     }
 
-    private void clearConnectionList(){
-        try {
-            synchronized (freeConnections) {
-                closeConnectionList(freeConnections);
-            }
-            synchronized (usedConnections) {
-                closeConnectionList(usedConnections);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(ConnectionPool.class.getName()).log(Level.SEVERE, null, ex);
+    private void clearConnectionList() throws SQLException {
+
+        synchronized (freeConnections) {
+            closeConnectionList(freeConnections);
         }
+        synchronized (usedConnections) {
+            closeConnectionList(usedConnections);
+        }
+
     }
 
     private void closeConnectionList(List<Connection> connectionList) throws SQLException {
