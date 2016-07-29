@@ -69,7 +69,7 @@
                         <a href="#" class="btn btn-lg btn-primary">${myPrescriptions}</a>
                     </c:when>
                 </c:choose>
-                <a href="#" class="btn btn-lg btn-primary">${mySettings}</a>
+                <a href="/settings" class="btn btn-lg btn-primary">${mySettings}</a>
                 <a href="#" class="btn btn-lg btn-primary">${drugs}</a>
                 <a href="#" class="btn btn-lg btn-primary">${doctors}</a>
                 <a href="#" class="btn btn-lg btn-primary">${logOut}</a>

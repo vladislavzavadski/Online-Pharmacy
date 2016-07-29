@@ -62,4 +62,41 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public void updatePersonalInformation(User user) {
+        DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
+        UserDAO userDAO = daoFactory.getUserDAO();
+        try {
+            userDAO.updatePersonalInformation(user);
+        } catch (DaoException e) {
+            logger.error("Something went wrong when trying to update users personal info", e);
+            throw new InternalServerException(e);
+        }
+    }
+
+    @Override
+    public boolean updatePassword(User user, String newPassword) {
+        DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
+        UserDAO userDAO = daoFactory.getUserDAO();
+        try {
+            int usersCount = userDAO.updateUsersPassword(user, newPassword);
+            return usersCount==1;
+        } catch (DaoException e) {
+            logger.error("Something went wrong when trying to update users password", e);
+            throw new InternalServerException(e);
+        }
+    }
+
+    @Override
+    public void updateContacts(User user) {
+        DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
+        UserDAO userDAO = daoFactory.getUserDAO();
+        try {
+            userDAO.updateUsersContacts(user);
+        } catch (DaoException e) {
+            logger.error("Something went wrong when trying to update users contacts", e);
+            throw new InternalServerException(e);
+        }
+    }
+
 }

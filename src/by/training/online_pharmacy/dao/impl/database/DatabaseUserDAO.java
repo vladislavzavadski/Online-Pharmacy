@@ -9,6 +9,7 @@ import by.training.online_pharmacy.domain.user.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.xml.crypto.Data;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -29,6 +30,9 @@ public class DatabaseUserDAO implements UserDAO {
     private static final String DELETE_USER_QUERY = "DELETE FROM users WHERE us_login=?";
     private static final String SEARCH_USER_BY_SPECIALIZATION_QUERY = "SELECT us_first_name, us_second_name, us_image, us_group, us_mail, us_phone, us_gender, login_via, sd_specialization, sd_description FROM users INNER JOIN staff_descriptions ON users.us_login = staff_descriptions.sd_user_login WHERE sd_specialization=? LIMIT ?, ?;";
     private static final String GET_COUNT_OF_USERS_WITH_LOGIN = "select count(us_login) login_count from users where us_login=?;";
+    private static final String UPDATE_PERSONAL_INFORMATION_QUERY = "update users set us_first_name=?, us_second_name=?, us_gender=? where us_login=? and login_via=?;";
+    private static final String UPDATE_PASSWORD = "update online_pharmacy.users set us_password=md5(?) where us_login=? and login_via=? and us_password=md5(?);";
+    private static final String UPDATE_CONTACTS = "update users set us_mail=?, us_phone=? where us_login=? and login_via=?;";
 
     @Override
     public User userAuthentication(String login, String password, RegistrationType registrationType) throws DaoException {
@@ -165,6 +169,35 @@ public class DatabaseUserDAO implements UserDAO {
             return usersCount>=1;
         } catch (Exception e) {
             throw new DaoException("Can not get count of users", e);
+        }
+    }
+
+    @Override
+    public void updatePersonalInformation(User user) throws DaoException {
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(UPDATE_PERSONAL_INFORMATION_QUERY, user.getFirstName(), user.getSecondName(), user.getGender().toString().toLowerCase(), user.getLogin(), user.getRegistrationType().toString().toLowerCase())){
+            databaseOperation.invokeWriteOperation();
+        } catch (Exception e) {
+            throw new DaoException("Can not update users personal information", e);
+        }
+    }
+
+    @Override
+    public int updateUsersPassword(User user, String newPassword) throws DaoException {
+        try(DatabaseOperation databaseOperation = new DatabaseOperation(UPDATE_PASSWORD, newPassword, user.getLogin(), user.getRegistrationType().toString().toLowerCase(), user.getPassword())) {
+            return databaseOperation.invokeWriteOperation();
+        }
+        catch (Exception e) {
+            throw new DaoException("Can not update users password", e);
+        }
+    }
+
+    @Override
+    public void updateUsersContacts(User user) throws DaoException {
+
+        try(DatabaseOperation databaseOperation = new DatabaseOperation(UPDATE_CONTACTS, user.getMail(), user.getPhone(), user.getLogin(), user.getRegistrationType().toString().toLowerCase())){
+            databaseOperation.invokeWriteOperation();
+        }catch (Exception e) {
+            throw new DaoException("Can not update users contacts", e);
         }
     }
 

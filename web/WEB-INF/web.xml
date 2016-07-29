@@ -6,6 +6,9 @@
     <welcome-file-list>
         <welcome-file>/index.jsp</welcome-file>
     </welcome-file-list>
+    <session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>
     <servlet>
         <servlet-name>Controller</servlet-name>
         <servlet-class>by.training.online_pharmacy.controller.Controller</servlet-class>
@@ -29,6 +32,14 @@
     <servlet-mapping>
         <servlet-name>Controller</servlet-name>
         <url-pattern>/controller</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>settings</servlet-name>
+        <jsp-file>/WEB-INF/pages/settings.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>settings</servlet-name>
+        <url-pattern>/settings</url-pattern>
     </servlet-mapping>
     <error-page>
         <error-code>404</error-code>

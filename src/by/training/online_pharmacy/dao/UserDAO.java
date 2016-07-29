@@ -22,4 +22,7 @@ public interface UserDAO {
     void deleteUser(String login) throws DaoException;
     List<User> getUsersBySpecialization(String specialization, int limit, int startFrom) throws DaoException;
     boolean isLoginUsed(String login) throws DaoException;
+    void updatePersonalInformation(User user) throws DaoException;
+    int updateUsersPassword (User user, String newPassword) throws DaoException;
+    void updateUsersContacts(User user) throws DaoException;
 }

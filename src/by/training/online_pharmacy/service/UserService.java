@@ -12,4 +12,7 @@ public interface UserService {
     User userLogin(String login, String password, RegistrationType registrationType) throws InternalServerException, UserNotFoundException;
     void userRegistration(User user);
     boolean isUserExist(String login);
+    void updatePersonalInformation(User user);
+    boolean updatePassword(User user, String newPassword);
+    void updateContacts(User user);
 }

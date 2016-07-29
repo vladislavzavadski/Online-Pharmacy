@@ -172,6 +172,7 @@
                      <div class="form_group">    
                         <label for="register_username">Логин: </label>
                         <input id="register_username" class="form-control" type="text" placeholder="Логин" required name="login" autofocus>
+                        <span id="login_message"></span>
                      </div>
                      <div class="form_group">    
                         <label for="register_first_name">Имя: </label>
@@ -188,7 +189,7 @@
                   </div>
                   <div class="modal-footer">
                      <div>
-                        <button type="submit" class="btn btn-primary btn-lg btn-block">Зарегистрироваться</button>
+                        <button type="submit" id="reg_button" class="btn btn-primary btn-lg btn-block" disabled>Зарегистрироваться</button>
                      </div>
                   </div>
                </form>
@@ -252,7 +253,15 @@
             type:"POST",
             dataType:'json',
             success:function (data) {
-               alert(data.isExist);
+               if(data.isExist==false){
+                  $("#login_message").html("<span style=\"color:green\">Данный логин свободен</span>");
+                  $("#reg_button").prop("disabled", false);
+               }
+               else {
+                  $("#login_message").html("<span style=\"color:red\">Данный логин занят</span>");
+                  $("#reg_button").prop("disabled", true);
+               }
+
             },
             data: {login: $("#register_username").val(), command:"CHECK_LOGIN"}
          });

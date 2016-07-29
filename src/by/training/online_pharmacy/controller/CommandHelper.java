@@ -34,6 +34,15 @@ public class CommandHelper {
             case CHECK_LOGIN:{
                 return new CheckLoginCommand();
             }
+            case UPDATE_PERSONAL_INFORMATION:{
+                return new UpdatePersonalInformationCommand();
+            }
+            case UPDATE_PASSWORD:{
+                return new UpdatePasswordCommand();
+            }
+            case UPDATE_CONTACTS:{
+                return new UpdateContactsCommand();
+            }
             default:{
                 return null;
             }
