@@ -4,6 +4,8 @@ import by.training.online_pharmacy.command.Command;
 import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.UserService;
+import by.training.online_pharmacy.service.exception.InvalidParameterException;
+import by.training.online_pharmacy.service.exception.InvalidPasswordException;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
@@ -31,8 +33,13 @@ public class UpdatePasswordCommand implements Command {
         response.setContentType("application/json");
         ServletOutputStream servletOutputStream = response.getOutputStream();
         JSONObject jsonObject = new JSONObject();
-        boolean result = userService.updatePassword(user, request.getParameter("new_password"));
-        jsonObject.put("result", result);
+        try {
+            userService.updatePassword(user, request.getParameter("new_password"));
+            jsonObject.put("result", true);
+        } catch (InvalidPasswordException|InvalidParameterException e) {
+            jsonObject.put("result", false);
+            jsonObject.put("message", e.getMessage());
+        }
         servletOutputStream.write(jsonObject.toString().getBytes());
     }
 }

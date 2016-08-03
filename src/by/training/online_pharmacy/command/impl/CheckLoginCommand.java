@@ -3,6 +3,8 @@ package by.training.online_pharmacy.command.impl;
 import by.training.online_pharmacy.command.Command;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.UserService;
+import by.training.online_pharmacy.service.exception.InternalServerException;
+import by.training.online_pharmacy.service.exception.InvalidParameterException;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
@@ -20,11 +22,17 @@ public class CheckLoginCommand implements Command {
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         UserService service = serviceFactory.getUserService();
         String login = request.getParameter("login");
-        boolean isUserExist = service.isUserExist(login);
+        JSONObject  jsonObject = new JSONObject();
+        boolean isUserExist;
+        try {
+            isUserExist = service.isUserExist(login);
+            jsonObject.put("isExist", isUserExist);
+        } catch (InvalidParameterException e) {
+            jsonObject.put("isExist", false);
+            jsonObject.put("message", e.getMessage());
+        }
         response.setContentType("application/json");
         ServletOutputStream servletOutputStream = response.getOutputStream();
-        JSONObject  jsonObject = new JSONObject();
-        jsonObject.put("isExist", isUserExist);
         servletOutputStream.write(jsonObject.toString().getBytes());
     }
 }

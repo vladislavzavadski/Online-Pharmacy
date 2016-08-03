@@ -12,11 +12,24 @@
     <servlet>
         <servlet-name>Controller</servlet-name>
         <servlet-class>by.training.online_pharmacy.controller.Controller</servlet-class>
+        <multipart-config>
+            <max-file-size>20848820</max-file-size>
+            <max-request-size>418018841</max-request-size>
+            <file-size-threshold>1048576</file-size-threshold>
+        </multipart-config>
     </servlet>
     <servlet>
         <servlet-name>MainPage</servlet-name>
         <jsp-file>/WEB-INF/pages/main.jsp</jsp-file>
     </servlet>
+    <servlet>
+        <servlet-name>Registration</servlet-name>
+        <jsp-file>/WEB-INF/pages/registration.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Registration</servlet-name>
+        <url-pattern>/registration.jsp</url-pattern>
+    </servlet-mapping>
     <servlet>
         <servlet-name>AuthorizationPage</servlet-name>
         <jsp-file>/WEB-INF/pages/authorization.jsp</jsp-file>
@@ -50,6 +63,6 @@
         <location>/WEB-INF/pages/error/500.html</location>
     </error-page>
     <listener>
-        <listener-class>by.training.online_pharmacy.listener.ContextCreateListener</listener-class>
+        <listener-class>by.training.online_pharmacy.controller.listener.ContextCreateListener</listener-class>
     </listener>
 </web-app>

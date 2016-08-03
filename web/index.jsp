@@ -13,12 +13,13 @@
       <title>Онлайн аптека</title>
       <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
       <link href="css/bootstrap.css" rel="stylesheet">
       <link href="css/style.css" rel="stylesheet">
       <script src="js/bootstrap.js"></script>
    </head>
    <body>
-      
+
       <nav class="navbar navbar-default navbar-fixed-top" style="background:#507ecf">
          <div class="container-fluid">
             <!-- Brand and toggle get grouped for better mobile display -->
@@ -196,7 +197,7 @@
             </div>
          </div>
       </div>
-
+      <script src="js/index.js"></script>
       <div class="modal fade" id="about-modal" tabindex="-1" role="dialog"   aria-hidden="true" style="display: none;">
          <div class="modal-dialog">
             <div class="modal-content">
@@ -246,26 +247,10 @@
                </div>
            </div>
        </footer>
-   <script>
-      $("#register_username").blur(function () {
-         $.ajax({
-            url:"controller",
-            type:"POST",
-            dataType:'json',
-            success:function (data) {
-               if(data.isExist==false){
-                  $("#login_message").html("<span style=\"color:green\">Данный логин свободен</span>");
-                  $("#reg_button").prop("disabled", false);
-               }
-               else {
-                  $("#login_message").html("<span style=\"color:red\">Данный логин занят</span>");
-                  $("#reg_button").prop("disabled", true);
-               }
-
-            },
-            data: {login: $("#register_username").val(), command:"CHECK_LOGIN"}
-         });
-      });
-   </script>
    </body>
 </html>
+<c:if test="${requestScope.registrationSuccess eq true}">
+   <script>
+      alert("Поздравляем, вы успешно зарегестрированы на нашем сайте. Мы выслали на ваш электронный адрес дальнейшие инструкции.");
+   </script>
+</c:if>

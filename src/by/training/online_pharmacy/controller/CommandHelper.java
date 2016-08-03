@@ -43,6 +43,18 @@ public class CommandHelper {
             case UPDATE_CONTACTS:{
                 return new UpdateContactsCommand();
             }
+            case UPLOAD_PROFILE_IMAGE:{
+                return new UploadProfileImageCommand();
+            }
+            case INIT_CONNECTION:{
+                return new InitConnectionCommand();
+            }
+            case DESTROY_CONNECTION:{
+                return new DestroyConnectionCommand();
+            }
+            case LOG_OUT:{
+                return new LogOutCommand();
+            }
             default:{
                 return null;
             }

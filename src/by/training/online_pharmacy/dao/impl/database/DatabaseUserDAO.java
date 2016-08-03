@@ -33,6 +33,7 @@ public class DatabaseUserDAO implements UserDAO {
     private static final String UPDATE_PERSONAL_INFORMATION_QUERY = "update users set us_first_name=?, us_second_name=?, us_gender=? where us_login=? and login_via=?;";
     private static final String UPDATE_PASSWORD = "update online_pharmacy.users set us_password=md5(?) where us_login=? and login_via=? and us_password=md5(?);";
     private static final String UPDATE_CONTACTS = "update users set us_mail=?, us_phone=? where us_login=? and login_via=?;";
+    private static final String UPLOAD_PROFILE_IMAGE = "update users set us_image=? where us_login=? and login_via=?;";
 
     @Override
     public User userAuthentication(String login, String password, RegistrationType registrationType) throws DaoException {
@@ -198,6 +199,15 @@ public class DatabaseUserDAO implements UserDAO {
             databaseOperation.invokeWriteOperation();
         }catch (Exception e) {
             throw new DaoException("Can not update users contacts", e);
+        }
+    }
+
+    @Override
+    public void uploadProfileImage(User user) throws DaoException {
+        try(DatabaseOperation databaseOperation = new DatabaseOperation(UPLOAD_PROFILE_IMAGE, user.getUserImage(), user.getLogin(), user.getRegistrationType().toString().toLowerCase())) {
+            databaseOperation.invokeWriteOperation();
+        } catch (Exception e) {
+            throw new DaoException("Can not upload profile image", e);
         }
     }
 

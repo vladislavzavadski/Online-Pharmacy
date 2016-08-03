@@ -7,6 +7,7 @@ import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.domain.user.UserRole;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.UserService;
+import by.training.online_pharmacy.service.exception.InvalidParameterException;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import javax.servlet.ServletException;
@@ -34,7 +35,14 @@ public class UserRegistrationCommand implements Command {
         user.setGender(Gender.UNKNOWN);
         user.setRegistrationType(RegistrationType.NATIVE);
         user.setUserRole(UserRole.CLIENT);
-        userService.userRegistration(user);
-        request.getRequestDispatcher("").forward(request, response);//TODO:то же самое
+        try {
+            userService.userRegistration(user);
+        } catch (InvalidParameterException e) {
+            request.setAttribute("message", e.getMessage());
+            request.getRequestDispatcher("/registration.jsp").forward(request, response);
+            return;
+        }
+        request.setAttribute("registrationSuccess", true);
+        request.getRequestDispatcher("/index.jsp").forward(request, response);//TODO:то же самое
     }
 }

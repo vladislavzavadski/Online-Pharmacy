@@ -7,6 +7,7 @@ import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.UserService;
 import by.training.online_pharmacy.service.exception.InternalServerException;
+import by.training.online_pharmacy.service.exception.InvalidParameterException;
 import by.training.online_pharmacy.service.exception.UserNotFoundException;
 
 import javax.servlet.ServletException;
@@ -31,8 +32,13 @@ public class UserLoginCommand implements Command {
             return;
         }
         try {
-            user = userService.userLogin(request.getParameter("login"), request.getParameter("password"), RegistrationType.NATIVE);
+            user = userService.userLogin(request.getParameter("login"), request.getParameter("password"));
         }  catch (UserNotFoundException e) {
+            request.setAttribute("message", e.getMessage());
+            request.getRequestDispatcher("/authorization.jsp").forward(request, response);
+            return;
+        } catch (InvalidParameterException e) {
+            request.setAttribute("message", e.getMessage());
             request.getRequestDispatcher("/authorization.jsp").forward(request, response);
             return;
         }

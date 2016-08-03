@@ -8,6 +8,7 @@ import by.training.online_pharmacy.service.SocialNetworkService;
 import by.training.online_pharmacy.service.UserService;
 import by.training.online_pharmacy.service.exception.CanceledAuthorizationException;
 import by.training.online_pharmacy.service.exception.InternalServerException;
+import by.training.online_pharmacy.service.exception.InvalidParameterException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -34,12 +35,13 @@ public class UserLoginVKCommand implements Command {
         } catch (CanceledAuthorizationException e) {
             response.sendRedirect("/index.jsp");
             return;
-        } catch (InternalServerException e) {
-            //e.printStackTrace();
+        } catch (InvalidParameterException e) {
+            request.setAttribute("message", e.getMessage());
+            request.getRequestDispatcher("/authorization.jsp").forward(request, response);
+            return;
         }
         request.getSession(true).setAttribute("user", user);
         request.getSession(true).setAttribute("prevRequest", UrlBuilder.build(request));
         request.getRequestDispatcher("/main.jsp").forward(request, response);
-        //TODO перенаправление на страницу
     }
 }

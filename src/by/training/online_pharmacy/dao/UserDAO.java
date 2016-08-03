@@ -25,4 +25,5 @@ public interface UserDAO {
     void updatePersonalInformation(User user) throws DaoException;
     int updateUsersPassword (User user, String newPassword) throws DaoException;
     void updateUsersContacts(User user) throws DaoException;
+    void uploadProfileImage(User user) throws DaoException;
 }

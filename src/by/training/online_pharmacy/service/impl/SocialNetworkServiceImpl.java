@@ -9,6 +9,7 @@ import by.training.online_pharmacy.domain.user.UserRole;
 import by.training.online_pharmacy.service.SocialNetworkService;
 import by.training.online_pharmacy.service.exception.CanceledAuthorizationException;
 import by.training.online_pharmacy.service.exception.InternalServerException;
+import by.training.online_pharmacy.service.exception.InvalidParameterException;
 import by.training.online_pharmacy.service.util.*;
 
 import java.io.IOException;
@@ -20,9 +21,13 @@ import org.apache.logging.log4j.Logger;
 public class SocialNetworkServiceImpl implements SocialNetworkService {
     private static final Logger logger = LogManager.getRootLogger();
     @Override
-    public User userLoginVk(String code) throws CanceledAuthorizationException, InternalServerException {
+    public User userLoginVk(String code) throws CanceledAuthorizationException, InvalidParameterException {
         if(code==null){
             throw new CanceledAuthorizationException("User cancel authorization");
+        }
+        if(code.equals("")){
+            logger.error("Empty code when trying to log in with VK");
+            throw new InvalidParameterException("Empty code when trying to log in with VK");
         }
         VkApi vkApi = new VkApi();
         try {
@@ -37,9 +42,13 @@ public class SocialNetworkServiceImpl implements SocialNetworkService {
     }
 
     @Override
-    public User userLoginFb(String code) throws CanceledAuthorizationException, InternalServerException {
+    public User userLoginFb(String code) throws CanceledAuthorizationException, InvalidParameterException {
         if(code==null){
             throw new CanceledAuthorizationException("User cancel exception");
+        }
+        if(code.equals("")){
+            logger.error("Empty code when trying to log in with Facebook");
+            throw new InvalidParameterException("Empty code when trying to log in with Facebook");
         }
         FacebookApi facebookApi = new FacebookApi();
         try {
@@ -54,9 +63,13 @@ public class SocialNetworkServiceImpl implements SocialNetworkService {
     }
 
     @Override
-    public User userLoginLi(String code) throws CanceledAuthorizationException, InternalServerException {
+    public User userLoginLi(String code) throws CanceledAuthorizationException, InvalidParameterException {
         if(code==null){
             throw new CanceledAuthorizationException("User cancel exception");
+        }
+        if(code.equals("")){
+            logger.error("Empty code when trying to log in with Linked In");
+            throw new InvalidParameterException("Empty code when trying to log in with Linked In");
         }
         LinkedInApi linkedInApi = new LinkedInApi();
         try {
