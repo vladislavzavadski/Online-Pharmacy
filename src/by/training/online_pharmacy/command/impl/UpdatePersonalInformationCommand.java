@@ -23,24 +23,24 @@ public class UpdatePersonalInformationCommand implements Command {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);
         User user;
-        if(httpSession==null||(user=(User)httpSession.getAttribute("user"))==null){
+        if(httpSession==null||(user=(User)httpSession.getAttribute(Parameter.USER))==null){
             response.sendRedirect(request.getRequestURI());
             return;
         }
         JSONObject jsonObject = new JSONObject();
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         UserService userService = serviceFactory.getUserService();
-        user.setFirstName(request.getParameter("first_name"));
-        user.setSecondName(request.getParameter("second_name"));
-        user.setGender(Gender.valueOf(request.getParameter("gender")));
+        user.setFirstName(request.getParameter(Parameter.FIRST_NAME));
+        user.setSecondName(request.getParameter(Parameter.SECOND_NAME));
+        user.setGender(Gender.valueOf(request.getParameter(Parameter.GENDER)));
         try {
             userService.updatePersonalInformation(user);
-            jsonObject.put("result", true);
+            jsonObject.put(Parameter.RESULT, true);
         } catch (InvalidParameterException e) {
-            jsonObject.put("result", false);
-            jsonObject.put("message", e.getMessage());
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.MESSAGE, e.getMessage());
         }
-        response.setContentType("application/json");
+        response.setContentType(Content.JSON);
         ServletOutputStream servletOutputStream = response.getOutputStream();
 
         servletOutputStream.write(jsonObject.toString().getBytes());

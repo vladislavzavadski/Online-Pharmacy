@@ -15,46 +15,51 @@ import java.util.Map;
 public class VkApi implements Api {
     private static final String BASE_URL = "https://api.vk.com/method/users.get?";
     private static final String API_URL = "https://oauth.vk.com/access_token?";
-    private static final String FIRST_NAME_PROPERTY = "first_name";
-    private static final String SECOND_NAME_PROPERTY = "last_name";
     private static final String PHONE_PROPERTY = "home_phone";
     private static final String PHOTO_PROPERTY = "photo_200";
-    private String result;
+    private static final String CLIENT_ID = "5550894";
+    private static final String CLIENT_SECRET = "pLVpHGMyHT6hRvZxHLr6";
+    private static final String REDIRECT_URI = "http://localhost:8080/controller?command=USER_LOGIN_VK";
+    private static final String SEX = "sex";
+    private static final String CONTACTS = "contacts";
+    private static final String RESPONSE = "response";
+    private static final String NAME_CASE = "norm";
+    private JSONObject result;
     private String email;
     private String userId;
 
     @Override
     public void authorization(String code) throws IOException {
         Map<String, String> params = new HashMap<>();
-        params.put("client_id", "5550894");
-        params.put("client_secret", "pLVpHGMyHT6hRvZxHLr6");
-        params.put("redirect_uri", "http://localhost:8080/controller?command=USER_LOGIN_VK");
-        params.put("code", code);
-        String response = RequestSender.sendRequest(params, "GET", API_URL);
+        params.put(Property.CLIENT_ID, CLIENT_ID);
+        params.put(Property.CLIENT_SECRET, CLIENT_SECRET);
+        params.put(Property.REDIRECT_URI, REDIRECT_URI);
+        params.put(Property.CODE, code);
+        String response = RequestSender.sendRequest(params, Property.GET, API_URL);
         JSONObject jsonObject = new JSONObject(response);
         try {
-            email = jsonObject.getString("email");
+            email = jsonObject.getString(Property.EMAIL);
         }catch (JSONException ignored){
 
         }
-        userId = String.valueOf(jsonObject.getLong("user_id"));
-        String accessToken = jsonObject.getString("access_token");
+        userId = String.valueOf(jsonObject.getLong(Property.USER_ID));
+        String accessToken = jsonObject.getString(Property.ACCESS_TOKEN);
         params.clear();
-        params.put("user_ids", userId);
-        params.put("fields", "photo_200,contacts,sex");
-        params.put("name_case", "norm");
-        params.put("access_token", accessToken);
-        result = RequestSender.sendRequest(params, "GET", BASE_URL);
+        params.put(Property.USER_IDS, userId);
+        params.put(Property.FIELDS, PHOTO_PROPERTY+","+CONTACTS+","+SEX);
+        params.put(Property.NAME_CASE, NAME_CASE);
+        params.put(Property.ACCESS_TOKEN, accessToken);
+        result = new JSONObject(RequestSender.sendRequest(params, Property.GET, BASE_URL));
     }
 
     @Override
     public String getFirstName(){
-        return getProperty(FIRST_NAME_PROPERTY);
+        return getProperty(Property.FIRST_NAME_PROPERTY);
     }
 
     @Override
     public String getSecondName(){
-        return getProperty(SECOND_NAME_PROPERTY);
+        return getProperty(Property.SECOND_NAME_PROPERTY);
     }
 
     @Override
@@ -72,8 +77,7 @@ public class VkApi implements Api {
 
     @Override
     public Gender getGender() {
-        JSONObject jsonObject = new JSONObject(result);
-        int gender = jsonObject.getJSONArray("response").getJSONObject(0).getInt("sex");
+        int gender = result.getJSONArray(RESPONSE).getJSONObject(0).getInt(SEX);
         switch (gender){
             case 1:{
                 return Gender.FEMALE;
@@ -91,7 +95,7 @@ public class VkApi implements Api {
     public String getEmail(){return email;}
 
     private String getProperty(String property){
-        return new JSONObject(result).getJSONArray("response").getJSONObject(0).getString(property);
+        return result.getJSONArray(RESPONSE).getJSONObject(0).getString(property);
     }
 
 

@@ -1,5 +1,8 @@
 package by.training.online_pharmacy.service.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -12,16 +15,24 @@ public class EmailSender {
     private String username;
     private String password;
     private Properties props;
-
+    private static final String MAIL_SMTP_AUTH = "mail.smtp.auth";
+    private static final String MAIL_SMTP_STARTTLS_ENABLE = "mail.smtp.starttls.enable";
+    private static final String MAIL_SMTP_HOST = "mail.smtp.host";
+    private static final String MAIL_SMTP_PORT = "mail.smtp.port";
+    private static final String MAIL_SMTP_AUTH_VAL = "true";
+    private static final String MAIL_SMTP_STARTTLS_ENABLE_VAL = "true";
+    private static final String MAIL_SMTP_HOST_VAL = "smtp.gmail.com";
+    private static final String MAIL_SMTP_PORT_VAL = "587";
+    private static final Logger logger = LogManager.getRootLogger();
     public EmailSender(String username, String password) {
         this.username = username;
         this.password = password;
 
         props = new Properties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", "smtp.gmail.com");
-        props.put("mail.smtp.port", "587");
+        props.put(MAIL_SMTP_AUTH, MAIL_SMTP_AUTH_VAL);
+        props.put(MAIL_SMTP_STARTTLS_ENABLE, MAIL_SMTP_STARTTLS_ENABLE_VAL);
+        props.put(MAIL_SMTP_HOST, MAIL_SMTP_HOST_VAL);
+        props.put(MAIL_SMTP_PORT, MAIL_SMTP_PORT_VAL);
     }
 
     public void send(String subject, String text, String toEmail){
@@ -41,7 +52,7 @@ public class EmailSender {
                 try {
                     Transport.send(message);
                 } catch (MessagingException e) {
-                    e.printStackTrace();
+                    logger.error("Something went wrong when trying to send email");
                 }
             };
             new Thread(transferMailThread).start();

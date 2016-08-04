@@ -1,6 +1,7 @@
 package by.training.online_pharmacy.controller;
 
 import by.training.online_pharmacy.command.Command;
+import by.training.online_pharmacy.command.impl.Parameter;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -14,7 +15,7 @@ import java.io.IOException;
 public class Controller extends javax.servlet.http.HttpServlet {
 
     private void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        CommandName commandName = CommandName.valueOf(request.getParameter("command"));
+        CommandName commandName = CommandName.valueOf(request.getParameter(Parameter.COMMAND));
         Command command = CommandHelper.getCommand(commandName);
         command.execute(request, response);
     }

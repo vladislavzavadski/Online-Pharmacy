@@ -23,22 +23,22 @@ public class UpdatePasswordCommand implements Command {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);
         User user;
-        if(httpSession==null||(user = (User)httpSession.getAttribute("user"))==null){
+        if(httpSession==null||(user = (User)httpSession.getAttribute(Parameter.USER))==null){
             response.sendRedirect(request.getRequestURI());
             return;
         }
-        user.setPassword(request.getParameter("old_password"));
+        user.setPassword(request.getParameter(Parameter.OLD_PASSWORD));
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         UserService userService = serviceFactory.getUserService();
-        response.setContentType("application/json");
+        response.setContentType(Content.JSON);
         ServletOutputStream servletOutputStream = response.getOutputStream();
         JSONObject jsonObject = new JSONObject();
         try {
-            userService.updatePassword(user, request.getParameter("new_password"));
-            jsonObject.put("result", true);
+            userService.updatePassword(user, request.getParameter(Parameter.NEW_PASSWORD));
+            jsonObject.put(Parameter.RESULT, true);
         } catch (InvalidPasswordException|InvalidParameterException e) {
-            jsonObject.put("result", false);
-            jsonObject.put("message", e.getMessage());
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.MESSAGE, e.getMessage());
         }
         servletOutputStream.write(jsonObject.toString().getBytes());
     }

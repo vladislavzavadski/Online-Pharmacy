@@ -19,8 +19,8 @@ public class GetProfileImageCommand implements Command {
         HttpSession httpSession;
         if((httpSession=request.getSession(false))!=null){
             OutputStream outputStream = response.getOutputStream();
-            response.setContentType("image/jpeg");
-            User user = (User)httpSession.getAttribute("user");
+            response.setContentType(Content.IMAGE);
+            User user = (User)httpSession.getAttribute(Parameter.USER);
             response.setContentLength(user.getUserImage().length);
             outputStream.write(user.getUserImage());
             outputStream.close();

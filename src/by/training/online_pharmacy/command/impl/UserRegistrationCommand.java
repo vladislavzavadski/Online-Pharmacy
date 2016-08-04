@@ -26,10 +26,10 @@ public class UserRegistrationCommand implements Command {
         UserService userService = serviceFactory.getUserService();
         User user = new User();
         String password = RandomStringUtils.random(PASSWORD_LENGTH, true, true);
-        String email = request.getParameter("email");
-        user.setFirstName(request.getParameter("first_name"));
-        user.setSecondName(request.getParameter("second_name"));
-        user.setLogin(request.getParameter("login"));
+        String email = request.getParameter(Parameter.MAIL);
+        user.setFirstName(request.getParameter(Parameter.FIRST_NAME));
+        user.setSecondName(request.getParameter(Parameter.SECOND_NAME));
+        user.setLogin(request.getParameter(Parameter.LOGIN));
         user.setPassword(password);
         user.setMail(email);
         user.setGender(Gender.UNKNOWN);
@@ -38,11 +38,11 @@ public class UserRegistrationCommand implements Command {
         try {
             userService.userRegistration(user);
         } catch (InvalidParameterException e) {
-            request.setAttribute("message", e.getMessage());
-            request.getRequestDispatcher("/registration.jsp").forward(request, response);
+            request.setAttribute(Parameter.MESSAGE, e.getMessage());
+            request.getRequestDispatcher(Page.REGISTRATION).forward(request, response);
             return;
         }
-        request.setAttribute("registrationSuccess", true);
-        request.getRequestDispatcher("/index.jsp").forward(request, response);//TODO:то же самое
+        request.setAttribute(Parameter.REGISTRATION_SUCCESS, true);
+        request.getRequestDispatcher(Page.INDEX).forward(request, response);
     }
 }

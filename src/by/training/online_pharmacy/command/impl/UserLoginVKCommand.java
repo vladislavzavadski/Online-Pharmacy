@@ -9,6 +9,7 @@ import by.training.online_pharmacy.service.UserService;
 import by.training.online_pharmacy.service.exception.CanceledAuthorizationException;
 import by.training.online_pharmacy.service.exception.InternalServerException;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
+import net.sf.jmimemagic.Magic;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -26,22 +27,22 @@ public class UserLoginVKCommand implements Command {
         SocialNetworkService socialNetworkService = serviceFactory.getSocialNetworkService();
         User user = null;
         HttpSession httpSession = request.getSession(false);
-        if(httpSession!=null&&httpSession.getAttribute("user")!=null){
-            request.getRequestDispatcher("/main.jsp").forward(request, response);
+        if(httpSession!=null&&httpSession.getAttribute(Parameter.USER)!=null){
+            request.getRequestDispatcher(Page.MAIN).forward(request, response);
             return;
         }
         try {
-            user = socialNetworkService.userLoginVk(request.getParameter("code"));
+            user = socialNetworkService.userLoginVk(request.getParameter(Parameter.CODE));
         } catch (CanceledAuthorizationException e) {
-            response.sendRedirect("/index.jsp");
+            response.sendRedirect(Page.INDEX);
             return;
         } catch (InvalidParameterException e) {
-            request.setAttribute("message", e.getMessage());
-            request.getRequestDispatcher("/authorization.jsp").forward(request, response);
+            request.setAttribute(Parameter.MESSAGE, e.getMessage());
+            request.getRequestDispatcher(Page.AUTHORIZATION).forward(request, response);
             return;
         }
-        request.getSession(true).setAttribute("user", user);
-        request.getSession(true).setAttribute("prevRequest", UrlBuilder.build(request));
-        request.getRequestDispatcher("/main.jsp").forward(request, response);
+        request.getSession(true).setAttribute(Parameter.USER, user);
+        request.getSession(true).setAttribute(Parameter.PREV_REQUEST, UrlBuilder.build(request));
+        request.getRequestDispatcher(Page.MAIN).forward(request, response);
     }
 }

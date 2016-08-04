@@ -13,54 +13,63 @@ import java.util.Map;
 public class LinkedInApi implements Api {
     private static final String OAUTH_URL = "https://www.linkedin.com/oauth/v2/accessToken?";
     private static final String API_URL = "https://api.linkedin.com/v1/people/~:(id,picture-urls::(original),email-address,first-name,last-name)?";
-    private String result;
+    private static final String GRANT_TYPE = "authorization_code";
+    private static final String REDIRECT_URI = "http://localhost:8080/controller?command=USER_LOGIN_LI";
+    private static final String CLIENT_ID = "78i3k2ihydq5da";
+    private static final String CLIENT_SECRET = "45P64u8tNmkChUA0";
+    private static final String FIRST_NAME = "firstName";
+    private static final String LAST_NAME = "lastName";
+    private static final String EMAIL_ADDRESS = "emailAddress";
+    private static final String FORMAT = "json";
+    private static final String BEARER = "Bearer ";
+    private static final String TOTAL = "_total";
+    private static final String PICTURE_URLS = "pictureUrls";
+    private static final String VALUES = "values";
+    private JSONObject result;
 
     @Override
     public void authorization(String code) throws IOException {
         Map<String, String> params = new HashMap<>();
-        params.put("code", code);
-        params.put("grant_type", "authorization_code");
-        params.put("redirect_uri", "http://localhost:8080/controller?command=USER_LOGIN_LI");
-        params.put("client_id", "78i3k2ihydq5da");
-        params.put("client_secret", "45P64u8tNmkChUA0");
+        params.put(Property.CODE, code);
+        params.put(Property.GRANT_TYPE, GRANT_TYPE);
+        params.put(Property.REDIRECT_URI, REDIRECT_URI);
+        params.put(Property.CLIENT_ID, CLIENT_ID);
+        params.put(Property.CLIENT_SECRET, CLIENT_SECRET);
 
-        String response = RequestSender.sendRequest(params, "GET", OAUTH_URL);
+        String response = RequestSender.sendRequest(params, Property.GET, OAUTH_URL);
         JSONObject jsonObject = new JSONObject(response);
-        String accessToken = jsonObject.getString("access_token");
+        String accessToken = jsonObject.getString(Property.ACCESS_TOKEN);
 
         params = new HashMap<>();
-        params.put("format", "json");
+        params.put(Property.FORMAT, FORMAT);
         Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Bearer "+accessToken);
-        result = RequestSender.sendRequest(params, headers, "GET", API_URL);
+        headers.put(Property.AUTHORIZATION, BEARER+accessToken);
+        result = new JSONObject(RequestSender.sendRequest(params, headers, Property.GET, API_URL));
     }
 
     @Override
     public String getEmail(){
-        JSONObject jsonObject = new JSONObject(result);
-        return jsonObject.getString("emailAddress");
+        return result.getString(EMAIL_ADDRESS);
     }
 
     @Override
     public String getFirstName(){
-        JSONObject jsonObject = new JSONObject(result);
-        return jsonObject.getString("firstName");
+        return result.getString(FIRST_NAME);
     }
 
     @Override
     public String getSecondName(){
-        JSONObject jsonObject = new JSONObject(result);
-        return jsonObject.getString("lastName");
+        return result.getString(LAST_NAME);
     }
 
     @Override
     public String getImage(){
-        JSONObject jsonObject = new JSONObject(result);
-        jsonObject = jsonObject.getJSONObject("pictureUrls");
-        if(jsonObject.getInt("_total")==0) {
+        JSONObject jsonObject;
+        jsonObject = result.getJSONObject(PICTURE_URLS);
+        if(jsonObject.getInt(TOTAL)==0) {
             return null;
         }
-        return jsonObject.getJSONArray("values").getString(0);
+        return jsonObject.getJSONArray(VALUES).getString(0);
     }
 
     @Override
@@ -70,9 +79,7 @@ public class LinkedInApi implements Api {
 
     @Override
     public String getId(){
-        JSONObject jsonObject  = new JSONObject(result);
-        return jsonObject.getString("id");
+        return result.getString(Property.ID);
     }
-
 
 }

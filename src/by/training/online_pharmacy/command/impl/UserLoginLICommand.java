@@ -26,22 +26,22 @@ public class UserLoginLICommand implements Command {
         SocialNetworkService socialNetworkService = serviceFactory.getSocialNetworkService();
         User user = null;
         HttpSession httpSession = request.getSession(false);
-        if(httpSession!=null&&httpSession.getAttribute("user")!=null){
-            request.getRequestDispatcher("/main.jsp").forward(request, response);
+        if(httpSession!=null&&httpSession.getAttribute(Parameter.USER)!=null){
+            request.getRequestDispatcher(Page.MAIN).forward(request, response);
             return;
         }
         try {
-            user = socialNetworkService.userLoginLi(request.getParameter("code"));
+            user = socialNetworkService.userLoginLi(request.getParameter(Parameter.CODE));
         } catch (CanceledAuthorizationException e) {
-            response.sendRedirect("/index.jsp");
+            response.sendRedirect(Page.INDEX);
             return;
         } catch (InvalidParameterException e) {
-            request.setAttribute("message", e.getMessage());
-            request.getRequestDispatcher("/authorization.jsp").forward(request, response);
+            request.setAttribute(Parameter.MESSAGE, e.getMessage());
+            request.getRequestDispatcher(Page.AUTHORIZATION).forward(request, response);
             return;
         }
-        request.getSession(true).setAttribute("user", user);
-        request.getSession(true).setAttribute("prevRequest", UrlBuilder.build(request));
-        request.getRequestDispatcher("/main.jsp").forward(request, response);
+        request.getSession(true).setAttribute(Parameter.USER, user);
+        request.getSession(true).setAttribute(Parameter.PREV_REQUEST, UrlBuilder.build(request));
+        request.getRequestDispatcher(Page.MAIN).forward(request, response);
     }
 }

@@ -27,24 +27,20 @@ public class UserLoginCommand implements Command {
         UserService userService = serviceFactory.getUserService();
         User user = null;
         HttpSession httpSession = request.getSession(false);
-        if(httpSession!=null&&httpSession.getAttribute("user")!=null){
-            request.getRequestDispatcher("/main.jsp").forward(request, response);
+        if(httpSession!=null&&httpSession.getAttribute(Parameter.USER)!=null){
+            request.getRequestDispatcher(Page.MAIN).forward(request, response);
             return;
         }
         try {
-            user = userService.userLogin(request.getParameter("login"), request.getParameter("password"));
-        }  catch (UserNotFoundException e) {
-            request.setAttribute("message", e.getMessage());
-            request.getRequestDispatcher("/authorization.jsp").forward(request, response);
-            return;
-        } catch (InvalidParameterException e) {
-            request.setAttribute("message", e.getMessage());
-            request.getRequestDispatcher("/authorization.jsp").forward(request, response);
+            user = userService.userLogin(request.getParameter(Parameter.LOGIN), request.getParameter(Parameter.PASSWORD));
+        }  catch (UserNotFoundException | InvalidParameterException e) {
+            request.setAttribute(Parameter.MESSAGE, e.getMessage());
+            request.getRequestDispatcher(Page.AUTHORIZATION).forward(request, response);
             return;
         }
         httpSession = request.getSession(true);
-        httpSession.setAttribute("user", user);
-        httpSession.setAttribute("prevRequest", UrlBuilder.build(request));
-        request.getRequestDispatcher("/main.jsp").forward(request, response);
+        httpSession.setAttribute(Parameter.USER, user);
+        httpSession.setAttribute(Parameter.PREV_REQUEST, UrlBuilder.build(request));
+        request.getRequestDispatcher(Page.MAIN).forward(request, response);
     }
 }

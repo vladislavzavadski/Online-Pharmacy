@@ -69,7 +69,7 @@ $("#save_contacts").click(function () {
         url: "controller",
         type: "POST",
         dataType:"json",
-        data:{command:"UPDATE_CONTACTS", mail:mail, phone:phone},
+        data:{command:"UPDATE_CONTACTS", email:mail, phone:phone},
         success: function (data) {
             if(data.result==true){
                 $("#contacts_inf").html("<span style=\"color:green\">Сохранено</span>");

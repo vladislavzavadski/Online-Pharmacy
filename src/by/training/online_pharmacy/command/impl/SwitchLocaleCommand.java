@@ -15,10 +15,10 @@ public class SwitchLocaleCommand implements Command {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession();
-        httpSession.setAttribute("language", request.getParameter("language"));
-        String prevRequest = (String)httpSession.getAttribute("prevRequest");
+        httpSession.setAttribute(Parameter.LANGUAGE, request.getParameter(Parameter.LANGUAGE));
+        String prevRequest = (String)httpSession.getAttribute(Parameter.PREV_REQUEST);
         if(prevRequest==null){
-            response.sendRedirect("/index.jsp");
+            response.sendRedirect(Page.INDEX);
         }else {
             response.sendRedirect(prevRequest);
         }

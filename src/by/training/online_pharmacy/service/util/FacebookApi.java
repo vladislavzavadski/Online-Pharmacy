@@ -13,58 +13,60 @@ import java.util.Map;
 public class FacebookApi implements Api {
     private static final String API_URL = "https://graph.facebook.com/me?";
     private static final String API_TOKEN_URI = "https://graph.facebook.com/v2.3/oauth/access_token?";
-    public String result;
+    private static final String CLIENT_ID = "1472508072774891";
+    private static final String CLIENT_SECRET = "feaea6b55522d84a2efcae4e9a1728c8";
+    private static final String REDIRECT_URI = "http://localhost:8080/controller?command=USER_LOGIN_FB";
+    private static final String PICTURE = "picture";
+    private static final String DATA = "data";
+    private static final String URL = "url";
+    private static final String QUERY_PICTURE = "picture.width(400)";
+    public JSONObject result;
 
     @Override
     public void authorization (String code) throws IOException {
         Map<String, String> params = new HashMap<>();
-        params.put("client_id", "1472508072774891");
-        params.put("client_secret", "feaea6b55522d84a2efcae4e9a1728c8");
-        params.put("code", code);
-        params.put("redirect_uri", "http://localhost:8080/controller?command=USER_LOGIN_FB");
-        String response = RequestSender.sendRequest(params, "GET", API_TOKEN_URI);
-        String accessToken = new JSONObject(response).getString("access_token");
-        params.put("fields", "first_name,last_name,email,picture.width(400),gender");
-        params.put("access_token", accessToken);
-        result = RequestSender.sendRequest(params, "GET", API_URL);
+        params.put(Property.CLIENT_ID, CLIENT_ID);
+        params.put(Property.CLIENT_SECRET, CLIENT_SECRET);
+        params.put(Property.CODE, code);
+        params.put(Property.REDIRECT_URI, REDIRECT_URI);
+        String response = RequestSender.sendRequest(params, Property.GET, API_TOKEN_URI);
+        String accessToken = new JSONObject(response).getString(Property.ACCESS_TOKEN);
+        params.put(Property.FIELDS, Property.FIRST_NAME_PROPERTY+","+Property.SECOND_NAME_PROPERTY+","+Property.EMAIL+","+QUERY_PICTURE+","+Property.GENDER);
+        params.put(Property.ACCESS_TOKEN, accessToken);
+        result = new JSONObject(RequestSender.sendRequest(params, Property.GET, API_URL));
     }
 
     @Override
     public String getFirstName(){
-        JSONObject jsonObject = new JSONObject(result);
-        return jsonObject.getString("first_name");
+        return result.getString(Property.FIRST_NAME_PROPERTY);
     }
 
     @Override
     public String getSecondName(){
-        JSONObject jsonObject = new JSONObject(result);
-        return jsonObject.getString("last_name");
+        return result.getString(Property.SECOND_NAME_PROPERTY);
     }
 
     @Override
     public String getEmail(){
-        JSONObject jsonObject = new JSONObject(result);
-        return jsonObject.getString("email");
+        return result.getString(Property.EMAIL);
     }
 
     @Override
     public String getId(){
-        JSONObject jsonObject = new JSONObject(result);
-        return jsonObject.getString("id");
+        return result.getString(Property.ID);
     }
 
     @Override
     public String getImage(){
-        JSONObject jsonObject = new JSONObject(result);
-        jsonObject = jsonObject.getJSONObject("picture");
-        jsonObject = jsonObject.getJSONObject("data");
-        return jsonObject.getString("url");
+        JSONObject jsonObject;
+        jsonObject = result.getJSONObject(PICTURE);
+        jsonObject = jsonObject.getJSONObject(DATA);
+        return jsonObject.getString(URL);
     }
 
     @Override
     public Gender getGender() {
-        JSONObject jsonObject = new JSONObject(result);
-        String gender = jsonObject.getString("gender");
+        String gender = result.getString(Property.GENDER);
         return Gender.valueOf(gender.toUpperCase());
     }
 }
