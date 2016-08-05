@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Logger;
 /**
  * Created by vladislav on 28.07.16.
  */
-public class InitConnectionServiceImpl implements InitConnectionService {
+public class ConnectionServiceImpl implements InitConnectionService {
     private static final Logger logger = LogManager.getRootLogger();
     @Override
     public void initConnection() {

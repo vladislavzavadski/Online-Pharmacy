@@ -1,6 +1,6 @@
 package by.training.online_pharmacy.service;
 
-import by.training.online_pharmacy.service.impl.InitConnectionServiceImpl;
+import by.training.online_pharmacy.service.impl.ConnectionServiceImpl;
 import by.training.online_pharmacy.service.impl.SocialNetworkServiceImpl;
 import by.training.online_pharmacy.service.impl.UserServiceImpl;
 
@@ -20,5 +20,5 @@ public class ServiceFactory {
         return new UserServiceImpl();
     }
     public SocialNetworkService getSocialNetworkService(){return new SocialNetworkServiceImpl();}
-    public InitConnectionService getInitConnectionService(){return new InitConnectionServiceImpl();}
+    public InitConnectionService getInitConnectionService(){return new ConnectionServiceImpl();}
 }
