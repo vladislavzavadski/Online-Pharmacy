@@ -2,6 +2,7 @@ package by.training.online_pharmacy.dao.impl.database;
 
 
 import by.training.online_pharmacy.dao.DrugClassDAO;
+import by.training.online_pharmacy.dao.connection_pool.exception.ConnectionPoolException;
 import by.training.online_pharmacy.dao.exception.DaoException;
 import by.training.online_pharmacy.dao.impl.database.util.DatabaseOperation;
 import by.training.online_pharmacy.domain.drug.DrugClass;
@@ -21,8 +22,40 @@ public class DatabaseDrugClassDAO implements DrugClassDAO {
     private static final String INSERT_DRUG_CLASS_QUERY = "insert into drug_classes (dr_class_name, dr_class_description) VALUES(?,?);";
     private static final String UPDATE_DRUG_CLASS_QUERY = "update drug_classes set dr_class_name=?, dr_class_description=? WHERE dr_class_name=?;";
     private static final String DELETE_DRUG_CLASS_QUERY = "delete from drug_classes where dr_class_name=?;";
+    private static final String GET_ALL_CLASSES = "select dr_class_name, dr_class_description from drug_classes order by dr_class_name;";
+    @Override
+    public DrugClass getDrugClassByName(String name) throws DaoException {
+        return null;
+    }
 
     @Override
+    public void insertDrugClass(DrugClass drugClass) throws DaoException {
+
+    }
+
+    @Override
+    public void updateDrugClass(DrugClass drugClass, String oldDrugClassName) throws DaoException {
+
+    }
+
+    @Override
+    public void deleteDrugClass(String name) throws DaoException {
+
+    }
+
+    @Override
+    public List<DrugClass> getAllDrugClasses() throws DaoException{
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_ALL_CLASSES)){
+            ResultSet resultSet = databaseOperation.invokeReadOperation();
+            return resultSetToDrugClass(resultSet);
+        } catch (ConnectionPoolException | SQLException e) {
+            throw new DaoException("Can not load drug classes from database", e);
+        } catch (Exception e) {
+            throw new DaoException("Can not load drug classes from database", e);
+        }
+    }
+
+    /*@Override
     public DrugClass getDrugClassByName(String name) throws DaoException {
         try(DatabaseOperation databaseOperation = new DatabaseOperation(GET_CLASS_BY_NAME_QUERY, name)) {
             ResultSet resultSet = databaseOperation.invokeReadOperation();
@@ -62,7 +95,7 @@ public class DatabaseDrugClassDAO implements DrugClassDAO {
         } catch (Exception e) {
             throw new DaoException("Can not delete drug class with name = \'"+name+"\'", e);
         }
-    }
+    }*/
 
     private List<DrugClass> resultSetToDrugClass(ResultSet resultSet) throws SQLException {
         List<DrugClass> result = new ArrayList<>();

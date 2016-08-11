@@ -10,7 +10,7 @@ import java.util.List;
 public class Drug {
     private int id;
     private String name;
-    private byte[] drugImage;
+    private String pathToImage;
     private String description;
     private float price;
     private boolean prescriptionEnable;
@@ -20,13 +20,14 @@ public class Drug {
     private List<Integer> dosages = new ArrayList<>();
     private DrugManufacturer drugManufacturer;
     private DrugClass drugClass;
+    private int drugsInStock;
 
     @Override
     public String toString() {
         return "Drug{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", drugImage=" + Arrays.toString(drugImage) +
+                ", pathToImage='" + pathToImage + '\'' +
                 ", description='" + description + '\'' +
                 ", price=" + price +
                 ", prescriptionEnable=" + prescriptionEnable +
@@ -36,6 +37,7 @@ public class Drug {
                 ", dosages=" + dosages +
                 ", drugManufacturer=" + drugManufacturer +
                 ", drugClass=" + drugClass +
+                ", drugsInStock=" + drugsInStock +
                 '}';
     }
 
@@ -50,8 +52,9 @@ public class Drug {
         if (Float.compare(drug.price, price) != 0) return false;
         if (prescriptionEnable != drug.prescriptionEnable) return false;
         if (inStock != drug.inStock) return false;
+        if (drugsInStock != drug.drugsInStock) return false;
         if (name != null ? !name.equals(drug.name) : drug.name != null) return false;
-        if (!Arrays.equals(drugImage, drug.drugImage)) return false;
+        if (pathToImage != null ? !pathToImage.equals(drug.pathToImage) : drug.pathToImage != null) return false;
         if (description != null ? !description.equals(drug.description) : drug.description != null) return false;
         if (type != drug.type) return false;
         if (activeSubstance != null ? !activeSubstance.equals(drug.activeSubstance) : drug.activeSubstance != null)
@@ -67,7 +70,7 @@ public class Drug {
     public int hashCode() {
         int result = id;
         result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + Arrays.hashCode(drugImage);
+        result = 31 * result + (pathToImage != null ? pathToImage.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (price != +0.0f ? Float.floatToIntBits(price) : 0);
         result = 31 * result + (prescriptionEnable ? 1 : 0);
@@ -77,6 +80,7 @@ public class Drug {
         result = 31 * result + (dosages != null ? dosages.hashCode() : 0);
         result = 31 * result + (drugManufacturer != null ? drugManufacturer.hashCode() : 0);
         result = 31 * result + (drugClass != null ? drugClass.hashCode() : 0);
+        result = 31 * result + drugsInStock;
         return result;
     }
 
@@ -97,12 +101,12 @@ public class Drug {
         this.name = name;
     }
 
-    public byte[] getDrugImage() {
-        return drugImage;
+    public String getPathToImage() {
+        return pathToImage;
     }
 
-    public void setDrugImage(byte[] drugImage) {
-        this.drugImage = drugImage;
+    public void setPathToImage(String pathToImage) {
+        this.pathToImage = pathToImage;
     }
 
     public String getDescription() {
@@ -175,5 +179,13 @@ public class Drug {
 
     public void setDrugClass(DrugClass drugClass) {
         this.drugClass = drugClass;
+    }
+
+    public int getDrugsInStock() {
+        return drugsInStock;
+    }
+
+    public void setDrugsInStock(int drugsInStock) {
+        this.drugsInStock = drugsInStock;
     }
 }

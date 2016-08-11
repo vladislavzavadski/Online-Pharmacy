@@ -8,7 +8,7 @@ import java.util.Enumeration;
 /**
  * Created by vladislav on 25.07.16.
  */
-public class UrlBuilder {
+public final class UrlBuilder {
 
     private UrlBuilder(){}
 

@@ -11,6 +11,12 @@ import java.util.List;
  */
 public interface DrugDAO {
     Drug getDrugById(int drugId) throws DaoException;
+
+    List<Drug> extendedSearching(Drug pattern, int limit, int startFrom) throws DaoException;
+
+    List<Drug> searchDrugs(String query, int limit, int startFrom) throws DaoException;
+
+    List<Drug> getAllDrugs(int limit, int startFrom) throws DaoException;
     List<Drug> getDrugsByName(String name, int limit, int startFrom) throws DaoException;
     List<Drug> getDrugsByClass(String drugClass, int limit, int startFrom) throws DaoException;
     List<Drug> getDrugsByActiveSubstance(String activeSubstance, int limit, int startFrom) throws DaoException;

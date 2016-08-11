@@ -23,7 +23,7 @@ public class UpdateContactsCommand implements Command {
         HttpSession httpSession = request.getSession(false);
         User user;
         if(httpSession==null||(user = (User)httpSession.getAttribute(Parameter.USER))==null){
-            response.sendRedirect(request.getRequestURI());
+            response.sendRedirect(Page.INDEX);
             return;
         }
         JSONObject jsonObject = new JSONObject();

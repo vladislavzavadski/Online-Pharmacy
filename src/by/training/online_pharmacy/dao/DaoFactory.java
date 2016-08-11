@@ -36,4 +36,6 @@ public abstract class DaoFactory {
     public abstract DrugManufacturerDAO getDrugManufacturerDAO();
 
     public abstract RequestForPrescriptionDAO getRequestForPrescriptionDAO();
+
+    public abstract MessageDAO getMessageDAO();
 }

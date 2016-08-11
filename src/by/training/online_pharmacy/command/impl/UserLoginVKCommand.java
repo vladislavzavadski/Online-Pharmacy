@@ -28,7 +28,7 @@ public class UserLoginVKCommand implements Command {
         User user = null;
         HttpSession httpSession = request.getSession(false);
         if(httpSession!=null&&httpSession.getAttribute(Parameter.USER)!=null){
-            request.getRequestDispatcher(Page.MAIN).forward(request, response);
+            request.getRequestDispatcher(request.getRequestURI()).forward(request, response);
             return;
         }
         try {

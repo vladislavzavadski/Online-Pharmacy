@@ -3,8 +3,11 @@ package by.training.online_pharmacy.controller.listener;
 import by.training.online_pharmacy.command.Command;
 import by.training.online_pharmacy.controller.CommandHelper;
 import by.training.online_pharmacy.controller.CommandName;
+import by.training.online_pharmacy.controller.listener.exception.InternalServerException;
 import by.training.online_pharmacy.service.InitConnectionService;
 import by.training.online_pharmacy.service.ServiceFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -15,13 +18,15 @@ import java.io.IOException;
  * Created by vladislav on 24.07.16.
  */
 public class ContextCreateListener implements ServletContextListener {
+    private final static Logger logger = LogManager.getLogger();
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         Command command = CommandHelper.getCommand(CommandName.INIT_CONNECTION);
         try {
             command.execute(null, null);
         } catch (ServletException|IOException e) {
-            e.printStackTrace();
+            logger.error("Something went wrong when trying to init connection pool", e);
+            throw new InternalServerException(e);
         }
     }
 
@@ -31,7 +36,8 @@ public class ContextCreateListener implements ServletContextListener {
         try {
             command.execute(null, null);
         } catch (ServletException|IOException e) {
-            e.printStackTrace();
+            logger.error("Something went wrong when trying to destroy connection pool", e);
+            throw new InternalServerException(e);
         }
     }
 }

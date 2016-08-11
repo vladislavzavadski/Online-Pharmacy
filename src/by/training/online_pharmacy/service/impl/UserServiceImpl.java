@@ -8,17 +8,13 @@ import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.service.UserService;
 import by.training.online_pharmacy.service.exception.*;
 import by.training.online_pharmacy.service.util.*;
-import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.compress.utils.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.Part;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by vladislav on 18.07.16.
@@ -45,8 +41,8 @@ public class UserServiceImpl implements UserService {
             if(user==null){
                 throw new UserNotFoundException("Incorrect login or password");
             }
-            if(user.getUserImage()==null){
-                user.setPathToAlternativeImage(ImageConstants.PHARMACY_DEFAULT_IMAGE);
+            if(user.getPathToImage()==null){
+                user.setPathToImage(ImageConstant.PHARMACY_DEFAULT_IMAGE);
             }
         } catch (DaoException e) {
             logger.error("Something went wrong when trying to login as native user", e);
@@ -195,7 +191,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void uploadProfileImage(User user, Part part) throws InvalidContentException, IOException, InvalidParameterException {
+    public void uploadProfileImage(User user, Part part, String realPath) throws InvalidContentException, IOException, InvalidParameterException {
         if(user==null){
             throw new InvalidParameterException("Parameter user is invalid");
         }
@@ -209,33 +205,41 @@ public class UserServiceImpl implements UserService {
             throw new InvalidParameterException("Invalid new image parameter");
         }
         InputStream newImageStream = part.getInputStream();
-        byte[] buffer = new byte[10];
-        List<Byte> image = new ArrayList<>(1024);
-        try {
-            String str = URLConnection.guessContentTypeFromStream(newImageStream);
-            if(str==null||!str.startsWith("image/")){
-                throw new InvalidContentException("The uploaded file is not an image");
-            }
-            if (newImageStream.available() > 4194304) {
-                throw new InvalidContentException("The uploaded file is too big");
-            }
-            while (newImageStream.available() > 0) {
-                newImageStream.read(buffer);
-                image.addAll(Arrays.asList(ArrayUtils.toObject(buffer)));
-            }
-        } catch (IOException ex){
-            logger.error("Something went wrong when trying to upload user profile image.", ex);
-            throw new InternalServerException(ex);
+        String content = URLConnection.guessContentTypeFromStream(newImageStream);
+        if(content==null||!content.startsWith("image/")){
+            throw new InvalidContentException("This file is not an image");
         }
-
-        byte[] newImage = ArrayUtils.toPrimitive(image.toArray(new Byte[image.size()]));
+        File f  = new File("/home/vladislav/Online Pharmacy/web/images/user"+"/"+user.getLogin()+".jpg");
+        if (!f.getParentFile().exists()) {
+            f.getParentFile().mkdirs();
+        }
+        if (!f.exists()) {
+            f.createNewFile();
+        }
+        user.setPathToImage("images/user"+"/"+user.getLogin()+".jpg");
+        OutputStream outputStream = new FileOutputStream(f);
+        IOUtils.copy(newImageStream, outputStream);
+        DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
+        UserDAO userDAO = daoFactory.getUserDAO();
         try {
-            DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
-            UserDAO userDAO = daoFactory.getUserDAO();
-            user.setUserImage(newImage);
             userDAO.uploadProfileImage(user);
         } catch (DaoException e) {
-            logger.error("Something went wrong when trying to upload user profile image.", e);
+            logger.error("Something went wrong, when trying to update profile image", e);
+            throw new InternalServerException(e);
+        }
+    }
+
+    @Override
+    public void deleteUser(User user) throws InvalidPasswordException {
+        DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
+        UserDAO userDAO = daoFactory.getUserDAO();
+        try {
+            int result  = userDAO.deleteUser(user);
+            if(result==0){
+                throw new InvalidPasswordException("Entered password is invalid");
+            }
+        } catch (DaoException e) {
+            logger.error("Something went wrong when trying to delete user", e);
             throw new InternalServerException(e);
         }
     }

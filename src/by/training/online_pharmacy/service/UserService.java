@@ -18,5 +18,6 @@ public interface UserService {
     void updatePersonalInformation(User user) throws InvalidParameterException;
     void updatePassword(User user, String newPassword) throws InvalidPasswordException, InvalidParameterException;
     void updateContacts(User user) throws InvalidParameterException;
-    void uploadProfileImage(User user, Part part) throws InvalidContentException, IOException, InvalidParameterException;
+    void uploadProfileImage(User user, Part part, String realPath) throws InvalidContentException, IOException, InvalidParameterException;
+    void deleteUser(User user) throws InvalidPasswordException;
 }

@@ -22,6 +22,26 @@ public class DatabaseUserDescriptionDAO implements UserDescriptionDAO {
 
     @Override
     public void insertUserDescription(UserDescription userDescription) throws DaoException {
+
+    }
+
+    @Override
+    public UserDescription getUserDescriptionByLogin(String userLogin) throws DaoException {
+        return null;
+    }
+
+    @Override
+    public void updateUserDescription(UserDescription userDescription) throws DaoException {
+
+    }
+
+    @Override
+    public void deleteUserDescription(String userLogin) throws DaoException {
+
+    }
+
+    /*@Override
+    public void insertUserDescription(UserDescription userDescription) throws DaoException {
         try (DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_DESCRIPTION_QUERY, userDescription.getUserLogin(), userDescription.getSpecialization(), userDescription.getDescription())){
             databaseOperation.invokeWriteOperation();
         } catch (Exception e) {
@@ -65,5 +85,5 @@ public class DatabaseUserDescriptionDAO implements UserDescriptionDAO {
         userDescription.setDescription(resultSet.getString(TableColumn.USER_DESCRIPTION));
 
         return userDescription;
-    }
+    }*/
 }

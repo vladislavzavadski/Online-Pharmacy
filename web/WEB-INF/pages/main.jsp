@@ -29,16 +29,8 @@
         <div class="container" style="background: white; padding-top: 10px">
             <div class="row">
                 <div class="col-lg-6">
-                    <c:choose>
-                        <c:when test="${user.userImage eq null}">
-                            <img src="${user.pathToAlternativeImage}" class="img-responsive" alt="<jsp:getProperty name="user" property="firstName"/> <jsp:getProperty name="user" property="secondName"/>" width="300" height="400"/>
-                        </c:when>
-                        <c:otherwise>
-                            <img src="/controller?command=GET_PROFILE_IMAGE" class="img-responsive" alt="<jsp:getProperty name="user" property="firstName"/> <jsp:getProperty name="user" property="secondName"/>" width="300" height="400"/>
-                        </c:otherwise>
-                    </c:choose>
-
-                    <!--<h1><jsp:getProperty name="user" property="firstName"/> <jsp:getProperty name="user" property="secondName"/></h1>-->
+                     <img src="${user.pathToImage}" class="img-responsive" alt="<jsp:getProperty name="user" property="firstName"/> <jsp:getProperty name="user" property="secondName"/>" width="300" height="400"/>
+                     <!--<h1><jsp:getProperty name="user" property="firstName"/> <jsp:getProperty name="user" property="secondName"/></h1>-->
                 </div>
                 <div class="col-lg-6">
                     <h1><jsp:getProperty name="user" property="firstName"/> <jsp:getProperty name="user" property="secondName"/></h1>

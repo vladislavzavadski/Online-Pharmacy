@@ -48,7 +48,7 @@ $("#save_password").click(function () {
             }else if(data.message==null) {
                 $("#security_inf").html("<span style=\"color:red\">Старый пароль введен неверно</span>");
             }else {
-                $("#contacts_inf").html("<span style=\"color:red\">Ошибка. Сообщение сервера: "+data.message+"</span>");
+                $("#security_inf").html("<span style=\"color:red\">Ошибкаytyt. Сообщение сервера: "+data.message+"</span>");
             }
         }
     });
@@ -104,6 +104,28 @@ $('#save_image').click(function(){
             }
             else {
                 $("#photo_inf").html("<span style=\"color:red\">Ошибка. Ответ сервера: "+data.message+"</span>");
+            }
+        }
+    });
+});
+
+$('#delete_user').click(function () {
+    var password = $("#delete_password").val();
+    if(password==""){
+        $("#delete_inf").html("<span style=\"color:red\">Пароль не должен быть пустым</span>");
+        return;
+    }
+    $.ajax({
+        type:'POST',
+        url:'controller',
+        dataType:'json',
+        data:{command:'DELETE_USER', password:password},
+        success: function (data) {
+            if(data.result==true){
+                window.location = "/index.jsp";
+            }
+            else {
+                $("#delete_inf").html("<span style=\"color:red\">Введен ошибочный пароль</span>");
             }
         }
     });

@@ -42,18 +42,18 @@ public class RequestForPrescription {
         if (o == null || getClass() != o.getClass()) return false;
 
         RequestForPrescription that = (RequestForPrescription) o;
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
         if (id != that.id) return false;
         if (client != null ? !client.equals(that.client) : that.client != null) return false;
         if (drug != null ? !drug.equals(that.drug) : that.drug != null) return false;
         if (doctor != null ? !doctor.equals(that.doctor) : that.doctor != null) return false;
-        if (prolongDate != null ? !simpleDateFormat.format(prolongDate).equals(simpleDateFormat.format(that.prolongDate)) : that.prolongDate != null) return false;
+        if (prolongDate != null ? !prolongDate.equals(that.prolongDate) : that.prolongDate != null) return false;
         if (requestStatus != that.requestStatus) return false;
         if (clientComment != null ? !clientComment.equals(that.clientComment) : that.clientComment != null)
             return false;
         if (doctorComment != null ? !doctorComment.equals(that.doctorComment) : that.doctorComment != null)
             return false;
-        return requestDate != null ? simpleDateFormat.format(requestDate).equals(simpleDateFormat.format(that.requestDate)) : that.requestDate == null;
+        return requestDate != null ? requestDate.equals(that.requestDate) : that.requestDate == null;
 
     }
 

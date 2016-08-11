@@ -35,8 +35,53 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
     private static final String UPDATE_PRESCRIPTION_QUERY = "UPDATE prescriptions SET pr_doctor=?, pr_appointment_date=?, pr_expiration_date=?, pr_drug_count=?, pr_drug_dosage=? WHERE pr_client_login=? and pr_drug_id=?";
     private static final String DELETE_PRESCRIPTION_QUERY = "DELETE FROM prescriptions WHERE pr_client_login=? and pr_drug_id=?;";
 
+    @Override
+    public List<Prescription> getUsersPrescriptions(String clientLogin, int limit, int startFrom) throws DaoException {
+        return null;
+    }
 
     @Override
+    public List<Prescription> getPrescriptionsByDrugId(int drugId, int limit, int startFrom) throws DaoException {
+        return null;
+    }
+
+    @Override
+    public List<Prescription> getDoctorsPrescriptions(String doctorLogin, int limit, int startFrom) throws DaoException {
+        return null;
+    }
+
+    @Override
+    public Prescription getPrescriptionByPrimaryKey(String userLogin, int drugId) throws DaoException {
+        return null;
+    }
+
+    @Override
+    public List<Prescription> getPrescriptionsByAppointmentDate(Date date, Period period, int limit, int startFrom) throws DaoException {
+        return null;
+    }
+
+    @Override
+    public List<Prescription> getPrescriptionsByExpirationDate(Date date, Period period, int limit, int startFrom) throws DaoException {
+        return null;
+    }
+
+    @Override
+    public void insertPrescription(Prescription prescription) throws DaoException {
+
+    }
+
+    @Override
+    public void updatePrescription(Prescription prescription) throws DaoException {
+
+    }
+
+    @Override
+    public void deletePrescription(String clientLogin, int drugId) throws DaoException {
+
+    }
+
+
+    /*@Override
     public List<Prescription> getUsersPrescriptions(String clientLogin, int limit, int startFrom) throws DaoException {
         List<Prescription> prescriptions = null;
         try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_USERS_PRESCRIPTIONS_QUERY, clientLogin, limit, startFrom)){
@@ -196,5 +241,5 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
         }
         return result;
 
-    }
+    }*/
 }

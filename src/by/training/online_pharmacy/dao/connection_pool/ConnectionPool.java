@@ -62,12 +62,17 @@ public class ConnectionPool {
 
     }
 
-    public Connection takeConnection() throws ConnectionPoolException{
+    public Connection takeConnection() throws ConnectionPoolException {
         Connection connection;
         synchronized (freeConnections) {
-            if (freeConnections.isEmpty()) {
-                throw new ConnectionPoolException("There are no free connections");
-            }
+               try {
+                    while (freeConnections.isEmpty()) {
+                        freeConnections.wait();
+                    }
+                } catch (InterruptedException e) {
+                       throw new ConnectionPoolException("Exception while trying to take new Connection");
+                }
+
 
             connection = freeConnections.remove(freeConnections.size() - 1);
         }
@@ -128,6 +133,10 @@ public class ConnectionPool {
             if(connection.isReadOnly()) {
                 connection.setReadOnly(false);
             }
+            if(!connection.getAutoCommit()){
+                connection.rollback();
+                connection.setAutoCommit(true);
+            }
             synchronized (usedConnections) {
                 if (!usedConnections.remove(this)) {
                     throw new SQLException("Error deleting connection from used connections pool");
@@ -137,6 +146,7 @@ public class ConnectionPool {
                 if (!freeConnections.add(this)) {
                     throw new SQLException("Error adding connection to free connections pool");
                 }
+                freeConnections.notify();
             }
         }
 

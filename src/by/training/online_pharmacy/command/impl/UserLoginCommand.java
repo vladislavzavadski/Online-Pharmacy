@@ -14,6 +14,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 /**
@@ -28,7 +29,7 @@ public class UserLoginCommand implements Command {
         User user = null;
         HttpSession httpSession = request.getSession(false);
         if(httpSession!=null&&httpSession.getAttribute(Parameter.USER)!=null){
-            request.getRequestDispatcher(Page.MAIN).forward(request, response);
+            request.getRequestDispatcher(request.getRequestURI()).forward(request, response);
             return;
         }
         try {

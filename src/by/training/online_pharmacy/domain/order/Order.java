@@ -2,6 +2,7 @@ package by.training.online_pharmacy.domain.order;
 
 
 import by.training.online_pharmacy.domain.drug.Drug;
+import by.training.online_pharmacy.domain.user.RegistrationType;
 import by.training.online_pharmacy.domain.user.User;
 
 import java.util.Date;
@@ -13,10 +14,11 @@ public class Order {
     private int id;
     private User client;
     private Drug drug;
-    private double drugCount;
+    private int drugCount;
     private short drugDosage;
     private OrderStatus orderStatus;
     private Date orderDate;
+
 
     @Override
     public String toString() {
@@ -88,11 +90,11 @@ public class Order {
         this.drug = drug;
     }
 
-    public double getDrugCount() {
+    public int getDrugCount() {
         return drugCount;
     }
 
-    public void setDrugCount(double drugCount) {
+    public void setDrugCount(int drugCount) {
         this.drugCount = drugCount;
     }
 

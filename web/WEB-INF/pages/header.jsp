@@ -28,9 +28,19 @@
 <fmt:message bundle="${loc}" key="locale.gender.female" var="female"/>
 <fmt:message bundle="${loc}" key="locale.gender.unknown" var="unknown"/>
 <fmt:message bundle="${loc}" key="locale.my_cabinet" var="myCabinet"/>
+<c:if test="${sessionScope.user eq null}">
+    <c:redirect url="/index.jsp"/>
+</c:if>
 <nav class="navbar navbar-default navbar-fixed-top" style="background:#507ecf">
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
+        <c:if test="${param.command eq 'GET_ALL_DRUGS'}">
+            <a href="#menu-toggle" type="button" class="navbar-toggle" style="display:block; background:white;" id="menu-toggle">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+        </c:if>
         <div class="navbar-header">
             <img class="brand-logo image-logo" src="images/logo.jpg" alt="Green cross" width="60" height="50"/>
             <p class="name navbar-brand" style="color:azure">Online Pharmacy</p>
@@ -42,12 +52,14 @@
         </div>
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <form class="navbar-form navbar-left" role="search" style="padding-top:20px;">
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="${search}">
-                </div>
-                <button type="submit" class="btn btn-info">${search}</button>
-            </form>
+            <c:if test="${param.command eq 'GET_ALL_DRUGS'}">
+                <form class="navbar-form navbar-left" role="search" style="padding-top:20px;">
+                    <div class="form-group">
+                        <input id="query_string" type="text" class="form-control" placeholder="${search}">
+                    </div>
+                    <button id="search_button" type="submit" class="btn btn-info">${search}</button>
+                </form>
+            </c:if>
             <div class="btn-group" style="padding-top:20px;" role="group">
                 <a href="/main.jsp" class="btn btn-lg btn-primary">${myCabinet}</a>
                 <c:if test="${user.userRole eq 'CLIENT'}">
@@ -55,7 +67,7 @@
                    <a href="#" class="btn btn-lg btn-primary">${myPrescriptions}</a>
                 </c:if>
                 <a href="/settings" class="btn btn-lg btn-primary">${mySettings}</a>
-                <a href="#" class="btn btn-lg btn-primary">${drugs}</a>
+                <a href="/controller?command=GET_ALL_DRUGS&page=1" class="btn btn-lg btn-primary">${drugs}</a>
                 <a href="#" class="btn btn-lg btn-primary">${doctors}</a>
                 <a href="/controller?command=LOG_OUT" class="btn btn-lg btn-primary">${logOut}</a>
             </div>

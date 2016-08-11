@@ -100,14 +100,14 @@ public class SocialNetworkServiceImpl implements SocialNetworkService {
         DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
         UserDAO userDAO = daoFactory.getUserDAO();
         user = userDAO.userAuthentication(user);
-        if(user.getUserImage()==null){
+        if(user.getPathToImage()==null){
             String pathToAlternativeImage = api.getImage();
             if(pathToAlternativeImage==null||
-                    pathToAlternativeImage.contains(ImageConstants.VK_DEFAULT_IMAGE)||
-                    pathToAlternativeImage.contains(ImageConstants.FACEBOOK_DEFAULT_IMAGE)) {
-                user.setPathToAlternativeImage(ImageConstants.PHARMACY_DEFAULT_IMAGE);
+                    pathToAlternativeImage.contains(ImageConstant.VK_DEFAULT_IMAGE)||
+                    pathToAlternativeImage.contains(ImageConstant.FACEBOOK_DEFAULT_IMAGE)) {
+                user.setPathToImage(ImageConstant.PHARMACY_DEFAULT_IMAGE);
             }else {
-                user.setPathToAlternativeImage(api.getImage());
+                user.setPathToImage(api.getImage());
             }
 
         }

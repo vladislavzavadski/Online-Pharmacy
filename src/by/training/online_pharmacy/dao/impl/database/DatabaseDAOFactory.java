@@ -43,5 +43,7 @@ public class DatabaseDAOFactory extends DaoFactory {
         return new DatabaseRequestForPrescriptionDAO();
     }
 
+    public MessageDAO getMessageDAO(){return  new DatabaseMessageDAO();}
+
 }
 

@@ -23,11 +23,8 @@ public class TableColumn {
     public static final String DRUG_MANUFACTURE_COUNTRY = "dm_country";
     public static final String DRUG_IMAGE = "dr_image";
     public static final String ORDER_ID = "or_id";
-    public static final String ORDER_DRUG_COUNT = "dr_drug_count";
-    public static final String ORDER_DRUG_DOSAGE = "or_drug_dosage";
     public static final String ORDER_DATE = "or_date";
-    public static final String ORDER_STATUS = "or_status";
-    public static final String USER_LOGIN = "us_login";
+    public static final String USER_LOGIN = "US_LOGIN";
     public static final String USER_FIRST_NAME = "us_first_name";
     public static final String USER_SECOND_NAME = "us_second_name";
     public static final String PRESCRIPTION_APPOINTMENT_DATE = "pr_appointment_date";
@@ -51,5 +48,22 @@ public class TableColumn {
     public static final String USER_IMAGE = "us_image";
     public static final String STAFF_USER_LOGIN = "sd_user_login";
     public static final String LOGIN_COUNT = "login_count";
-
+    public static final String USER_PASSWORD = "us_password";
+    public static final String REGISTRATION_TYPE = "login_via";
+    public static final String LIMIT = "limit";
+    public static final String DR_CLASS_COLUMN = "dr_class";
+    public static final String MANUFACTURE = "dr_manufacturer";
+    public static final String ORDER_US_LOGIN = "or_client_login";
+    public static final String ORDER_LOGIN_VIA = "or_login_via";
+    public static final String ORDER_DRUG_ID = "or_drug_id";
+    public static final String ORDER_DRUG_COUNT  = "or_drug_count";
+    public static final String ORDER_DRUG_DOSAGE = "or_drug_dosage";
+    public static final String ORDER_STATUS = "or_status";
+    public static final String MESSAGE_SENDER_LOGIN = "me_sender_login";
+    public static final String MESSAGE_SENDER_LOGIN_VIA = "me_sender_login_via";
+    public static final String MESSAGE_SENDER_MESSAGE = "me_sender_message";
+    public static final String MESSAGE_RECEIVER_LOGIN = "me_receiver_login";
+    public static final String MESSAGE_RECEIVER_LOGIN_VIA = "me_receiver_login_via";
+    public static final String REQUEST_MESSAGE_SENDED = "me_request_sended";
+    public static final String RESPONSE_MESSAGE_SENDED = "me_response_sended";
 }

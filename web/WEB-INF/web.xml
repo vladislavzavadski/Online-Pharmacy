@@ -54,6 +54,30 @@
         <servlet-name>settings</servlet-name>
         <url-pattern>/settings</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>drugs</servlet-name>
+        <jsp-file>/WEB-INF/pages/drugs.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>drugs</servlet-name>
+        <url-pattern>/drugs</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>drug</servlet-name>
+        <jsp-file>/WEB-INF/pages/drug.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>drug</servlet-name>
+        <url-pattern>/drug</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>drug-details</servlet-name>
+        <jsp-file>/WEB-INF/pages/drug-description.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>drug-details</servlet-name>
+        <url-pattern>/drug-details</url-pattern>
+    </servlet-mapping>
     <error-page>
         <error-code>404</error-code>
         <location>/WEB-INF/pages/error/404.html</location>
@@ -62,7 +86,15 @@
         <exception-type>by.training.online_pharmacy.service.exception.InternalServerException</exception-type>
         <location>/WEB-INF/pages/error/500.html</location>
     </error-page>
+    <error-page>
+        <exception-type>java.lang.RuntimeException</exception-type>
+        <location>/WEB-INF/pages/error/500.html</location>
+    </error-page>
     <listener>
         <listener-class>by.training.online_pharmacy.controller.listener.ContextCreateListener</listener-class>
     </listener>
+    <error-page>
+        <exception-type>by.training.online_pharmacy.controller.listener.exception.InternalServerException</exception-type>
+        <location>/WEB-INF/pages/error/500.html</location>
+    </error-page>
 </web-app>

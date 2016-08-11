@@ -14,12 +14,11 @@ import java.util.List;
 public interface UserDAO {
     User userAuthentication(String login, String password, RegistrationType registrationType) throws DaoException;
     User userAuthentication(User user) throws DaoException;
-    User getUserByLogin(String login) throws DaoException;
+    User getUserByLogin(String login, RegistrationType registrationType) throws DaoException;
     List<User> searchUsersByRole(UserRole userRole, int startFrom, int limit) throws DaoException;
     List<User> searchUsersByName(String firstName, String secondName, int limit, int startFrom) throws DaoException;
     void insertUser(User user) throws DaoException;
-    void updateUser(User user) throws DaoException;
-    void deleteUser(String login) throws DaoException;
+    int deleteUser(User user) throws DaoException;
     List<User> getUsersBySpecialization(String specialization, int limit, int startFrom) throws DaoException;
     boolean isLoginUsed(String login) throws DaoException;
     void updatePersonalInformation(User user) throws DaoException;

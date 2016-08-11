@@ -26,7 +26,7 @@ public class UploadProfileImageCommand implements Command {
         HttpSession httpSession = request.getSession(false);
         User user;
         if(httpSession==null||(user=(User)httpSession.getAttribute(Parameter.USER))==null){
-            response.sendRedirect(request.getRequestURI());
+            response.sendRedirect(Page.INDEX);
             return;
         }
         ServletOutputStream servletOutputStream = response.getOutputStream();
@@ -35,9 +35,9 @@ public class UploadProfileImageCommand implements Command {
         Part part = request.getPart(Parameter.PROFILE_IMAGE);
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         UserService userService = serviceFactory.getUserService();
-
+        String realPath = request.getServletContext().getRealPath(Page.USER_IMAGES);
         try {
-            userService.uploadProfileImage(user, part);
+            userService.uploadProfileImage(user, part, realPath);
             jsonObject.put(Parameter.RESULT, true);
         } catch (InvalidContentException|InvalidParameterException e) {
             jsonObject.put(Parameter.RESULT, false);

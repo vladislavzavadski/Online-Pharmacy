@@ -24,8 +24,38 @@ public class DatabaseDrugManufacturerDao implements DrugManufacturerDAO {
     private static final String UPDATE_MANUFACTURE_QUERY = "UPDATE drugs_manufactures SET dm_name=?, dm_country=?, dm_description=? where dm_id=?";
     private static final String DELETE_MANUFACTURER_QUERY = "DELETE FROM drugs_manufactures where dm_id=?;";
 
+    @Override
+    public List<DrugManufacturer> getManufacturesByCountry(String country, int limit, int startFrom) throws DaoException {
+        return null;
+    }
 
     @Override
+    public List<DrugManufacturer> getManufacturesByName(String name, int limit, int startFrom) throws DaoException {
+        return null;
+    }
+
+    @Override
+    public DrugManufacturer getManufacturerById(int manufactureId) throws DaoException {
+        return null;
+    }
+
+    @Override
+    public void insertDrugManufacturer(DrugManufacturer drugManufacturer) throws DaoException {
+
+    }
+
+    @Override
+    public void updateManufacturer(DrugManufacturer drugManufacturer) throws DaoException {
+
+    }
+
+    @Override
+    public void deleteManufacturer(int manufacturerId) throws DaoException {
+
+    }
+
+
+    /*@Override
     public List<DrugManufacturer> getManufacturesByCountry(String country, int limit, int startFrom) throws DaoException {
         List<DrugManufacturer> drugManufacturers = null;
         try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_MANUFACTURER_BY_COUNTRY_QUERY, country, limit, startFrom)){
@@ -101,7 +131,7 @@ public class DatabaseDrugManufacturerDao implements DrugManufacturerDAO {
             result.add(drugManufacturer);
         }
         return result;
-    }
+    }*/
 
 
 }
