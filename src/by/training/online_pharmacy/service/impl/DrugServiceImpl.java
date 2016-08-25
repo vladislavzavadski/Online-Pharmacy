@@ -3,9 +3,11 @@ package by.training.online_pharmacy.service.impl;
 import by.training.online_pharmacy.dao.DaoFactory;
 import by.training.online_pharmacy.dao.DrugClassDAO;
 import by.training.online_pharmacy.dao.DrugDAO;
+import by.training.online_pharmacy.dao.DrugManufacturerDAO;
 import by.training.online_pharmacy.dao.exception.DaoException;
 import by.training.online_pharmacy.domain.drug.Drug;
 import by.training.online_pharmacy.domain.drug.DrugClass;
+import by.training.online_pharmacy.domain.drug.DrugManufacturer;
 import by.training.online_pharmacy.service.DrugService;
 import by.training.online_pharmacy.service.exception.InternalServerException;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
@@ -13,6 +15,9 @@ import by.training.online_pharmacy.service.util.ImageConstant;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -21,7 +26,7 @@ import java.util.List;
 public class DrugServiceImpl implements DrugService {
     private static final Logger logger = LogManager.getLogger();
     @Override
-    public List<Drug> getAllDrugs(int limit, int startFrom) throws InvalidParameterException {
+    public List<Drug> getAllDrugs(int limit, int startFrom, boolean pageOverload) throws InvalidParameterException {
         if(limit<=0){
             throw new InvalidParameterException("Invalid parameter limit. Limit can be >0");
         }
@@ -31,8 +36,7 @@ public class DrugServiceImpl implements DrugService {
         DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
         DrugDAO drugDAO = daoFactory.getDrugDAO();
         try {
-            List<Drug> result = drugDAO.getAllDrugs(limit, startFrom);
-            result.stream().filter(drug -> drug.getPathToImage() == null).forEach(drug -> drug.setPathToImage(ImageConstant.DEFAULT_DRUG_IMAGE));
+            List<Drug> result = drugDAO.getAllDrugs(limit, startFrom, pageOverload);
             return result;
         } catch (DaoException e) {
             logger.error("Something went wrong when trying to get drugs", e);
@@ -86,9 +90,6 @@ public class DrugServiceImpl implements DrugService {
                 logger.error("Something went wrong when trying to get user with id="+drugId+"result is null");
                 throw new InternalServerException("Something went wrong when trying to get user with id="+drugId+" result is null");
             }
-            if(drug.getPathToImage()==null){
-                drug.setPathToImage(ImageConstant.DEFAULT_DRUG_IMAGE);
-            }
             return drug;
         } catch (DaoException e) {
             logger.error("Something went wrong when trying to get drug by id", e);
@@ -111,7 +112,6 @@ public class DrugServiceImpl implements DrugService {
         DrugDAO drugDAO = daoFactory.getDrugDAO();
         try {
             List<Drug> drugs = drugDAO.searchDrugs(query, limit, startFrom);
-            drugs.stream().filter(drug -> drug.getPathToImage() == null).forEach(drug -> drug.setPathToImage(ImageConstant.DEFAULT_DRUG_IMAGE));
             return drugs;
         } catch (DaoException e) {
             logger.error("Something went wrong when trying to search drugs", e);
@@ -120,41 +120,52 @@ public class DrugServiceImpl implements DrugService {
     }
 
     @Override
-    public List<Drug> extendedDrugSearch(Drug pattern, int limit, int startFrom) throws InvalidParameterException {
+    public List<Drug> extendedDrugSearch(String name, String activeSubstance, String drugMaxPrice, String drugClass, String drugManufacture, String onlyInStock, String prescriptionEnable,  int limit, int startFrom) throws InvalidParameterException {
         if(limit<=0){
             throw new InvalidParameterException("Invalid parameter limit. Limit can be >0");
         }
         if(startFrom<0){
             throw new InvalidParameterException("Invalid parameter startFrom startFrom can be >0");
         }
-        if(pattern==null){
-            throw new InvalidParameterException("Parameter pattern is invalid");
-        }
-        if(pattern.getName()==null){
-            throw new InvalidParameterException("Parameter drug name is invalid");
-        }
-        if(pattern.getPrice()<0){
-            throw new InvalidParameterException("Parameter price is invalid");
-        }
-        if(pattern.getDrugManufacturer()!=null&&pattern.getDrugManufacturer().getId()<0){
-            throw new InvalidParameterException("Parameter drug manufacture is invalid");
-        }
-        if(pattern.getDrugClass()!=null&&pattern.getDrugClass().getName()==null){
-            throw new InvalidParameterException("Parameter drug class is invalid");
-        }
-        if(pattern.getActiveSubstance()==null){
-            throw new InvalidParameterException("Parameter active substance is invalid");
-        }
         DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
         DrugDAO drugDAO = daoFactory.getDrugDAO();
         try {
-            List<Drug> drugs = drugDAO.extendedSearching(pattern, limit, startFrom);
-            drugs.stream().filter(drug -> drug.getPathToImage() == null).forEach(drug -> drug.setPathToImage(ImageConstant.DEFAULT_DRUG_IMAGE));
+            List<Drug> drugs = drugDAO.extendedSearching(name, activeSubstance, drugMaxPrice, drugClass, drugManufacture, onlyInStock, prescriptionEnable, limit, startFrom);
             return drugs;
         } catch (DaoException e) {
             logger.error("Something went wrong when trying to extended search", e);
             throw new InternalServerException(e);
         }
 
+    }
+
+    @Override
+    public InputStream getDrugImage(int drugId) throws InvalidParameterException {
+        if(drugId<0){
+            throw new InvalidParameterException("Parameter drug id is invalid");
+        }
+        DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
+        DrugDAO drugDAO = daoFactory.getDrugDAO();
+        try {
+            InputStream inputStream = drugDAO.getDrugImage(drugId);
+            if(inputStream==null){
+                return new FileInputStream(ImageConstant.DEFAULT_DRUG_IMAGE);
+            }
+            return inputStream;
+        } catch (DaoException|FileNotFoundException e) {
+            logger.error("Something went wrong when trying to load drug image", e);
+            throw new InternalServerException(e);
+        }
+    }
+
+    @Override
+    public List<DrugManufacturer> getDrugManufactures(){
+        DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
+        DrugManufacturerDAO drugManufacturerDAO = daoFactory.getDrugManufacturerDAO();
+        try {
+            return drugManufacturerDAO.getDrugManufactures();
+        } catch (DaoException e) {
+            throw new InternalServerException(e);
+        }
     }
 }

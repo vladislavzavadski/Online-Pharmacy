@@ -35,6 +35,19 @@ public class CommandHelper {
         commands.put(CommandName.CREATE_ORDER, new CreateOrderCommand());
         commands.put(CommandName.CREATE_REQUEST, new CreateRequestCommand());
         commands.put(CommandName.SEND_MESSAGE, new SendMessageCommand());
+        commands.put(CommandName.GET_ALL_DOCTORS, new GetAllDoctorsCommand());
+        commands.put(CommandName.GET_DOCTORS_BY_SPECIALIZATION, new GetDoctorsBySpecializationCommand());
+        commands.put(CommandName.SEARCH_DOCTORS, new SearchDoctorsCommand());
+        commands.put(CommandName.GET_USER_DETAILS, new GetUserDetailsCommand());
+        commands.put(CommandName.GET_PROFILE_IMAGE, new GetProfileImageCommand());
+        commands.put(CommandName.GET_USER_IMAGE, new GetUserImageCommand());
+        commands.put(CommandName.GET_DRUG_IMAGE, new GetDrugImageCommand());
+        commands.put(CommandName.GET_ALL_ORDERS, new GetAllOrdersCommand());
+        commands.put(CommandName.CANCEL_ORDER, new CancelOrderCommand());
+        commands.put(CommandName.GET_ALL_MESSAGES, new GetAllMessagesCommand());
+        commands.put(CommandName.MARK_MESSAGE, new MarkMessageAsReadedCommand());
+        commands.put(CommandName.GET_MESSAGE_COUNT, new GetMessageCountCommand());
+        commands.put(CommandName.GET_REQUESTS, new GetRequestsCommand());
     }
     public static Command getCommand(CommandName commandName){
         return commands.get(commandName);

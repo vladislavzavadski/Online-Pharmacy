@@ -78,6 +78,62 @@
         <servlet-name>drug-details</servlet-name>
         <url-pattern>/drug-details</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>doctors</servlet-name>
+        <jsp-file>/WEB-INF/pages/doctors.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>doctors</servlet-name>
+        <url-pattern>/doctors</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>doctor</servlet-name>
+        <jsp-file>/WEB-INF/pages/doctor.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>doctor</servlet-name>
+        <url-pattern>/doctor</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>doctor-description</servlet-name>
+        <jsp-file>/WEB-INF/pages/doctor-description.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>doctor-description</servlet-name>
+        <url-pattern>/doctor-description</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>orders</servlet-name>
+        <jsp-file>/WEB-INF/pages/orders.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>orders</servlet-name>
+        <url-pattern>/orders</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>order</servlet-name>
+        <jsp-file>/WEB-INF/pages/order.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>order</servlet-name>
+        <url-pattern>/order</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>messages</servlet-name>
+        <jsp-file>/WEB-INF/pages/messages.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>messages</servlet-name>
+        <url-pattern>/messages</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>message</servlet-name>
+        <jsp-file>/WEB-INF/pages/message.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>message</servlet-name>
+        <url-pattern>/message</url-pattern>
+    </servlet-mapping>
     <error-page>
         <error-code>404</error-code>
         <location>/WEB-INF/pages/error/404.html</location>

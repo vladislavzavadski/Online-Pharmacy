@@ -29,9 +29,19 @@
         <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
         <![endif]-->
         <script src="js/bootstrap.js"></script>
+        <style>
+            #notifies {
+                position:fixed;
+                width:auto;
+                height:auto;
+                top:100px;
+                right:20px;
+            }
+        </style>
     </head>
     <body>
         <div class="container content">
+            <div id="notifies"></div>
             <!-- Sidebar -->
             <h1 class="display_1">Настройки</h1>
             <div class="container" style="background:white">
@@ -177,11 +187,11 @@
                         var secondName = $("#second_name").val();
                         var gender = $("#gender_select").val();
                         if(firstName==""){
-                            $("#personal_inf").html("<span style=\"color:red\">Поле ИМЯ должно быть заполнено</span>");
+                            Notify.generate('Поле имя не должно быть пустым', 'Ошибка', 2);
                             return;
                         }
                         if(secondName==""){
-                            $("#personal_inf").html("<span style=\"color:red\">Поле ФАМИЛИЯ должно быть заполнено</span>");
+                            Notify.generate('Поле ФАМИЛИЯ должно быть заполнено', 'Ошибка', 2);
                             return;
                         }
                         $.ajax({
@@ -191,10 +201,18 @@
                             data:{command:"UPDATE_PERSONAL_INFORMATION", first_name:firstName, second_name:secondName, gender:gender},
                             success: function (data) {
                                 if(data.result==true){
-                                    $("#personal_inf").html("<span style=\"color:green\">Сохранено</span>");
+                                    Notify.generate('Сохранено', 'Персональная информация успешно сохранена', 1)
                                 }
                                 else {
-                                    $("#contacts_inf").html("<span style=\"color:red\">Ошибка. Сообщение сервера: "+data.message+"</span>");
+                                    if(data.isCritical){
+                                        Notify.generate('Логин под которым вы авторизованы был удален из базы данных.', 'Критическая ошибка', 3);
+                                        setTimeout(function () {
+                                            window.location.assign("/index.jsp");
+                                        }, 5000);
+                                    }
+                                    else {
+                                        Notify.generate('Не сохранить изменения. Ответ сервера: '+data.message, 'Не сохранить изменения', 2);
+                                    }
                                 }
                             }
                         });
@@ -205,11 +223,11 @@
                         var newPassword = $("#new_password").val();
                         var confirmedPassword = $("#confirm_password").val();
                         if(oldPassword==""||newPassword==""||confirmedPassword==""){
-                            $("#security_inf").html("<span style=\"color:red\">Все поля должны быть заполнены</span>");
+                            Notify.generate('Все поля должны быть заполнены', 'Ошибка', 2);
                             return;
                         }
                         if(newPassword!=confirmedPassword){
-                            $("#security_inf").html("<span style=\"color:red\">Введенные пароли не совпадают</span>");
+                            Notify.generate('Введенные пароли не совпадают', 'Ошибка', 2);
                             return;
                         }
                         $.ajax({
@@ -219,11 +237,14 @@
                             data:{command:"UPDATE_PASSWORD", new_password:newPassword, old_password:oldPassword},
                             success:function (data) {
                                 if(data.result==true){
-                                    $("#security_inf").html("<span style=\"color:green\">Сохранено</span>");
-                                }else if(data.message==null) {
-                                    $("#security_inf").html("<span style=\"color:red\">Старый пароль введен неверно</span>");
-                                }else {
-                                    $("#security_inf").html("<span style=\"color:red\">Ошибка. Сообщение сервера: "+data.message+"</span>");
+                                    Notify.generate('Сохранено', 'Новый пароль сохранен', 1);
+                                }else if(data.isCritical){
+                                    Notify.generate('Логин под которым вы авторизованы был удален из базы данных.', 'Критическая ошибка', 3);
+                                    setTimeout(function () {
+                                        window.location = "/index.jsp";
+                                    }, 3);
+                                } else {
+                                    Notify.generate('Проверьте введенный пароль', 'Ошибка', 2);
                                 }
                             }
                         });
@@ -233,11 +254,12 @@
                         var mail = $("#e-mail").val();
                         var phone = $("#phone_number").val();
                         if(mail==""){
-                            $("#contacts_inf").html("<span style=\"color:red\">Поле E-MAIL не должно быть пустым</span>");
+                            Notify.generate('Поле E-MAIL не должно быть пустым', 'Ошибка', 2);
                             return;
                         }
                         if(mail==""){
-                            $("#contacts_inf").html("<span style=\"color:red\">Поле НОМЕР ТЕЛЕФОНА не должно быть пустым</span>");
+                            $("#contacts_inf").html("<span style=\"color:red\"></span>");
+                            Notify.generate('Поле НОМЕР ТЕЛЕФОНА не должно быть пустым', 'Ошибка', 2);
                             return;
                         }
                         $.ajax({
@@ -247,10 +269,16 @@
                             data:{command:"UPDATE_CONTACTS", email:mail, phone:phone},
                             success: function (data) {
                                 if(data.result==true){
-                                    $("#contacts_inf").html("<span style=\"color:green\">Сохранено</span>");
+                                    Notify.generate('Контакты успешно сохранены', 'Сохранено', 1);
+                                }
+                                else if(!data.isCritical){
+                                    Notify.generate("Ошибка. Сообщение сервера: "+data.message, 'Ошибка', 2);
                                 }
                                 else {
-                                    $("#contacts_inf").html("<span style=\"color:red\">Ошибка. Сообщение сервера: "+data.message+"</span>");
+                                    Notify.generate('Логин под которым вы авторизованы был удален из базы данных.', 'Критическая ошибка', 3);
+                                    setTimeout(function () {
+                                        window.location = "/index.jsp";
+                                    }, 3);
                                 }
                             }
                         });
@@ -258,7 +286,7 @@
 
                     $('#save_image').click(function(){
                         if($("#profile_image1").val()==""){
-                            alert("Не выбрано фото для загрузки.");
+                            Notify.generate("Не выбрано фото для загрузки", 'Ошибка', 2);
                             return;
                         }
                         var formData = new FormData();
@@ -275,10 +303,16 @@
                             success:function (data) {
                                 $("#loading").hide();
                                 if(data.result==true) {
-                                    $("#photo_inf").html("<span style=\"color:green\">Сохранено</span>");
+                                    Notify.generate("Новое фото успешно сохранено", 'Сохранено', 1);
+                                }
+                                else if(!data.isCritical){
+                                    Notify.generate("Ошибка. Сообщение сервера: "+data.message, 'Ошибка', 2);
                                 }
                                 else {
-                                    $("#photo_inf").html("<span style=\"color:red\">Ошибка. Ответ сервера: "+data.message+"</span>");
+                                    Notify.generate('Логин под которым вы авторизованы был удален из базы данных.', 'Критическая ошибка', 3);
+                                    setTimeout(function () {
+                                        window.location = "/index.jsp";
+                                    }, 3);
                                 }
                             }
                         });
@@ -309,4 +343,34 @@
             </div>
         </div>
     </body>
+    <script>
+        Notify = {
+            TYPE_INFO: 0,
+            TYPE_SUCCESS: 1,
+            TYPE_WARNING: 2,
+            TYPE_DANGER: 3,
+
+            generate: function (aText, aOptHeader, aOptType_int) {
+                var lTypeIndexes = [this.TYPE_INFO, this.TYPE_SUCCESS, this.TYPE_WARNING, this.TYPE_DANGER];
+                var ltypes = ['alert-info', 'alert-success', 'alert-warning', 'alert-danger'];
+
+                var ltype = ltypes[this.TYPE_INFO];
+                if (aOptType_int !== undefined && lTypeIndexes.indexOf(aOptType_int) !== -1) {
+                    ltype = ltypes[aOptType_int];
+                }
+
+                var lText = '';
+                if (aOptHeader) {
+                    lText += "<h4>"+aOptHeader+"</h4>";
+                }
+                lText += "<p>"+aText+"</p>";
+
+                var lNotify_e = $("<div class='alert "+ltype+"'><button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>×</span></button>"+lText+"</div>");
+                setTimeout(function () {
+                    lNotify_e.alert('close');
+                }, 3000);
+                lNotify_e.appendTo($("#notifies"));
+            }
+        };
+    </script>
 </html>

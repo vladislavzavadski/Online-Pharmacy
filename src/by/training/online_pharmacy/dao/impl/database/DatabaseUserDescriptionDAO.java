@@ -2,6 +2,7 @@ package by.training.online_pharmacy.dao.impl.database;
 
 
 import by.training.online_pharmacy.dao.UserDescriptionDAO;
+import by.training.online_pharmacy.dao.connection_pool.exception.ConnectionPoolException;
 import by.training.online_pharmacy.dao.exception.DaoException;
 import by.training.online_pharmacy.dao.impl.database.util.DatabaseOperation;
 import by.training.online_pharmacy.domain.user.UserDescription;
@@ -10,6 +11,8 @@ import org.apache.logging.log4j.Logger;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by vladislav on 18.06.16.
@@ -19,7 +22,7 @@ public class DatabaseUserDescriptionDAO implements UserDescriptionDAO {
     private static final String GET_DESCRIPTION_QUERY = "SELECT sd_user_login, sd_specialization, sd_description FROM staff_descriptions WHERE sd_user_login=? limit 1;";
     private static final String UPDATE_DESCRIPTION_QUERY = "UPDATE staff_descriptions SET sd_specialization=?, sd_description=? WHERE sd_user_login=?;";
     private static final String DELETE_DESCRIPTION_QUERY = "DELETE FROM staff_descriptions WHERE sd_user_login=?;";
-
+    private static final String GET_DOCTORS_SPECIALIZATION = "select distinct sd_specialization from staff_descriptions order by sd_specialization";
     @Override
     public void insertUserDescription(UserDescription userDescription) throws DaoException {
 
@@ -38,6 +41,23 @@ public class DatabaseUserDescriptionDAO implements UserDescriptionDAO {
     @Override
     public void deleteUserDescription(String userLogin) throws DaoException {
 
+    }
+
+    @Override
+    public List<UserDescription> getAllSpecializations() throws DaoException {
+        List<UserDescription> result = new ArrayList<>();
+        try{
+            DatabaseOperation databaseOperation = new DatabaseOperation(GET_DOCTORS_SPECIALIZATION);
+            ResultSet resultSet = databaseOperation.invokeReadOperation();
+            while (resultSet.next()){
+                UserDescription userDescription = new UserDescription();
+                userDescription.setSpecialization(resultSet.getString(TableColumn.USER_SPECIALIZATION));
+                result.add(userDescription);
+            }
+            return result;
+        } catch (SQLException | ConnectionPoolException e) {
+            throw new DaoException("Can not load doctors specializations from database", e);
+        }
     }
 
     /*@Override

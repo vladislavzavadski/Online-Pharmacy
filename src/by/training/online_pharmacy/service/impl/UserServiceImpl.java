@@ -2,19 +2,25 @@ package by.training.online_pharmacy.service.impl;
 
 import by.training.online_pharmacy.dao.DaoFactory;
 import by.training.online_pharmacy.dao.UserDAO;
+import by.training.online_pharmacy.dao.UserDescriptionDAO;
 import by.training.online_pharmacy.dao.exception.DaoException;
+import by.training.online_pharmacy.dao.exception.EntityDeletedException;
 import by.training.online_pharmacy.domain.user.RegistrationType;
 import by.training.online_pharmacy.domain.user.User;
+import by.training.online_pharmacy.domain.user.UserDescription;
 import by.training.online_pharmacy.service.UserService;
 import by.training.online_pharmacy.service.exception.*;
 import by.training.online_pharmacy.service.util.*;
-import org.apache.commons.compress.utils.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.Part;
 import java.io.*;
+import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.List;
 
 /**
  * Created by vladislav on 18.07.16.
@@ -104,7 +110,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updatePersonalInformation(User user) throws InvalidParameterException {
+    public void updatePersonalInformation(User user) throws InvalidParameterException, NotFoundException {
         if(user==null){
             throw new InvalidParameterException("Parameter user is invalid");
         }
@@ -127,16 +133,21 @@ public class UserServiceImpl implements UserService {
         UserDAO userDAO = daoFactory.getUserDAO();
         try {
             userDAO.updatePersonalInformation(user);
-        } catch (DaoException e) {
+        }catch (EntityDeletedException e) {
+            throw new NotFoundException("User with login=" + user.getLogin() + " was not found", e);
+        }  catch (DaoException e) {
             logger.error("Something went wrong when trying to update users personal info", e);
             throw new InternalServerException(e);
         }
     }
 
     @Override
-    public void updatePassword(User user, String newPassword) throws InvalidPasswordException, InvalidParameterException {
+    public void updatePassword(User user, String newPassword, String oldPassword) throws InvalidPasswordException, InvalidParameterException, NotFoundException {
         if(user==null){
             throw new InvalidParameterException("Parameter user is invalid");
+        }
+        if(!oldPassword.equals(user.getPassword())){
+            throw new InvalidPasswordException("Old password is incorrect");
         }
         if(user.getRegistrationType()==null){
             throw new InvalidParameterException("Parameter RegistrationType is invalid");
@@ -153,18 +164,18 @@ public class UserServiceImpl implements UserService {
         DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
         UserDAO userDAO = daoFactory.getUserDAO();
         try {
-            int usersCount = userDAO.updateUsersPassword(user, newPassword);
-            if(usersCount==0){
-                throw new InvalidPasswordException("Entered old password is incorrect");
-            }
-        } catch (DaoException e) {
+            userDAO.updateUsersPassword(user, newPassword);
+        }catch (EntityDeletedException e) {
+            throw new NotFoundException("User with login=" + user.getLogin() + " was not found", e);
+        }
+        catch (DaoException e) {
             logger.error("Something went wrong when trying to update users password", e);
             throw new InternalServerException(e);
         }
     }
 
     @Override
-    public void updateContacts(User user) throws InvalidParameterException {
+    public void updateContacts(User user) throws InvalidParameterException, NotFoundException {
         if(user==null){
             throw new InvalidParameterException("Parameter user is invalid");
         }
@@ -184,46 +195,48 @@ public class UserServiceImpl implements UserService {
         UserDAO userDAO = daoFactory.getUserDAO();
         try {
             userDAO.updateUsersContacts(user);
-        } catch (DaoException e) {
+        }catch (EntityDeletedException e) {
+            throw new NotFoundException("User with login=" + user.getLogin() + " was not found", e);
+        }  catch (DaoException e) {
             logger.error("Something went wrong when trying to update users contacts", e);
             throw new InternalServerException(e);
         }
     }
 
     @Override
-    public void uploadProfileImage(User user, Part part, String realPath) throws InvalidContentException, IOException, InvalidParameterException {
+    public void uploadProfileImage(User user, Part part, String realPath) throws InvalidContentException, InvalidParameterException, NotFoundException {
         if(user==null){
             throw new InvalidParameterException("Parameter user is invalid");
         }
         if(user.getRegistrationType()==null){
             throw new InvalidParameterException("Parameter RegistrationType is invalid");
         }
-        if(user.getLogin()==null||user.getLogin().equals("")){
+        if(user.getLogin()==null||user.getLogin().isEmpty()){
             throw new InvalidParameterException("User's login is invalid");
         }
         if(part==null){
             throw new InvalidParameterException("Invalid new image parameter");
         }
+        try {
         InputStream newImageStream = part.getInputStream();
         String content = URLConnection.guessContentTypeFromStream(newImageStream);
         if(content==null||!content.startsWith("image/")){
             throw new InvalidContentException("This file is not an image");
         }
-        File f  = new File("/home/vladislav/Online Pharmacy/web/images/user"+"/"+user.getLogin()+".jpg");
-        if (!f.getParentFile().exists()) {
-            f.getParentFile().mkdirs();
-        }
-        if (!f.exists()) {
-            f.createNewFile();
-        }
-        user.setPathToImage("images/user"+"/"+user.getLogin()+".jpg");
-        OutputStream outputStream = new FileOutputStream(f);
-        IOUtils.copy(newImageStream, outputStream);
+        File uploads = new File(ImageConstant.USER_IMAGES);
+        File file = new File(uploads, user.getLogin()+ImageConstant.IMAGE_JPG);
+        Files.copy(newImageStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        user.setPathToImage(file.getAbsolutePath());
         DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
         UserDAO userDAO = daoFactory.getUserDAO();
-        try {
+
             userDAO.uploadProfileImage(user);
-        } catch (DaoException e) {
+        }catch (EntityDeletedException e) {
+            throw new NotFoundException("User with login=" + user.getLogin() + " was not found", e);
+        }  catch (DaoException e) {
+            logger.error("Something went wrong, when trying to update profile image", e);
+            throw new InternalServerException(e);
+        } catch (IOException e) {
             logger.error("Something went wrong, when trying to update profile image", e);
             throw new InternalServerException(e);
         }
@@ -241,6 +254,145 @@ public class UserServiceImpl implements UserService {
         } catch (DaoException e) {
             logger.error("Something went wrong when trying to delete user", e);
             throw new InternalServerException(e);
+        }
+    }
+
+    @Override
+    public List<User> getAllDoctors(int limit, int startFrom, boolean pageOverload) throws InvalidParameterException {
+        if(limit<=0){
+            throw new InvalidParameterException("Invalid parameter limit. Limit can be >0");
+        }
+        if(startFrom<0){
+            throw new InvalidParameterException("Invalid parameter startFrom startFrom can be >0");
+        }
+        DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
+        UserDAO userDAO = daoFactory.getUserDAO();
+        try {
+            List<User> doctors =  userDAO.getAllDoctors(limit, startFrom, pageOverload);
+            return doctors;
+        } catch (DaoException e) {
+            logger.error("Something went wrong when trying to load doctors", e);
+            throw new InternalServerException(e);
+        }
+    }
+
+    @Override
+    public List<UserDescription> getAllSpecializations(){
+        DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
+        UserDescriptionDAO userDescriptionDAO = daoFactory.getUserDescriptionDao();
+        try {
+            return userDescriptionDAO.getAllSpecializations();
+        } catch (DaoException e) {
+            logger.error("Something when trying to load doctors specializations", e);
+            throw new InternalServerException(e);
+        }
+    }
+
+    @Override
+    public List<User> getDoctorsBySpecialization(UserDescription userDescription, int limit, int startFrom) throws InvalidParameterException {
+        if(limit<=0){
+            throw new InvalidParameterException("Invalid parameter limit. Limit can be >0");
+        }
+        if(startFrom<0){
+            throw new InvalidParameterException("Invalid parameter startFrom startFrom can be >0");
+        }
+        if(userDescription==null||userDescription.getSpecialization()==null||userDescription.getSpecialization().isEmpty()){
+            throw new InvalidParameterException("Parameter user specialization is invalid");
+        }
+        DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
+        UserDAO userDAO = daoFactory.getUserDAO();
+        try {
+            List<User> doctors = userDAO.getDoctorsBySpecialization(userDescription, limit, startFrom);
+            doctors.stream().filter(user -> user.getPathToImage()==null).forEach(user -> user.setPathToImage(ImageConstant.PHARMACY_DEFAULT_IMAGE));
+            return doctors;
+        } catch (DaoException e) {
+            throw new InternalServerException(e);
+        }
+    }
+
+    @Override
+    public List<User> searchDoctors(String query, int limit, int startFrom) throws InvalidParameterException {
+        if(limit<=0){
+            throw new InvalidParameterException("Invalid parameter limit. Limit can be >0");
+        }
+        if(startFrom<0){
+            throw new InvalidParameterException("Invalid parameter startFrom startFrom can be >0");
+        }
+        if(query==null||query.isEmpty()){
+            throw new InvalidParameterException("Invalid parameter criteria");
+        }
+        DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
+        UserDAO userDAO = daoFactory.getUserDAO();
+        try {
+            List<User> doctors = userDAO.searchUsers(query.split(" "), limit, startFrom);
+            doctors.stream().filter(user -> user.getPathToImage()==null).forEach(user -> user.setPathToImage(ImageConstant.PHARMACY_DEFAULT_IMAGE));
+            return doctors;
+        } catch (DaoException e) {
+            logger.error("Something went wrong when trying to search doctors", e);
+            throw new InternalServerException(e);
+        }
+    }
+
+    @Override
+    public User getUserDetails(String userLogin, RegistrationType registrationType) throws InvalidParameterException {
+        if(userLogin==null||userLogin.isEmpty()){
+            throw new InvalidParameterException("Parameter login is invalid");
+        }
+        if(registrationType==null){
+            throw new InvalidParameterException("Parameter registration type is invalid");
+        }
+        DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
+        UserDAO userDAO = daoFactory.getUserDAO();
+        try {
+            User user = userDAO.getUserDetails(userLogin, registrationType);
+            if(user!=null&&user.getPathToImage()==null){
+                user.setPathToImage(ImageConstant.PHARMACY_DEFAULT_IMAGE);
+            }
+            return user;
+        } catch (DaoException e) {
+            logger.error("Something went wrong when trying to get user details", e);
+            throw new InternalServerException(e);
+        }
+    }
+
+    @Override
+    public InputStream getUserImage(User user) throws InvalidParameterException {
+        if(user==null||user.getLogin()==null||
+                user.getLogin().isEmpty()||user.getRegistrationType()==null){
+            throw new InvalidParameterException("Parameter user is invalid");
+        }
+        if(user.getPathToImage()!=null){
+            if(user.getPathToImage().startsWith(ImageConstant.IMAGES)){
+                try {
+                    return new FileInputStream(user.getPathToImage());
+                } catch (FileNotFoundException e) {
+                    logger.error("Something went wrong when trying to load profile image", e);
+                    throw new InternalServerException(e);
+                }
+            }
+            else {
+                try {
+                    URL url = new URL(user.getPathToImage());
+                    return url.openStream();
+                } catch (IOException e) {
+                    logger.error("Something went wrong when trying to load profile image", e);
+                    throw new InternalServerException(e);
+                }
+            }
+        }
+        else {
+            DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
+            UserDAO userDAO = daoFactory.getUserDAO();
+            try {
+                InputStream inputStream =  userDAO.getProfileImage(user);
+                if(inputStream==null){
+                    return new FileInputStream(ImageConstant.PHARMACY_DEFAULT_IMAGE);
+                }
+                return inputStream;
+            } catch (DaoException|FileNotFoundException e) {
+                logger.error("Something went wrong when trying to load image", e);
+                throw new InternalServerException(e);
+            }
         }
     }
 

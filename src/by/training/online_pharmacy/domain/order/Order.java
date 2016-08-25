@@ -18,7 +18,7 @@ public class Order {
     private short drugDosage;
     private OrderStatus orderStatus;
     private Date orderDate;
-
+    private double totalSum;
 
     @Override
     public String toString() {
@@ -30,6 +30,7 @@ public class Order {
                 ", drugDosage=" + drugDosage +
                 ", orderStatus=" + orderStatus +
                 ", orderDate=" + orderDate +
+                ", totalSum=" + totalSum +
                 '}';
     }
 
@@ -41,8 +42,9 @@ public class Order {
         Order order = (Order) o;
 
         if (id != order.id) return false;
-        if (Double.compare(order.drugCount, drugCount) != 0) return false;
+        if (drugCount != order.drugCount) return false;
         if (drugDosage != order.drugDosage) return false;
+        if (Double.compare(order.totalSum, totalSum) != 0) return false;
         if (client != null ? !client.equals(order.client) : order.client != null) return false;
         if (drug != null ? !drug.equals(order.drug) : order.drug != null) return false;
         if (orderStatus != order.orderStatus) return false;
@@ -57,11 +59,12 @@ public class Order {
         result = id;
         result = 31 * result + (client != null ? client.hashCode() : 0);
         result = 31 * result + (drug != null ? drug.hashCode() : 0);
-        temp = Double.doubleToLongBits(drugCount);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + drugCount;
         result = 31 * result + (int) drugDosage;
         result = 31 * result + (orderStatus != null ? orderStatus.hashCode() : 0);
         result = 31 * result + (orderDate != null ? orderDate.hashCode() : 0);
+        temp = Double.doubleToLongBits(totalSum);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
     }
 
@@ -120,5 +123,13 @@ public class Order {
 
     public void setOrderDate(Date orderDate) {
         this.orderDate = orderDate;
+    }
+
+    public double getTotalSum() {
+        return totalSum;
+    }
+
+    public void setTotalSum(double totalSum) {
+        this.totalSum = totalSum;
     }
 }

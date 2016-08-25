@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Created by vladislav on 09.08.16.
@@ -20,48 +21,18 @@ import java.io.IOException;
 public class ExtendedSearchCommand implements Command {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-       /* HttpSession httpSession = request.getSession(false);
+        HttpSession httpSession = request.getSession(false);
         if(httpSession==null||httpSession.getAttribute(Parameter.USER)==null){
             response.sendRedirect(Page.INDEX);
             return;
-        }*/
+        }
         int pageNumber = Integer.parseInt(request.getParameter(Parameter.PAGE));
-        Drug drug = new Drug();
-        drug.setName(request.getParameter(Parameter.NAME));
-        drug.setActiveSubstance(request.getParameter(Parameter.ACTIVE_SUBSTANCE));
-        try {
-            float maxPrice = Float.parseFloat(request.getParameter(Parameter.MAX_PRICE));
-            drug.setPrice(maxPrice);
-        }catch (NumberFormatException ex){
-            drug.setPrice((float) 0.0);
-        }
-        if(!Parameter.EMPTY_STRING.equals(request.getParameter(Parameter.CLASS))){
-            DrugClass drugClass = new DrugClass();
-            drugClass.setName(request.getParameter(Parameter.CLASS));
-            drug.setDrugClass(drugClass);
-        }
-        try {
-            int manufactureId = Integer.parseInt(request.getParameter(Parameter.MANUFACTURER));
-            DrugManufacturer drugManufacturer = new DrugManufacturer();
-            drugManufacturer.setId(manufactureId);
-            drug.setDrugManufacturer(drugManufacturer);
-        }catch (NumberFormatException ignored){
-
-        }
-        try {
-            boolean onlyInStock = Boolean.parseBoolean(request.getParameter(Parameter.ONLY_IN_STOCK));
-            drug.setInStock(onlyInStock);
-        }catch (NumberFormatException ignored){}
-        try {
-            boolean prescriptionEnable = Boolean.parseBoolean(request.getParameter(Parameter.ONLY_FREE));
-            drug.setPrescriptionEnable(prescriptionEnable);
-        }catch (NumberFormatException ex){
-            drug.setPrescriptionEnable(true);
-        }
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         DrugService drugService = serviceFactory.getDrugService();
         try {
-            drugService.extendedDrugSearch(drug, 6, (pageNumber-1)*6);
+            List<Drug> drugs = drugService.extendedDrugSearch(request.getParameter(Parameter.NAME), request.getParameter(Parameter.ACTIVE_SUBSTANCE), request.getParameter(Parameter.MAX_PRICE), request.getParameter(Parameter.CLASS), request.getParameter(Parameter.MANUFACTURER), request.getParameter(Parameter.ONLY_IN_STOCK), request.getParameter(Parameter.ONLY_FREE),  6, (pageNumber-1)*6);
+            request.setAttribute("drugList", drugs);
+            request.getRequestDispatcher("/drug").forward(request, response);
         } catch (InvalidParameterException e) {
             e.printStackTrace();
         }

@@ -25,11 +25,6 @@ public class UserLoginFBCommand implements Command {
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         SocialNetworkService socialNetworkService = serviceFactory.getSocialNetworkService();
         User user = null;
-        HttpSession httpSession = request.getSession(false);
-        if(httpSession!=null&&httpSession.getAttribute(Parameter.USER)!=null){
-            request.getRequestDispatcher(request.getRequestURI()).forward(request, response);
-            return;
-        }
         try {
             user = socialNetworkService.userLoginFb(request.getParameter(Parameter.CODE));
         } catch (CanceledAuthorizationException e) {

@@ -25,12 +25,7 @@ public class UserLoginVKCommand implements Command {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         SocialNetworkService socialNetworkService = serviceFactory.getSocialNetworkService();
-        User user = null;
-        HttpSession httpSession = request.getSession(false);
-        if(httpSession!=null&&httpSession.getAttribute(Parameter.USER)!=null){
-            request.getRequestDispatcher(request.getRequestURI()).forward(request, response);
-            return;
-        }
+        User user;
         try {
             user = socialNetworkService.userLoginVk(request.getParameter(Parameter.CODE));
         } catch (CanceledAuthorizationException e) {

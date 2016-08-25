@@ -16,4 +16,6 @@ public interface DrugManufacturerDAO {
     void insertDrugManufacturer(DrugManufacturer drugManufacturer) throws DaoException;
     void updateManufacturer(DrugManufacturer drugManufacturer) throws DaoException;
     void deleteManufacturer(int manufacturerId) throws DaoException;
+
+    List<DrugManufacturer> getDrugManufactures() throws DaoException;
 }

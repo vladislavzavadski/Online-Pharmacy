@@ -27,11 +27,7 @@ public class UserLoginCommand implements Command {
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         UserService userService = serviceFactory.getUserService();
         User user = null;
-        HttpSession httpSession = request.getSession(false);
-        if(httpSession!=null&&httpSession.getAttribute(Parameter.USER)!=null){
-            request.getRequestDispatcher(request.getRequestURI()).forward(request, response);
-            return;
-        }
+        HttpSession httpSession;
         try {
             user = userService.userLogin(request.getParameter(Parameter.LOGIN), request.getParameter(Parameter.PASSWORD));
         }  catch (UserNotFoundException | InvalidParameterException e) {
@@ -39,6 +35,7 @@ public class UserLoginCommand implements Command {
             request.getRequestDispatcher(Page.AUTHORIZATION).forward(request, response);
             return;
         }
+        user.setPassword(request.getParameter(Parameter.PASSWORD));
         httpSession = request.getSession(true);
         httpSession.setAttribute(Parameter.USER, user);
         httpSession.setAttribute(Parameter.PREV_REQUEST, UrlBuilder.build(request));

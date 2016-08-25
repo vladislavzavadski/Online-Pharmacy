@@ -42,4 +42,17 @@ public class Parameter {
     public static final String PROLONG_DATE = "prolong_date";
     public static final String RECEIVER_LOGIN = "receiver_login";
     public static final String RECEIVER_LOGIN_VIA = "receiver_login_via";
+    public static final String IS_CRITICAL = "isCritical";
+    public static final String SPECIALIZATION = "specialization";
+    public static final String OVERLOAD = "overload";
+    public static final String REGISTRATION_TYPE = "register_type";
+    public static final String ORDER_STATUS = "or_status";
+    public static final String DATE_FROM = "date_from";
+    public static final String DATE_TO = "date_to";
+    public static final String ORDER_ID = "order_id";
+    public static final String DRUG_NAME = "drug_name";
+    public static final String MESSAGE_STATUS = "message_status";
+    public static final String MESSAGE_ID = "me_id";
+    public static final String MESSAGES_COUNT = "count";
+    public static final String REQUEST_STATUS = "status";
 }

@@ -1,6 +1,5 @@
 package by.training.online_pharmacy.domain.user;
 
-import java.util.Arrays;
 
 /**
  * Created by vladislav on 13.06.16.

@@ -32,11 +32,22 @@ public class DatabaseOperation implements AutoCloseable {
         init(sqlQuery);
     }
 
+    public DatabaseOperation(String sqlQuery, boolean isConnectionReserved) throws ConnectionPoolException, SQLException {
+        this();
+        if(isConnectionReserved){
+            connection = connectionPool.takeReservedConnection();
+        }else {
+            connection = connectionPool.takeConnection();
+        }
+        init(sqlQuery);
+    }
+
     public DatabaseOperation() throws ConnectionPoolException {
         if(connectionPool==null) {
             connectionPool = ConnectionPool.getInstance();
         }
     }
+
     public void init(String sqlQuery) throws ConnectionPoolException, SQLException {
         sqlQuery = sqlQuery.toLowerCase();
         params = getQueryParameters(sqlQuery);
@@ -110,7 +121,7 @@ public class DatabaseOperation implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws SQLException {
         if(resultSet!=null){
             resultSet.close();
         }

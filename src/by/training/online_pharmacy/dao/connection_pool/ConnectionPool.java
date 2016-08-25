@@ -5,11 +5,9 @@ import org.gjt.mm.mysql.*;
 import org.gjt.mm.mysql.Driver;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.LongAccumulator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,8 +15,8 @@ import java.util.logging.Logger;
  * Created by vladislav on 09.06.16.
  */
 public class ConnectionPool {
-    private List<Connection> freeConnections = new ArrayList<>();
-    private List<Connection> usedConnections = new ArrayList<>();
+    private List<Connection> freeConnections = new LinkedList<>();
+    private Map<Long, Connection> reservedConnections = new Hashtable<>();
     private String databaseURL;
     private String username;
     private String password;
@@ -72,14 +70,16 @@ public class ConnectionPool {
                 } catch (InterruptedException e) {
                        throw new ConnectionPoolException("Exception while trying to take new Connection");
                 }
-
-
-            connection = freeConnections.remove(freeConnections.size() - 1);
+            connection = freeConnections.remove(0);
         }
-        synchronized (usedConnections) {
-            usedConnections.add(connection);
-        }
+        long threadId = Thread.currentThread().getId();
+        reservedConnections.put(threadId, connection);
         return connection;
+    }
+
+    public Connection takeReservedConnection(){
+        long threadId = Thread.currentThread().getId();
+        return reservedConnections.get(threadId);
     }
 
     public void dispose() throws ConnectionPoolException {
@@ -95,20 +95,31 @@ public class ConnectionPool {
         synchronized (freeConnections) {
             closeConnectionList(freeConnections);
         }
-        synchronized (usedConnections) {
-            closeConnectionList(usedConnections);
-        }
+
+        closeConnectionsMap(reservedConnections);
 
     }
 
     private void closeConnectionList(List<Connection> connectionList) throws SQLException {
         for(int i=0; i<connectionList.size(); i++){
-            Connection connection = connectionList.remove(connectionList.size()-1);
+            Connection connection = connectionList.remove(0);
             if(!connection.getAutoCommit()){
                 connection.commit();
             }
             ((PooledConnection)connection).reallyClose();
         }
+    }
+
+    private void closeConnectionsMap(Map<Long, Connection> map) throws SQLException {
+        for(Map.Entry<Long, Connection> entry:map.entrySet()){
+            long key = entry.getKey();
+            Connection connection = entry.getValue();
+            if(!connection.getAutoCommit()){
+                connection.commit();
+            }
+            ((PooledConnection)connection).reallyClose();
+        }
+        map.clear();
     }
 
     private class PooledConnection implements Connection{
@@ -137,11 +148,12 @@ public class ConnectionPool {
                 connection.rollback();
                 connection.setAutoCommit(true);
             }
-            synchronized (usedConnections) {
-                if (!usedConnections.remove(this)) {
-                    throw new SQLException("Error deleting connection from used connections pool");
-                }
+            long threadId = Thread.currentThread().getId();
+
+            if (!reservedConnections.remove(threadId, this)) {
+                throw new SQLException("Error deleting connection from used connections pool");
             }
+
             synchronized (freeConnections) {
                 if (!freeConnections.add(this)) {
                     throw new SQLException("Error adding connection to free connections pool");

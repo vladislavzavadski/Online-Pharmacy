@@ -2,6 +2,8 @@ package by.training.online_pharmacy.domain.message;
 
 import by.training.online_pharmacy.domain.user.User;
 
+import java.util.Date;
+
 /**
  * Created by vladislav on 11.08.16.
  */
@@ -11,8 +13,9 @@ public class Message {
     private String senderMessage;
     private String receiverMessage;
     private int id;
-    private boolean responseSended;
-    private boolean requestSended;
+    private MessageStatus messageStatus;
+    private Date requestDate;
+    private Date responseDate;
 
     @Override
     public String toString() {
@@ -22,8 +25,9 @@ public class Message {
                 ", senderMessage='" + senderMessage + '\'' +
                 ", receiverMessage='" + receiverMessage + '\'' +
                 ", id=" + id +
-                ", responseSended=" + responseSended +
-                ", requestSended=" + requestSended +
+                ", messageStatus=" + messageStatus +
+                ", requestDate=" + requestDate +
+                ", responseDate=" + responseDate +
                 '}';
     }
 
@@ -35,13 +39,15 @@ public class Message {
         Message message = (Message) o;
 
         if (id != message.id) return false;
-        if (responseSended != message.responseSended) return false;
-        if (requestSended != message.requestSended) return false;
         if (sender != null ? !sender.equals(message.sender) : message.sender != null) return false;
         if (receiver != null ? !receiver.equals(message.receiver) : message.receiver != null) return false;
         if (senderMessage != null ? !senderMessage.equals(message.senderMessage) : message.senderMessage != null)
             return false;
-        return receiverMessage != null ? receiverMessage.equals(message.receiverMessage) : message.receiverMessage == null;
+        if (receiverMessage != null ? !receiverMessage.equals(message.receiverMessage) : message.receiverMessage != null)
+            return false;
+        if (messageStatus != message.messageStatus) return false;
+        if (requestDate != null ? !requestDate.equals(message.requestDate) : message.requestDate != null) return false;
+        return responseDate != null ? responseDate.equals(message.responseDate) : message.responseDate == null;
 
     }
 
@@ -52,8 +58,9 @@ public class Message {
         result = 31 * result + (senderMessage != null ? senderMessage.hashCode() : 0);
         result = 31 * result + (receiverMessage != null ? receiverMessage.hashCode() : 0);
         result = 31 * result + id;
-        result = 31 * result + (responseSended ? 1 : 0);
-        result = 31 * result + (requestSended ? 1 : 0);
+        result = 31 * result + (messageStatus != null ? messageStatus.hashCode() : 0);
+        result = 31 * result + (requestDate != null ? requestDate.hashCode() : 0);
+        result = 31 * result + (responseDate != null ? responseDate.hashCode() : 0);
         return result;
     }
 
@@ -98,19 +105,27 @@ public class Message {
         this.id = id;
     }
 
-    public boolean isResponseSended() {
-        return responseSended;
+    public MessageStatus getMessageStatus() {
+        return messageStatus;
     }
 
-    public void setResponseSended(boolean responseSended) {
-        this.responseSended = responseSended;
+    public void setMessageStatus(MessageStatus messageStatus) {
+        this.messageStatus = messageStatus;
     }
 
-    public boolean isRequestSended() {
-        return requestSended;
+    public Date getRequestDate() {
+        return requestDate;
     }
 
-    public void setRequestSended(boolean requestSended) {
-        this.requestSended = requestSended;
+    public void setRequestDate(Date requestDate) {
+        this.requestDate = requestDate;
+    }
+
+    public Date getResponseDate() {
+        return responseDate;
+    }
+
+    public void setResponseDate(Date responseDate) {
+        this.responseDate = responseDate;
     }
 }

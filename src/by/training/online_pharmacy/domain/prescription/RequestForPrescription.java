@@ -4,7 +4,6 @@ package by.training.online_pharmacy.domain.prescription;
 import by.training.online_pharmacy.domain.drug.Drug;
 import by.training.online_pharmacy.domain.user.User;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -20,6 +19,7 @@ public class RequestForPrescription {
     private String clientComment;
     private String doctorComment;
     private Date requestDate;
+    private Date responseDate;
 
     @Override
     public String toString() {
@@ -33,6 +33,7 @@ public class RequestForPrescription {
                 ", clientComment='" + clientComment + '\'' +
                 ", doctorComment='" + doctorComment + '\'' +
                 ", requestDate=" + requestDate +
+                ", responseDate=" + responseDate +
                 '}';
     }
 
@@ -53,7 +54,8 @@ public class RequestForPrescription {
             return false;
         if (doctorComment != null ? !doctorComment.equals(that.doctorComment) : that.doctorComment != null)
             return false;
-        return requestDate != null ? requestDate.equals(that.requestDate) : that.requestDate == null;
+        if (requestDate != null ? !requestDate.equals(that.requestDate) : that.requestDate != null) return false;
+        return responseDate != null ? responseDate.equals(that.responseDate) : that.responseDate == null;
 
     }
 
@@ -68,6 +70,7 @@ public class RequestForPrescription {
         result = 31 * result + (clientComment != null ? clientComment.hashCode() : 0);
         result = 31 * result + (doctorComment != null ? doctorComment.hashCode() : 0);
         result = 31 * result + (requestDate != null ? requestDate.hashCode() : 0);
+        result = 31 * result + (responseDate != null ? responseDate.hashCode() : 0);
         return result;
     }
 
@@ -142,5 +145,13 @@ public class RequestForPrescription {
 
     public void setRequestDate(Date requestDate) {
         this.requestDate = requestDate;
+    }
+
+    public Date getResponseDate() {
+        return responseDate;
+    }
+
+    public void setResponseDate(Date responseDate) {
+        this.responseDate = responseDate;
     }
 }

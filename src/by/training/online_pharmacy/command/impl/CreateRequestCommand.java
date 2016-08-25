@@ -8,8 +8,10 @@ import by.training.online_pharmacy.service.RequestService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
 import by.training.online_pharmacy.service.exception.NotFoundException;
+import org.json.JSONObject;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -29,6 +31,9 @@ public class CreateRequestCommand implements Command {
             response.sendRedirect(Page.INDEX);
             return;
         }
+        JSONObject jsonObject = new JSONObject();
+        ServletOutputStream servletOutputStream = response.getOutputStream();
+        response.setContentType(Content.JSON);
         RequestForPrescription requestForPrescription = new RequestForPrescription();
         requestForPrescription.setClient(user);
         requestForPrescription.setClientComment(request.getParameter(Parameter.CLIENT_COMMENT));
@@ -40,12 +45,19 @@ public class CreateRequestCommand implements Command {
         RequestService requestService = serviceFactory.getRequestService();
         try {
             requestService.createRequest(requestForPrescription);
+            jsonObject.put(Parameter.RESULT, true);
         } catch (InvalidParameterException e) {
-            e.printStackTrace();
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.IS_CRITICAL, false);
+            jsonObject.put(Parameter.MESSAGE, e.getMessage());
         } catch (NotFoundException e) {
             if(e.isCritical()){
                 httpSession.invalidate();
             }
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.IS_CRITICAL, e.isCritical());
+            jsonObject.put(Parameter.MESSAGE, e.getMessage());
         }
+        servletOutputStream.write(jsonObject.toString().getBytes());
     }
 }

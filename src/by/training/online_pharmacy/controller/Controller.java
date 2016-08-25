@@ -2,6 +2,9 @@ package by.training.online_pharmacy.controller;
 
 import by.training.online_pharmacy.command.Command;
 import by.training.online_pharmacy.command.impl.Parameter;
+import by.training.online_pharmacy.dao.UserDAO;
+import by.training.online_pharmacy.dao.exception.DaoException;
+import by.training.online_pharmacy.dao.impl.database.DatabaseUserDAO;
 
 
 import javax.servlet.ServletException;
@@ -18,6 +21,7 @@ public class Controller extends javax.servlet.http.HttpServlet {
         CommandName commandName = CommandName.valueOf(request.getParameter(Parameter.COMMAND));
         Command command = CommandHelper.getCommand(commandName);
         command.execute(request, response);
+
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

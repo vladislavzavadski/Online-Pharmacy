@@ -1,6 +1,7 @@
 package by.training.online_pharmacy.command.impl;
 
 import by.training.online_pharmacy.command.Command;
+import by.training.online_pharmacy.dao.impl.database.Param;
 import by.training.online_pharmacy.domain.message.Message;
 import by.training.online_pharmacy.domain.user.RegistrationType;
 import by.training.online_pharmacy.domain.user.User;
@@ -8,8 +9,10 @@ import by.training.online_pharmacy.service.MessageService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
 import by.training.online_pharmacy.service.exception.NotFoundException;
+import org.json.JSONObject;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -27,22 +30,33 @@ public class SendMessageCommand implements Command {
             response.sendRedirect(Page.INDEX);
             return;
         }
+        JSONObject jsonObject = new JSONObject();
+        response.setContentType(Content.JSON);
+        ServletOutputStream servletOutputStream = response.getOutputStream();
         Message message = new Message();
         message.setSender(user);
         User receiver = new User();
         message.setReceiver(receiver);
         receiver.setLogin(request.getParameter(Parameter.RECEIVER_LOGIN));
-        receiver.setRegistrationType(RegistrationType.valueOf(Parameter.RECEIVER_LOGIN_VIA));
+        receiver.setRegistrationType(RegistrationType.valueOf(request.getParameter(Parameter.RECEIVER_LOGIN_VIA)));
+        message.setSenderMessage(request.getParameter(Parameter.MESSAGE));
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         MessageService messageService = serviceFactory.getMessageService();
         try {
             messageService.sendMessage(message);
+            jsonObject.put(Parameter.RESULT, true);
         } catch (InvalidParameterException e) {
-            e.printStackTrace();
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.MESSAGE, e.getMessage());
+            jsonObject.put(Parameter.IS_CRITICAL, false);
         } catch (NotFoundException e) {
             if(e.isCritical()){
                 httpSession.invalidate();
             }
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.IS_CRITICAL, e.isCritical());
+            jsonObject.put(Parameter.MESSAGE, e.getMessage());
         }
+        servletOutputStream.write(jsonObject.toString().getBytes());
     }
 }

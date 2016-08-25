@@ -1,5 +1,7 @@
 package by.training.online_pharmacy.dao.impl.database;
 
+import java.lang.ref.SoftReference;
+
 /**
  * Created by vladislav on 14.07.16.
  */
@@ -36,9 +38,9 @@ public class TableColumn {
     public static final String PRESCRIPTION_DRUG_DOSAGE = "pr_drug_dosage";
     public static final String REQUEST_ID = "re_id";
     public static final String REQUEST_STATUS = "re_status";
-    public static final String REQUEST_CLIENT_COMMENT = "re_client_comment";
-    public static final String REQUEST_DOCTOR_COMMENT = "re_doctor_comment";
-    public static final String REQUEST_PROLONG_TO = "request_prolong_to";
+    public static final String REQUEST_CLIENT_COMMENT = "re_clients_comment";
+    public static final String REQUEST_DOCTOR_COMMENT = "re_doctors_comment";
+    public static final String REQUEST_PROLONG_TO = "re_prolong_to";
     public static final String REQUEST_DATE = "re_request_date";
     public static final String USER_GROUP = "us_group";
     public static final String USER_MAIL = "us_mail";
@@ -64,6 +66,22 @@ public class TableColumn {
     public static final String MESSAGE_SENDER_MESSAGE = "me_sender_message";
     public static final String MESSAGE_RECEIVER_LOGIN = "me_receiver_login";
     public static final String MESSAGE_RECEIVER_LOGIN_VIA = "me_receiver_login_via";
-    public static final String REQUEST_MESSAGE_SENDED = "me_request_sended";
-    public static final String RESPONSE_MESSAGE_SENDED = "me_response_sended";
+    public static final String ORDER_SUM = "or_sum";
+    public static final String MESSAGE_RECEIVER_MESSAGE = "me_receiver_message";
+    public static final String MESSAGE_STATUS = "me_status";
+    public static final String MESSAGE_REQUEST_DATE = "me_request_date";
+    public static final String MESSAGE_RESPONSE_DATE = "me_response_date";
+    public static final String SENDER_FIRST_NAME = "se_first_name";
+    public static final String SENDER_SECOND_NAME = "se_second_name";
+    public static final String RECEIVER_FIRST_NAME = "re_first_name";
+    public static final String RECEIVER_SECOND_NAME = "re_second_name";
+    public static final String MESSAGE_ID = "me_id";
+    public static final String MESSAGE_COUNT = "me_count";
+    public static final String REQUEST_DRUG_ID = "re_drug_id";
+    public static final String REQUEST_DOCTOR_LOGIN = "re_doctor";
+    public static final String REQUEST_DOCTOR_LOGIN_VIA = "re_doctor_login_via";
+    public static final String REQUEST_DOCTOR_FIRST_NAME = "doc_first_name";
+    public static final String REQUEST_DOCTOR_SECOND_NAME = "doc_second_name";
+    public static final String RESPONSE_DATE=  "re_response_date";
+
 }

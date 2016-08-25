@@ -6,6 +6,7 @@ import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.UserService;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
 import by.training.online_pharmacy.service.exception.InvalidPasswordException;
+import by.training.online_pharmacy.service.exception.NotFoundException;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
@@ -27,17 +28,23 @@ public class UpdatePasswordCommand implements Command {
             response.sendRedirect(Page.INDEX);
             return;
         }
-        user.setPassword(request.getParameter(Parameter.OLD_PASSWORD));
+
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         UserService userService = serviceFactory.getUserService();
         response.setContentType(Content.JSON);
         ServletOutputStream servletOutputStream = response.getOutputStream();
         JSONObject jsonObject = new JSONObject();
         try {
-            userService.updatePassword(user, request.getParameter(Parameter.NEW_PASSWORD));
+            userService.updatePassword(user, request.getParameter(Parameter.NEW_PASSWORD), request.getParameter(Parameter.OLD_PASSWORD));
             jsonObject.put(Parameter.RESULT, true);
         } catch (InvalidPasswordException|InvalidParameterException e) {
             jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.MESSAGE, e.getMessage());
+            jsonObject.put(Parameter.IS_CRITICAL, false);
+        }catch (NotFoundException e) {
+            httpSession.invalidate();
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.IS_CRITICAL, true);
             jsonObject.put(Parameter.MESSAGE, e.getMessage());
         }
         servletOutputStream.write(jsonObject.toString().getBytes());

@@ -37,5 +37,5 @@ public abstract class DaoFactory {
 
     public abstract RequestForPrescriptionDAO getRequestForPrescriptionDAO();
 
-    public abstract MessageDAO getMessageDAO();
+    public abstract MessageDao getMessageDAO();
 }

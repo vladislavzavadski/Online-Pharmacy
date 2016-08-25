@@ -5,6 +5,7 @@ import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.UserService;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
+import by.training.online_pharmacy.service.exception.NotFoundException;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
@@ -36,6 +37,12 @@ public class UpdateContactsCommand implements Command {
             jsonObject.put(Parameter.RESULT, true);
         } catch (InvalidParameterException e) {
             jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.MESSAGE, e.getMessage());
+            jsonObject.put(Parameter.IS_CRITICAL, false);
+        } catch (NotFoundException e) {
+            httpSession.invalidate();
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.IS_CRITICAL, true);
             jsonObject.put(Parameter.MESSAGE, e.getMessage());
         }
         response.setContentType(Content.JSON);

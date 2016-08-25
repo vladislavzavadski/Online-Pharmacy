@@ -12,8 +12,9 @@ public class EntityDeletedException extends DaoException {
         this.isCritical = isCritical;
     }
 
-    public EntityDeletedException(String message) {
+    public EntityDeletedException(String message, boolean isCritical) {
         super(message);
+        this.isCritical = isCritical;
     }
 
     public EntityDeletedException(Exception ex) {

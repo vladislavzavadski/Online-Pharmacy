@@ -67,7 +67,7 @@ public class SocialNetworkServiceImpl implements SocialNetworkService {
         if(code==null){
             throw new CanceledAuthorizationException("User cancel exception");
         }
-        if(code.equals("")){
+        if(code.isEmpty()){
             logger.error("Empty code when trying to log in with Linked In");
             throw new InvalidParameterException("Empty code when trying to log in with Linked In");
         }
@@ -99,18 +99,24 @@ public class SocialNetworkServiceImpl implements SocialNetworkService {
     private User requestToDao(Api api, User user) throws IOException, DaoException {
         DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
         UserDAO userDAO = daoFactory.getUserDAO();
-        user = userDAO.userAuthentication(user);
-        if(user.getPathToImage()==null){
-            String pathToAlternativeImage = api.getImage();
-            if(pathToAlternativeImage==null||
-                    pathToAlternativeImage.contains(ImageConstant.VK_DEFAULT_IMAGE)||
-                    pathToAlternativeImage.contains(ImageConstant.FACEBOOK_DEFAULT_IMAGE)) {
-                user.setPathToImage(ImageConstant.PHARMACY_DEFAULT_IMAGE);
-            }else {
-                user.setPathToImage(api.getImage());
+        String login = user.getLogin();
+        RegistrationType registrationType = user.getRegistrationType();
+        User result = userDAO.userAuthentication(login, registrationType);
+        if(result!=null){
+            result.setLogin(login);
+            result.setRegistrationType(registrationType);
+            if(result.getPathToImage()==null) {
+                result.setPathToImage(ImageConstant.PHARMACY_DEFAULT_IMAGE);
             }
-
+            return result;
         }
+        String pathToImage = api.getImage();
+        if(!(pathToImage==null||pathToImage.contains(ImageConstant.VK_DEFAULT_IMAGE)
+                ||pathToImage.contains(ImageConstant.FACEBOOK_DEFAULT_IMAGE))){
+            ImageDownloader.download(pathToImage, ImageConstant.USER_IMAGES, login);
+            user.setPathToImage(ImageConstant.USER_IMAGES+login+ImageConstant.IMAGE_JPG);
+        }
+        userDAO.insertUser(user);
         return user;
     }
 }

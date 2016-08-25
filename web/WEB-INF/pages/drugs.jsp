@@ -34,7 +34,7 @@
                         </li>
                     </c:forEach>
                     <li>
-                        <a id="all_dr" href="/controller?command=GET_ALL_DRUGS&page=1">Все классы</a>
+                        <a id="all_dr" href="/controller?command=GET_ALL_DRUGS&overload=false&page=1">Все классы</a>
                     </li>
                 </ul>
             </div>
@@ -47,15 +47,19 @@
                     $.get(toLoad, function (data) {
                         $("#drugs").html(data);
                     });
+                    load = true;
                     thisPageNum = 2;
                     loadUrl="/controller?command=GET_DRUGS_BY_CLASS&dr_class="+$(this).html()+"&page=";
                     return false;
                 });
                 $("#all_dr").click(function () {
-                    var toLoad = $(this).attr("href")+' #drugs';
-                    $("#drugs").load(toLoad);
+                    var toLoad = $(this).attr("href");
+                    $.get(toLoad, function (data) {
+                        $("#drugs").html(data);
+                    });
                     thisPageNum = 2;
-                    loadUrl="/controller?command=GET_ALL_DRUGS&page=";
+                    load = true;
+                    loadUrl="/controller?command=GET_ALL_DRUGS&overload=false&page=";
                     return false;
                 });
                 $('#search_button').click(function () {
@@ -65,6 +69,7 @@
                         return value;
                     });
                     thisPageNum=2;
+                    load = true;
                     var toLoad = "/controller?command=SEARCH_DRUGS&query="+query+"&page=1";
                     $.get(toLoad, function (data) {
                         $('#drugs').html(data);
@@ -111,8 +116,10 @@
                 <c:forEach items="${drugList}" var="drugItem">
                     <div class="col-xs-6 col-lg-6" style="height:400px; overflow:hidden">
                         <a href="/controller?command=GET_DRUG_DETAILS&dr_id=${drugItem.id}">
-                            <h2>${drugItem.name}</h2>
-                            <img src="${drugItem.pathToImage}" class="img-responsive" alt="${drugItem.name}" height="150" width="150"/>
+                            <h2>${drugItem.name}
+                                <span class="label label-success">$${drugItem.price}</span>
+                            </h2>
+                            <img src="/controller?command=GET_DRUG_IMAGE&dr_id=${drugItem.id}" class="img-responsive" alt="${drugItem.name}" height="150" width="150"/>
                         </a>
                         <b>
                             Класс лекарства:
@@ -120,12 +127,14 @@
                         <span title="${drugItem.drugClass.description}">
                                 ${drugItem.drugClass.name}
                         </span>
+                        <br/>
                         <b>
                             Активное вещество:
                         </b>&nbsp;
                         <span>
                                 ${drugItem.activeSubstance}
                         </span>
+                        <br/>
                         <p>${drugItem.description}</p>
 
                     </div>
@@ -133,19 +142,30 @@
                 <c:if test="${drugList.size()eq 0}">
                     <h2>По запросу "${param.dr_class}" ничего не найдено</h2>
                 </c:if>
-                <div id="LoadedContent"></div>
+                <c:choose>
+                    <c:when test="${drugList.size() ne 6}">
+                        <div id="stop" data-stop="${drugList.size()<6}"></div>
+                    </c:when>
+                    <c:otherwise>
+                        <div id="LoadedContent" data-stop="${drugList.size()<6}"></div>
+                    </c:otherwise>
+                </c:choose>
                 <script>
-                    var thisWork = 1;
-                    var loadUrl = "/controller?command=GET_ALL_DRUGS&page="
+                    var load = true;
+                    var thisWork = true;
+                    var loadUrl = "/controller?command=GET_ALL_DRUGS&overload=false&page="
                     function downloadContent(){
-                        if(thisWork == 1){
-                            thisWork = 0;
-                            $.get(loadUrl+thisPageNum, function(data){
-                                $("#LoadedContent").html($("#LoadedContent").html()+" "+data);
-                                thisPageNum = thisPageNum + 1;
-                                thisWork = 1;
-                            });
+                        if(thisWork) {
+                            thisWork = false;
+                                $.get(loadUrl + thisPageNum, function (data) {
+                                    $("#LoadedContent").html($("#LoadedContent").html() + " " + data);
+                                    thisWork = true;
+                                    thisPageNum = thisPageNum + 1;
+                                });
+
+
                         }
+
                     }
                     $(document).ready(function(){
                         var scrH = $(window).height();
@@ -161,6 +181,29 @@
                                 downloadContent();
                             }
                         });
+                    });
+
+                    $("#ext_search").click(function () {
+                        var url = "/controller?command=EXTENDED_DRUG_SEARCH";
+                        url+="&name="+$("#drug_name").val();
+                        url+="&active_substance="+$("#active_substance").val();
+                        url+="&max_price="+$("#dr_price").val();
+                        url+="&dr_class="+$("#dr_class").val();
+                        url+="&dr_manufacturer="+$("#dr_man").val();
+                        if($("#in_stock_only").attr("checked")=='checked') {
+                            url += "&only_in_stock=" + $("#in_stock_only").val();
+                        }
+                        if($("#without_prescription").attr("checked")=='checked') {
+                            url += "&only_free=" + $("#without_prescription").val();
+                        }
+                        url+="&page=";
+                        $.get(url+1, function (data) {
+                            $("#drugs").html(data);
+                        });
+                        thisPageNum=2;
+                        loadUrl=url;
+                        $("#toggler_call").attr("checked", false);
+                        return false;
                     });
                 </script>
 

@@ -29,7 +29,7 @@
         <div class="container" style="background: white; padding-top: 10px">
             <div class="row">
                 <div class="col-lg-6">
-                     <img src="${user.pathToImage}" class="img-responsive" alt="<jsp:getProperty name="user" property="firstName"/> <jsp:getProperty name="user" property="secondName"/>" width="300" height="400"/>
+                     <img src="/controller?command=GET_PROFILE_IMAGE" class="img-responsive" alt="<jsp:getProperty name="user" property="firstName"/> <jsp:getProperty name="user" property="secondName"/>" width="300" height="400"/>
                      <!--<h1><jsp:getProperty name="user" property="firstName"/> <jsp:getProperty name="user" property="secondName"/></h1>-->
                 </div>
                 <div class="col-lg-6">

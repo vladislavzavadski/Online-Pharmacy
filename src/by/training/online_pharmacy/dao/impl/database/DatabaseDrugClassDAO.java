@@ -45,7 +45,8 @@ public class DatabaseDrugClassDAO implements DrugClassDAO {
 
     @Override
     public List<DrugClass> getAllDrugClasses() throws DaoException{
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_ALL_CLASSES)){
+        try {
+            DatabaseOperation databaseOperation = new DatabaseOperation(GET_ALL_CLASSES);
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             return resultSetToDrugClass(resultSet);
         } catch (ConnectionPoolException | SQLException e) {

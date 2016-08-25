@@ -3,6 +3,7 @@ package by.training.online_pharmacy.command.impl;
 import by.training.online_pharmacy.command.Command;
 import by.training.online_pharmacy.domain.drug.Drug;
 import by.training.online_pharmacy.domain.drug.DrugClass;
+import by.training.online_pharmacy.domain.drug.DrugManufacturer;
 import by.training.online_pharmacy.service.DrugService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
@@ -29,15 +30,20 @@ public class GetAllDrugsCommand implements Command {
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         DrugService drugService = serviceFactory.getDrugService();
         int pageNumber = Integer.parseInt(request.getParameter(Parameter.PAGE));
+        boolean pageOverload = Boolean.parseBoolean(request.getParameter(Parameter.OVERLOAD));
         try {
-            List<Drug> drugs = drugService.getAllDrugs(DRUGS_ON_PAGE, (pageNumber-1)*DRUGS_ON_PAGE);
-            request.setAttribute(Parameter.DRUGS, drugs);
-            if(pageNumber==1) {
+            if(pageNumber==1&&pageOverload) {
                 List<DrugClass> classes  = drugService.getAllDrugClasses();
+                List<DrugManufacturer> drugManufactures = drugService.getDrugManufactures();
+                List<Drug> drugs = drugService.getAllDrugs(DRUGS_ON_PAGE, (pageNumber-1)*DRUGS_ON_PAGE, pageOverload);
+                request.setAttribute(Parameter.DRUGS, drugs);
+                request.setAttribute("drugManufactures", drugManufactures);
                 request.setAttribute("drugClasses", classes);
                 request.getRequestDispatcher("/drugs").forward(request, response);
             }
             else {
+                List<Drug> drugs = drugService.getAllDrugs(DRUGS_ON_PAGE, (pageNumber-1)*DRUGS_ON_PAGE, pageOverload);
+                request.setAttribute(Parameter.DRUGS, drugs);
                 request.getRequestDispatcher("/drug").forward(request, response);
             }
         } catch (InvalidParameterException e) {

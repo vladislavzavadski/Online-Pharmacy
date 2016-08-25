@@ -4,8 +4,9 @@
 <c:forEach items="${drugList}" var="drug">
     <div class="col-xs-6 col-lg-6" style="height:400px; overflow:hidden">
         <a href="/controller?command=GET_DRUG_DETAILS&dr_id=${drug.id}">
-            <h2>${drug.name}</h2>
-            <img src="${drug.pathToImage}" class="img-responsive" alt="${drug.name}" height="150" width="150"/>
+            <h2>${drug.name}
+                <span class="label label-success">$${drug.price}</span></h2>
+            <img src="/controller?command=GET_DRUG_IMAGE&dr_id=${drug.id}" class="img-responsive" alt="${drug.name}" height="150" width="150"/>
         </a>
         <b>
             Класс лекарства:
@@ -13,13 +14,17 @@
         <span title="${drug.drugClass.description}">
                 ${drug.drugClass.name}
         </span>
+        <br/>
         <b>
             Активное вещество:
         </b>&nbsp;
         <span>
                 ${drug.activeSubstance}
         </span>
+        <br/>
         <p>${drug.description}</p>
     </div>
 </c:forEach>
-<div id="LoadedContent"></div>
+<c:if test="${drugList.size() >0}">
+    <div id="LoadedContent" data-stop="${drugList.size()<6}"></div>
+</c:if>

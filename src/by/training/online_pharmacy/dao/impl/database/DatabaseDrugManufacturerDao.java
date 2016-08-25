@@ -2,6 +2,7 @@ package by.training.online_pharmacy.dao.impl.database;
 
 
 import by.training.online_pharmacy.dao.DrugManufacturerDAO;
+import by.training.online_pharmacy.dao.connection_pool.exception.ConnectionPoolException;
 import by.training.online_pharmacy.dao.exception.DaoException;
 import by.training.online_pharmacy.dao.impl.database.util.DatabaseOperation;
 import by.training.online_pharmacy.domain.drug.DrugManufacturer;
@@ -23,6 +24,7 @@ public class DatabaseDrugManufacturerDao implements DrugManufacturerDAO {
     private static final String INSERT_MANUFACTURER_QUERY = "INSERT INTO drugs_manufactures (dm_name, dm_country, dm_description) VALUES (?, ?, ?);";
     private static final String UPDATE_MANUFACTURE_QUERY = "UPDATE drugs_manufactures SET dm_name=?, dm_country=?, dm_description=? where dm_id=?";
     private static final String DELETE_MANUFACTURER_QUERY = "DELETE FROM drugs_manufactures where dm_id=?;";
+    private static final String GET_MANUFACTURES_NAMES = "select dm_id, dm_name from drugs_manufactures order by dm_name;";
 
     @Override
     public List<DrugManufacturer> getManufacturesByCountry(String country, int limit, int startFrom) throws DaoException {
@@ -52,6 +54,24 @@ public class DatabaseDrugManufacturerDao implements DrugManufacturerDAO {
     @Override
     public void deleteManufacturer(int manufacturerId) throws DaoException {
 
+    }
+
+    @Override
+    public List<DrugManufacturer> getDrugManufactures() throws DaoException {
+        List<DrugManufacturer> result = new ArrayList<>();
+        try {
+            DatabaseOperation databaseOperation = new DatabaseOperation(GET_MANUFACTURES_NAMES);
+            ResultSet resultSet = databaseOperation.invokeReadOperation();
+            while (resultSet.next()){
+                DrugManufacturer drugManufacturer = new DrugManufacturer();
+                drugManufacturer.setId(resultSet.getInt(TableColumn.DRUG_MANUFACTURE_ID));
+                drugManufacturer.setName(resultSet.getString(TableColumn.DRUG_MANUFACTURE_NAME));
+                result.add(drugManufacturer);
+            }
+            return result;
+        } catch (SQLException | ConnectionPoolException e) {
+            throw new DaoException("Can not load drug manufactures from database", e);
+        }
     }
 
 
