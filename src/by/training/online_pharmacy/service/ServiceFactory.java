@@ -24,4 +24,5 @@ public class ServiceFactory {
     public RequestService getRequestService(){return new RequestServiceImpl();}
     public MessageService getMessageService(){return new MessageServiceImpl();}
     public PrescriptionService getPrescriptionService(){return new PrescriptionServiceImpl();}
+    public SecretQuestionService getSecretQuestionService(){return new SecretQuestionServiceImpl();}
 }

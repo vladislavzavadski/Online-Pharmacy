@@ -84,5 +84,7 @@ public class TableColumn {
     public static final String REQUEST_DOCTOR_SECOND_NAME = "doc_second_name";
     public static final String RESPONSE_DATE=  "re_response_date";
     public static final String USER_BALANCE = "us_balance";
+    public static final String QUESTION_ID = "sq_id";
+    public static final String QUESTION = "sq_question";
 
 }

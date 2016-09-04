@@ -139,17 +139,11 @@ public class OrderServiceImpl implements OrderService {
         }
         DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
         OrderDAO orderDAO = daoFactory.getOrderDao();
-        try {
-            orderDAO.setOrderStatus(user, OrderStatus.PAID, orderId);
-        }catch (EntityNotFoundException e){
-            throw new OrderNotFoundException(e);
-        }catch (DaoException e) {
-            logger.error("Something went wrong when trying to change order status to paid", e);
-            throw new InternalServerException(e);
-        }
         UserDAO userDAO = daoFactory.getUserDAO();
         try {
+            orderDAO.setOrderStatus(user, OrderStatus.PAID, orderId);
             userDAO.withdrawMoneyFromBalance(user, orderId);
+            user.setBalance(user.getBalance()-orderDAO.getOrderSum(orderId));
         }catch (EntityNotFoundException e){
             throw new OrderNotFoundException(e);
         }catch (OutOfRangeException e){

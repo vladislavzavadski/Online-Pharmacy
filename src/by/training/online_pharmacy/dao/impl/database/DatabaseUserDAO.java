@@ -48,6 +48,45 @@ public class DatabaseUserDAO implements UserDAO {
     private static final String TEMPLATE = " (us_first_name like ? and us_second_name like ?) ";
     private static final String QUERY_TAIL = ") order by us_first_name limit ?, ?";
     private static final String WITHDRAW_MONEY_QUERY = "update users set us_balance=us_balance-(select or_sum from orders where or_id=? and or_client_login=? and or_login_via=?) where us_login=? and login_via=?;";
+    private static final String ADD_MONEY_TO_BALANCE_QUERY = "update users set us_balance=us_balance+? where us_login=? and login_via=?";
+    private static final String GET_USER_MAIL_BY_SECRET_WORD = "select us_mail from users inner join secret_word on us_login=sw_user_login and login_via=sw_login_via where us_login=? and login_via='native' and sw_response=md5(?);";
+
+
+    @Override
+    public String getUserMailBySecretWord(SecretWord secretWord) throws DaoException {
+        try {
+            DatabaseOperation databaseOperation = new DatabaseOperation(GET_USER_MAIL_BY_SECRET_WORD);
+            databaseOperation.setParameter(1, secretWord.getUser().getLogin());
+            databaseOperation.setParameter(2, secretWord.getResponse());
+            ResultSet resultSet = databaseOperation.invokeReadOperation();
+            if(resultSet.next()){
+                return resultSet.getString(TableColumn.USER_MAIL);
+            }
+            return null;
+        } catch (ConnectionPoolException | SQLException e) {
+            throw new DaoException("Can not get user email by secret word");
+        }
+    }
+
+    @Override
+    public void addMoneyToBalance(User user, float payment) throws DaoException {
+        DatabaseOperation databaseOperation;
+        try {
+            databaseOperation = new DatabaseOperation(ADD_MONEY_TO_BALANCE_QUERY);
+
+            databaseOperation.setParameter(1, payment);
+            databaseOperation.setParameter(2, user.getLogin());
+            databaseOperation.setParameter(3, user.getRegistrationType().toString().toLowerCase());
+            if(databaseOperation.invokeWriteOperation()==0){
+                throw new EntityNotFoundException("User="+user+" was not found");
+            }
+        }
+         catch (ConnectionPoolException | SQLException e) {
+            throw new DaoException("Can not add money to balance", e);
+        }
+    }
+
+
 
     @Override
     public InputStream getProfileImage(User user) throws DaoException {

@@ -38,4 +38,8 @@ public abstract class DaoFactory {
     public abstract RequestForPrescriptionDAO getRequestForPrescriptionDAO();
 
     public abstract MessageDao getMessageDAO();
+
+    public abstract SecretWordDao getSecretWordDao();
+
+    public abstract SecretQuestionDao getSecretQuestionDao();
 }

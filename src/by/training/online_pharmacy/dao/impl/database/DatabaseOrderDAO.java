@@ -39,6 +39,25 @@ public class DatabaseOrderDAO implements OrderDAO {
     private static final String GET_ORDERS_POSTFIX = " order by or_date desc limit ?,?;";
     private static final String FK_OR_DRUGS = "fk_or_drugs";
     private static final String FK_OR_USERS = "fk_or_users";
+    private static final String GET_ORDER_SUM_QUERY = "select or_sum from orders where or_id=?;";
+
+    @Override
+    public float getOrderSum(int orderId) throws DaoException {
+        try {
+            DatabaseOperation databaseOperation = new DatabaseOperation(GET_ORDER_SUM_QUERY);
+            databaseOperation.setParameter(1, orderId);
+            ResultSet resultSet = databaseOperation.invokeReadOperation();
+            if(resultSet.next()){
+                return resultSet.getFloat(TableColumn.ORDER_SUM);
+            }
+            else {
+                throw new EntityNotFoundException("Order with id="+orderId+" was not found");
+            }
+        } catch (ConnectionPoolException | SQLException e) {
+            throw new DaoException("Can not load  order sum from database");
+        }
+
+    }
 
     @Override
     public List<Order> searchOrders(User user, SearchOrderCriteria searchOrderCriteria, int startFrom, int limit) throws DaoException {

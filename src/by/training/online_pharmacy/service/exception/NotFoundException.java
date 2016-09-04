@@ -19,7 +19,10 @@ public class NotFoundException extends ServiceException {
     }
 
     public boolean isCritical(){
-        EntityDeletedException entityDeletedException = (EntityDeletedException)getCause();
-        return entityDeletedException.isCritical();
+        if(getCause() instanceof EntityDeletedException) {
+            EntityDeletedException entityDeletedException = (EntityDeletedException) getCause();
+            return entityDeletedException.isCritical();
+        }
+        return false;
     }
 }

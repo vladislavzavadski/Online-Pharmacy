@@ -1,6 +1,7 @@
 package by.training.online_pharmacy.service;
 
 import by.training.online_pharmacy.domain.user.RegistrationType;
+import by.training.online_pharmacy.domain.user.SecretWord;
 import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.domain.user.UserDescription;
 import by.training.online_pharmacy.service.exception.*;
@@ -36,4 +37,10 @@ public interface UserService {
     InputStream getUserImage(User user) throws InvalidParameterException;
 
     void staffRegistration(User user, User newUser) throws InvalidParameterException, InvalidUserStatusException;
+
+    void addFunds(User user, String cardNumber, float summ) throws InvalidParameterException, InvalidUserStatusException;
+
+    void createSecretWord(SecretWord secretWord) throws InvalidParameterException, InvalidUserStatusException, NotFoundException;
+
+    void reestablishAccount(SecretWord secretWord) throws InvalidParameterException, NotFoundException;
 }

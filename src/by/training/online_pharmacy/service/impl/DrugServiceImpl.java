@@ -104,7 +104,7 @@ public class DrugServiceImpl implements DrugService {
                }
 
             }
-            String drugPathToImage = ImageConstant.DRUG_IMAGES+drug.getName()+drug.getDrugManufacturer().getName()+drug.getDrugManufacturer().getCountry()+drug.getActiveSubstance();
+            String drugPathToImage = ImageConstant.DRUG_IMAGES+drug.getName()+drug.getDrugManufacturer().getName()+drug.getDrugManufacturer().getCountry()+drug.getActiveSubstance()+System.currentTimeMillis();
             drug.setPathToImage(drugPathToImage);
             DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
             UserDescriptionDAO userDescriptionDAO = daoFactory.getUserDescriptionDao();

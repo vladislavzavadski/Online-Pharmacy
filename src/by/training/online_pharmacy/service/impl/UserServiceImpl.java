@@ -1,17 +1,16 @@
 package by.training.online_pharmacy.service.impl;
 
 import by.training.online_pharmacy.dao.DaoFactory;
+import by.training.online_pharmacy.dao.SecretWordDao;
 import by.training.online_pharmacy.dao.UserDAO;
 import by.training.online_pharmacy.dao.UserDescriptionDAO;
 import by.training.online_pharmacy.dao.exception.DaoException;
 import by.training.online_pharmacy.dao.exception.EntityDeletedException;
-import by.training.online_pharmacy.domain.user.RegistrationType;
-import by.training.online_pharmacy.domain.user.User;
-import by.training.online_pharmacy.domain.user.UserDescription;
-import by.training.online_pharmacy.domain.user.UserRole;
+import by.training.online_pharmacy.domain.user.*;
 import by.training.online_pharmacy.service.UserService;
 import by.training.online_pharmacy.service.exception.*;
 import by.training.online_pharmacy.service.util.*;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,6 +31,7 @@ public class UserServiceImpl implements UserService {
             "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
                     + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
     private static final String PHONE_PATTERN = "^\\+(?:[0-9]●?){6,14}[0-9]$";
+    private static final int PASSWORD_LENGTH = 7;
     @Override
     public User userLogin(String login, String password) throws UserNotFoundException, InvalidParameterException {
         if(login==null||login.equals("")){
@@ -65,9 +65,6 @@ public class UserServiceImpl implements UserService {
         if(user.getLogin()==null||user.getLogin().equals("")){
             throw new InvalidParameterException("User's login is invalid");
         }
-        if(user.getPassword()==null||user.getPassword().equals("")){
-            throw new InvalidParameterException("User's password is invalid");
-        }
         if(user.getRegistrationType()==null){
             throw new InvalidParameterException("Parameter RegistrationType is invalid");
         }
@@ -86,6 +83,7 @@ public class UserServiceImpl implements UserService {
         DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
         UserDAO userDAO = daoFactory.getUserDAO();
         try {
+            user.setPassword(RandomStringUtils.random(PASSWORD_LENGTH, true, true));
             userDAO.insertUser(user);
             EmailSender emailSender = new EmailSender(EmailProperties.EMAIL, EmailProperties.PASSWORD);
             emailSender.send(EmailProperties.TITLE, String.format(EmailProperties.MESSAGE_BODY, user.getFirstName(), user.getLogin(), user.getPassword()), user.getMail());
@@ -230,8 +228,7 @@ public class UserServiceImpl implements UserService {
         user.setPathToImage(file.getAbsolutePath());
         DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
         UserDAO userDAO = daoFactory.getUserDAO();
-
-            userDAO.uploadProfileImage(user);
+        userDAO.uploadProfileImage(user);
         }catch (EntityDeletedException e) {
             throw new NotFoundException("User with login=" + user.getLogin() + " was not found", e);
         }  catch (DaoException e) {
@@ -421,6 +418,110 @@ public class UserServiceImpl implements UserService {
             logger.error("Something went wrong when trying to insert new user description");
             throw new InternalServerException(e);
         }
+    }
+
+    @Override
+    public void addFunds(User user, String cardNumber, float summ) throws InvalidParameterException, InvalidUserStatusException {
+        if(user==null){
+            throw new InvalidParameterException("Parameter user is invalid");
+        }
+        if(user.getLogin()==null||user.getLogin().isEmpty()){
+            throw new InvalidParameterException("Parameter user login is invalid");
+        }
+        if(user.getRegistrationType()==null){
+            throw new InvalidParameterException("Parameter registration is invalid");
+        }
+        if(cardNumber==null||cardNumber.isEmpty()){
+            throw new InvalidParameterException("Parameter card number is invalid");
+        }
+        if(summ<=0.0){
+            throw new InvalidParameterException("Parameter summ is invalid");
+        }
+        if(user.getUserRole()!=UserRole.CLIENT){
+            throw new InvalidUserStatusException("Only client can add funds");
+        }
+        DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
+        UserDAO userDAO = daoFactory.getUserDAO();
+        try {
+            userDAO.addMoneyToBalance(user, summ);
+            user.setBalance(user.getBalance()+summ);
+        } catch (DaoException e) {
+            logger.error("Something went wrong when trying to add founds to user balance", e);
+            throw new InternalServerException(e);
+        }
+    }
+
+    @Override
+    public void createSecretWord(SecretWord secretWord) throws InvalidParameterException, InvalidUserStatusException, NotFoundException {
+        if(secretWord==null){
+            throw new InvalidParameterException("Parameter secret word is invalid");
+        }
+        if(secretWord.getUser()==null){
+            throw new InvalidParameterException("Parameter user is invalid");
+        }
+        if(secretWord.getUser().getLogin()==null||secretWord.getUser().getLogin().isEmpty()){
+            throw new InvalidParameterException("Parameter user login is invalid");
+        }
+        if(secretWord.getUser().getRegistrationType()==null){
+            throw new InvalidParameterException("Parameter registration type is invalid");
+        }
+        if(secretWord.getUser().getRegistrationType()!=RegistrationType.NATIVE){
+            throw new InvalidUserStatusException("Only native users can set secret word");
+        }
+        if(secretWord.getSecretQuestion()==null){
+            throw new InvalidParameterException("Parameter secret question is invalid");
+        }
+        if(secretWord.getSecretQuestion().getId()<0){
+            throw new InvalidParameterException("Parameter secret question is invalid");
+        }
+        if(secretWord.getResponse()==null||secretWord.getResponse().isEmpty()){
+            throw new InvalidParameterException("Parameter secret response is invalid");
+        }
+        DaoFactory daoFactory  = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
+        SecretWordDao secretWordDao = daoFactory.getSecretWordDao();
+        try {
+            secretWordDao.createSecretWord(secretWord);
+        } catch (EntityDeletedException e){
+            throw new NotFoundException(e);
+        } catch (DaoException e) {
+            logger.error("Something went wrong when trying to create secret word");
+            throw new InternalServerException(e);
+        }
+
+    }
+
+    @Override
+    public void reestablishAccount(SecretWord secretWord) throws InvalidParameterException, NotFoundException {
+        if(secretWord==null){
+            throw new InvalidParameterException("Parameter secret word is invalid");
+        }
+        if(secretWord.getUser()==null){
+            throw new InvalidParameterException("Parameter user is invalid");
+        }
+        if(secretWord.getUser().getLogin()==null||secretWord.getUser().getLogin().isEmpty()){
+            throw new InvalidParameterException("Parameter user login is invalid");
+        }
+        if(secretWord.getResponse()==null||secretWord.getResponse().isEmpty()){
+            throw new InvalidParameterException("Parameter secret response is invalid");
+        }
+        DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
+        UserDAO userDAO = daoFactory.getUserDAO();
+        try {
+            String email = userDAO.getUserMailBySecretWord(secretWord);
+            if(email==null){
+                throw new NotFoundException("User was not found, or secret word is invalid");
+            }
+            secretWord.getUser().setRegistrationType(RegistrationType.NATIVE);
+            String newPassword = RandomStringUtils.random(PASSWORD_LENGTH, true, true);
+            userDAO.updateUsersPassword(secretWord.getUser(), newPassword);
+            EmailSender emailSender = new EmailSender(EmailProperties.EMAIL, EmailProperties.PASSWORD);
+            emailSender.send(EmailProperties.REESTABLISH_ACCOUNT, String.format(EmailProperties.REESTABLISH_BODY, secretWord.getUser().getLogin(), newPassword), email);
+        } catch (DaoException e) {
+            logger.error("Something went wrong when trying to reestablish account", e);
+            throw new InternalServerException(e);
+        }
+
+
     }
 
 }

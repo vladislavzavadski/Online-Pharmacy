@@ -1,6 +1,7 @@
 package by.training.online_pharmacy.command;
 
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
+import by.training.online_pharmacy.service.exception.InvalidUserStatusException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

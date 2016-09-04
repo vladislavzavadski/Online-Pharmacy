@@ -8,6 +8,7 @@ import by.training.online_pharmacy.controller.CommandName;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 import static by.training.online_pharmacy.controller.CommandName.GET_PROFILE_IMAGE;
@@ -23,16 +24,12 @@ public class ControllerFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        boolean isConnectionEnable = CommandName.valueOf(servletRequest.getParameter(Parameter.COMMAND))!=GET_PROFILE_IMAGE;
-        if(isConnectionEnable) {
-            Command command = CommandHelper.getCommand(CommandName.RESERVE_CONNECTION);
-            command.execute((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse);
-        }
+        Command command = CommandHelper.getCommand(CommandName.RESERVE_CONNECTION);
+        command.execute((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse);
         filterChain.doFilter(servletRequest, servletResponse);
-        if(isConnectionEnable) {
-            Command command = CommandHelper.getCommand(CommandName.FREE_CONNECTION);
-            command.execute((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse);
-        }
+        command = CommandHelper.getCommand(CommandName.FREE_CONNECTION);
+        command.execute((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse);
+
     }
 
     @Override

@@ -2,10 +2,7 @@ package by.training.online_pharmacy.dao;
 
 
 import by.training.online_pharmacy.dao.exception.DaoException;
-import by.training.online_pharmacy.domain.user.RegistrationType;
-import by.training.online_pharmacy.domain.user.User;
-import by.training.online_pharmacy.domain.user.UserDescription;
-import by.training.online_pharmacy.domain.user.UserRole;
+import by.training.online_pharmacy.domain.user.*;
 
 import java.io.InputStream;
 import java.util.List;
@@ -14,6 +11,10 @@ import java.util.List;
  * Created by vladislav on 13.06.16.
  */
 public interface UserDAO {
+    String getUserMailBySecretWord(SecretWord secretWord) throws DaoException;
+
+    void addMoneyToBalance(User user, float payment) throws DaoException;
+
     InputStream getProfileImage(User user) throws DaoException;
 
     User getUserDetails(String userLogin, RegistrationType registrationType) throws DaoException;

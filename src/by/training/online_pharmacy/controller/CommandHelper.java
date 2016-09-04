@@ -61,6 +61,11 @@ public class CommandHelper {
         commands.put(CommandName.UPDATE_DRUG, new UpdateDrugCommand());
         commands.put(CommandName.DELETE_DRUG, new DeleteDrugCommand());
         commands.put(CommandName.DOCTOR_REGISTRATION, new DoctorRegistrationCommand());
+        commands.put(CommandName.REPLISH_BALANCE, new ReplenishBalanceCommand());
+        commands.put(CommandName.CREATE_SECRET, new CreateSecretWordCommand());
+        commands.put(CommandName.OPEN_SETTINGS, new OpenSettingsCommand());
+        commands.put(CommandName.GET_SECRET, new GetUsersSecretQuestionCommand());
+        commands.put(CommandName.REESTABLISH_ACCOUNT, new ReestablishAccountCommand());
     }
     public static Command getCommand(CommandName commandName){
         return commands.get(commandName);

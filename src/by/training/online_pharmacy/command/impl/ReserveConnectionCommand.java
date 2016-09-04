@@ -10,14 +10,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static by.training.online_pharmacy.controller.CommandName.GET_PROFILE_IMAGE;
+
 /**
  * Created by vladislav on 03.09.16.
  */
 public class ReserveConnectionCommand implements Command {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        ServiceFactory serviceFactory = ServiceFactory.getInstance();
-        InitConnectionService initConnectionService = serviceFactory.getInitConnectionService();
-        initConnectionService.reserveConnection();
+        boolean isConnectionEnable = CommandName.valueOf(request.getParameter(Parameter.COMMAND))!=GET_PROFILE_IMAGE;
+        if(isConnectionEnable) {
+            ServiceFactory serviceFactory = ServiceFactory.getInstance();
+            InitConnectionService initConnectionService = serviceFactory.getInitConnectionService();
+            initConnectionService.reserveConnection();
+        }
     }
 }

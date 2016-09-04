@@ -159,12 +159,73 @@
                         </div>
                     </fieldset>
                 </div>
+                <c:if test="${user.registrationType eq 'NATIVE'}">
+                    <jsp:useBean id="secretQuestions" scope="request" class="java.util.ArrayList"/>
+                    <form class="form-horizontal" id="secret_form">
+                        <input type="hidden" name="command" value="CREATE_SECRET">
+                        <fieldset>
+                            <legend>Восстановление пароля</legend>
+                            <div class="form-group">
+                                <label class="col-md-4 control-label" for="questions">Вопрос:</label>
+                                <div class="col-md-4">
+                                    <select name="question_id" id="questions" class="selectpicker form-control input-md span3" required>
+                                        <c:forEach items="${secretQuestions}" var="question">
+                                            <option value="${question.id}">${question.question}</option>
+                                        </c:forEach>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-4 control-label" for="secret_word">Ответ:</label>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control input-md span3" name="secret_word" id="secret_word" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-4 control-label"></label>
+                                <div class="col-md-4">
+                                    <button type="submit" id="save_secret"  class="btn btn-primary">Сохранить</button>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                    </form>
+                    <script>
+                        $('#secret_form').submit(function () {
+                            var data = $(this).serialize();
+                            $.ajax({
+                                url:'controller',
+                                type:'POST',
+                                dataType:'json',
+                                data:data,
+                                success: function (data) {
+                                    if(data.result==true){
+                                        Notify.generate('Секретное слово сохранено','Сохранено',  1)
+                                    }
+                                    else {
+                                        if(data.isCritical){
+                                            Notify.generate('Логин под которым вы авторизованы был удален из базы данных.', 'Критическая ошибка', 3);
+                                            setTimeout(function () {
+                                                window.location.assign("/index.jsp");
+                                            }, 5000);
+                                        }
+                                        else {
+                                            Notify.generate('Не сохранить изменения. Ответ сервера: '+data.message, 'Не сохранить изменения', 2);
+                                        }
+                                    }
+                                }
+                            });
+                            return false;
+                        });
+                    </script>
+
+                </c:if>
                 <div class="form-horizontal">
                     <fieldset>
                         <legend>Удаление аккаунта</legend>
                         <span id="delete_inf"></span>
                         <div class="form-group">
-                            <label class="col-md-4 control-label" for="profile_image1">Пароль:</label>
+                            <label class="col-md-4 control-label" for="delete_password">Пароль:</label>
                             <div class="col-md-4">
                                 <input id="delete_password"  name="profile_image" type="password" class="form-control input-md span3" required>
                             </div>

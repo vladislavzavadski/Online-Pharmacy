@@ -67,4 +67,9 @@ public class Parameter {
     public static final String MANUFACTURER_COUNTRY = "man_country";
     public static final String MANUFACTURER_DESCRIPTION = "man_description";
     public static final String DESCRIPTION = "description";
+    public static final String PAYMENT = "payment";
+    public static final String CARD_NUMBER = "card_number";
+    public static final String QUESTION_ID = "question_id";
+    public static final String SECRET_WORD = "secret_word";
+    public static final String QUESTION = "question";
 }

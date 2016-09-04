@@ -15,6 +15,8 @@ import java.util.List;
  * Created by vladislav on 19.06.16.
  */
 public interface OrderDAO {
+    float getOrderSum(int orderId) throws DaoException;
+
     List<Order> searchOrders(User user, SearchOrderCriteria searchOrderCriteria, int startFrom, int limit) throws DaoException;
 
     Order getOrderById(int orderId) throws DaoException;

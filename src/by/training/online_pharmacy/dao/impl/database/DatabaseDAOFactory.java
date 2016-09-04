@@ -45,5 +45,8 @@ public class DatabaseDAOFactory extends DaoFactory {
 
     public MessageDao getMessageDAO(){return  new DatabaseMessageDao();}
 
+    public SecretWordDao getSecretWordDao() {return new SecretWordDaoImpl();}
+
+    public SecretQuestionDao getSecretQuestionDao(){ return new SecretQuestionDaoImpl();}
 }
 

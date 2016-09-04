@@ -1,12 +1,14 @@
 package by.training.online_pharmacy.command.impl;
 
 import by.training.online_pharmacy.command.Command;
-import by.training.online_pharmacy.domain.user.*;
+import by.training.online_pharmacy.domain.user.SecretQuestion;
+import by.training.online_pharmacy.domain.user.SecretWord;
+import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.UserService;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
 import by.training.online_pharmacy.service.exception.InvalidUserStatusException;
-import org.apache.commons.lang3.RandomStringUtils;
+import by.training.online_pharmacy.service.exception.NotFoundException;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
@@ -19,7 +21,7 @@ import java.io.IOException;
 /**
  * Created by vladislav on 04.09.16.
  */
-public class DoctorRegistrationCommand implements Command {
+public class CreateSecretWordCommand implements Command {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);
@@ -28,30 +30,32 @@ public class DoctorRegistrationCommand implements Command {
             response.sendRedirect(Page.INDEX);
             return;
         }
-        User newUser = new User();
-        UserDescription userDescription = new UserDescription();
-        userDescription.setSpecialization(request.getParameter(Parameter.SPECIALIZATION));
-        userDescription.setDescription(request.getParameter(Parameter.DESCRIPTION));
-        newUser.setUserDescription(userDescription);
-        String email = request.getParameter(Parameter.MAIL);
-        newUser.setFirstName(request.getParameter(Parameter.FIRST_NAME));
-        newUser.setSecondName(request.getParameter(Parameter.SECOND_NAME));
-        newUser.setLogin(request.getParameter(Parameter.LOGIN));
-        newUser.setMail(email);
-        newUser.setGender(Gender.UNKNOWN);
-        newUser.setRegistrationType(RegistrationType.NATIVE);
-        newUser.setUserRole(UserRole.DOCTOR);
+        int questionId = Integer.parseInt(request.getParameter(Parameter.QUESTION_ID));
+        String secretResponse = request.getParameter(Parameter.SECRET_WORD);
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         UserService userService = serviceFactory.getUserService();
+        SecretWord secretWord = new SecretWord();
+        SecretQuestion secretQuestion = new SecretQuestion();
+        secretQuestion.setId(questionId);
+        secretWord.setSecretQuestion(secretQuestion);
+        secretWord.setResponse(secretResponse);
+        secretWord.setUser(user);
         JSONObject jsonObject = new JSONObject();
-        response.setContentType(Content.JSON);
         ServletOutputStream servletOutputStream = response.getOutputStream();
+        response.setContentType(Content.JSON);
         try {
-            userService.staffRegistration(user, newUser);
+            userService.createSecretWord(secretWord);
             jsonObject.put(Parameter.RESULT, true);
         } catch (InvalidParameterException | InvalidUserStatusException e) {
             jsonObject.put(Parameter.RESULT, false);
             jsonObject.put(Parameter.MESSAGE, e.getMessage());
+        } catch (NotFoundException e) {
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.IS_CRITICAL, e.isCritical());
+            jsonObject.put(Parameter.MESSAGE, e.getMessage());
+            if(e.isCritical()){
+                httpSession.invalidate();
+            }
         }
         servletOutputStream.write(jsonObject.toString().getBytes());
     }
