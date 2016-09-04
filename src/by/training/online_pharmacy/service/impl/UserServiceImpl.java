@@ -8,6 +8,7 @@ import by.training.online_pharmacy.dao.exception.EntityDeletedException;
 import by.training.online_pharmacy.domain.user.RegistrationType;
 import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.domain.user.UserDescription;
+import by.training.online_pharmacy.domain.user.UserRole;
 import by.training.online_pharmacy.service.UserService;
 import by.training.online_pharmacy.service.exception.*;
 import by.training.online_pharmacy.service.util.*;
@@ -204,7 +205,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void uploadProfileImage(User user, Part part, String realPath) throws InvalidContentException, InvalidParameterException, NotFoundException {
+    public void uploadProfileImage(User user, Part part) throws InvalidContentException, InvalidParameterException, NotFoundException {
         if(user==null){
             throw new InvalidParameterException("Parameter user is invalid");
         }
@@ -224,7 +225,7 @@ public class UserServiceImpl implements UserService {
             throw new InvalidContentException("This file is not an image");
         }
         File uploads = new File(ImageConstant.USER_IMAGES);
-        File file = new File(uploads, user.getLogin()+ImageConstant.IMAGE_JPG);
+        File file = new File(uploads, user.getLogin()+user.getRegistrationType()+ImageConstant.IMAGE_JPG);
         Files.copy(newImageStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
         user.setPathToImage(file.getAbsolutePath());
         DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
@@ -268,7 +269,7 @@ public class UserServiceImpl implements UserService {
         DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
         UserDAO userDAO = daoFactory.getUserDAO();
         try {
-            List<User> doctors =  userDAO.getAllDoctors(limit, startFrom, pageOverload);
+            List<User> doctors =  userDAO.getAllDoctors(limit, startFrom);
             return doctors;
         } catch (DaoException e) {
             logger.error("Something went wrong when trying to load doctors", e);
@@ -393,6 +394,32 @@ public class UserServiceImpl implements UserService {
                 logger.error("Something went wrong when trying to load image", e);
                 throw new InternalServerException(e);
             }
+        }
+    }
+
+    @Override
+    public void staffRegistration(User user1, User newUser) throws InvalidParameterException, InvalidUserStatusException {
+        if(user1==null){
+            throw new InvalidParameterException("Parameter user is invalid");
+        }
+        if(user1.getUserRole()!= UserRole.PHARMACIST){
+            throw new InvalidUserStatusException("Only pharmacist can register new doctor");
+        }
+        UserDescription userDescription = newUser.getUserDescription();
+        if(userDescription==null||userDescription.getSpecialization()==null||userDescription.getSpecialization().isEmpty()
+                ||userDescription.getDescription()==null||userDescription.getDescription().isEmpty()){
+            throw new InvalidParameterException("Parameter user description is invalid");
+        }
+        userDescription.setUserLogin(newUser.getLogin());
+        userDescription.setRegistrationType(newUser.getRegistrationType());
+        userRegistration(newUser);
+        DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
+        UserDescriptionDAO userDescriptionDAO = daoFactory.getUserDescriptionDao();
+        try {
+            userDescriptionDAO.insertUserDescription(userDescription);
+        } catch (DaoException e) {
+            logger.error("Something went wrong when trying to insert new user description");
+            throw new InternalServerException(e);
         }
     }
 

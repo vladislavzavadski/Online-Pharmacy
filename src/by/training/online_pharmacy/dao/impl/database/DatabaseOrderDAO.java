@@ -11,15 +11,13 @@ import by.training.online_pharmacy.dao.exception.EntityNotFoundException;
 import by.training.online_pharmacy.dao.exception.OutOfRangeException;
 import by.training.online_pharmacy.dao.impl.database.util.DatabaseOperation;
 import by.training.online_pharmacy.dao.impl.database.util.DrugCountUpdater;
-import by.training.online_pharmacy.dao.impl.database.util.PrescriptionCountUpdater;
 import by.training.online_pharmacy.dao.impl.database.util.exception.ParameterNotFoundException;
 import by.training.online_pharmacy.domain.Period;
 import by.training.online_pharmacy.domain.drug.Drug;
 import by.training.online_pharmacy.domain.order.Order;
 import by.training.online_pharmacy.domain.order.OrderStatus;
-import by.training.online_pharmacy.domain.user.RegistrationType;
+import by.training.online_pharmacy.domain.order.SearchOrderCriteria;
 import by.training.online_pharmacy.domain.user.User;
-import org.apache.poi.hssf.record.formula.functions.T;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,7 +30,7 @@ import java.util.List;
  */
 public class DatabaseOrderDAO implements OrderDAO {
     private static final String INSERT_ORDER_QUERY = "INSERT INTO orders (or_client_login, or_login_via, or_drug_id, or_drug_count, or_drug_dosage, or_status, or_sum, or_date) VALUES(?, ?, ?, ?, ?, ?, (select dr_price*? from drugs where dr_id=?),curdate());";
-    private static final String CANCEL_ORDER_QUERY = "update orders set or_status='canceled' where or_client_login=? and or_login_via=? and or_status='ordered' and or_id=?;";
+    private static final String CHANGE_ORDER_STATUS = "update orders set or_status=? where or_client_login=? and or_login_via=?  and or_id=?;";
     private static final String GET_ORDERS_QUERY_PREFIX = "select or_id, or_drug_id, or_drug_count, or_drug_dosage, or_status, or_sum, or_date, dr_name from orders inner join drugs on or_drug_id=dr_id where or_client_login=? and or_login_via=?";
     private static final String DATE_FROM = " and or_date>=? ";
     private static final String DATE_TO = " and or_date<=? ";
@@ -43,18 +41,18 @@ public class DatabaseOrderDAO implements OrderDAO {
     private static final String FK_OR_USERS = "fk_or_users";
 
     @Override
-    public List<Order> searchOrders(User user, String dateFrom, String dateTo, String orderStatus, String drugName, int limit, int startFrom) throws DaoException {
+    public List<Order> searchOrders(User user, SearchOrderCriteria searchOrderCriteria, int startFrom, int limit) throws DaoException {
         StringBuilder query = new StringBuilder(GET_ORDERS_QUERY_PREFIX);
-        if(dateFrom!=null&&!dateFrom.isEmpty()){
+        if(searchOrderCriteria.getDateFrom()!=null&&!searchOrderCriteria.getDateFrom().isEmpty()){
             query.append(DATE_FROM);
         }
-        if(dateTo!=null&&!dateTo.isEmpty()){
+        if(searchOrderCriteria.getDateTo()!=null&&!searchOrderCriteria.getDateTo().isEmpty()){
             query.append(DATE_TO);
         }
-        if(orderStatus!=null&&!orderStatus.isEmpty()){
+        if(searchOrderCriteria.getOrderStatus()!=null&&!searchOrderCriteria.getOrderStatus().isEmpty()){
             query.append(ORDER_STATUS);
         }
-        if(drugName!=null&&!drugName.isEmpty()){
+        if(searchOrderCriteria.getDrugName()!=null&&!searchOrderCriteria.getDrugName().isEmpty()){
             query.append(DRUG_NAME);
         }
         query.append(GET_ORDERS_POSTFIX);
@@ -63,17 +61,17 @@ public class DatabaseOrderDAO implements OrderDAO {
             int paramNumber = 3;
             databaseOperation.setParameter(1, user.getLogin());
             databaseOperation.setParameter(2, user.getRegistrationType().toString().toLowerCase());
-            if(dateFrom!=null&&!dateFrom.isEmpty()){
-                databaseOperation.setParameter(paramNumber++, new Date(dateFrom));
+            if(searchOrderCriteria.getDateFrom()!=null&&!searchOrderCriteria.getDateFrom().isEmpty()){
+                databaseOperation.setParameter(paramNumber++, new Date(searchOrderCriteria.getDateFrom()));
             }
-            if(dateTo!=null&&!dateTo.isEmpty()){
-                databaseOperation.setParameter(paramNumber++, new Date(dateTo));
+            if(searchOrderCriteria.getDateTo()!=null&&!searchOrderCriteria.getDateTo().isEmpty()){
+                databaseOperation.setParameter(paramNumber++, new Date(searchOrderCriteria.getDateTo()));
             }
-            if(orderStatus!=null&&!orderStatus.isEmpty()){
-                databaseOperation.setParameter(paramNumber++, orderStatus.toLowerCase());
+            if(searchOrderCriteria.getOrderStatus()!=null&&!searchOrderCriteria.getOrderStatus().isEmpty()){
+                databaseOperation.setParameter(paramNumber++, searchOrderCriteria.getOrderStatus().toLowerCase());
             }
-            if(drugName!=null&&!drugName.isEmpty()){
-                databaseOperation.setParameter(paramNumber++, Param.PER_CENT+drugName+Param.PER_CENT);
+            if(searchOrderCriteria.getDrugName()!=null&&!searchOrderCriteria.getDrugName().isEmpty()){
+                databaseOperation.setParameter(paramNumber++, Param.PER_CENT+searchOrderCriteria.getDrugName()+Param.PER_CENT);
             }
             databaseOperation.setParameter(paramNumber++, startFrom);
             databaseOperation.setParameter(paramNumber, limit);
@@ -85,6 +83,8 @@ public class DatabaseOrderDAO implements OrderDAO {
         }
 
     }
+
+
 
     @Override
     public Order getOrderById(int orderId) throws DaoException {
@@ -112,26 +112,34 @@ public class DatabaseOrderDAO implements OrderDAO {
     }
 
     @Override
-    public void cancelOrder(User user, int orderId) throws DaoException {
+    public void setOrderStatus(User user, OrderStatus orderStatus, int orderId) throws DaoException {
+        DatabaseOperation databaseOperation = null;
         try {
-            DatabaseOperation databaseOperation = new DatabaseOperation(CANCEL_ORDER_QUERY);
+            databaseOperation = new DatabaseOperation(CHANGE_ORDER_STATUS);
             databaseOperation.beginTransaction();
             databaseOperation.setParameter(TableColumn.ORDER_US_LOGIN, user.getLogin());
             databaseOperation.setParameter(TableColumn.ORDER_LOGIN_VIA, user.getRegistrationType().toString().toLowerCase());
             databaseOperation.setParameter(TableColumn.ORDER_ID, orderId);
+            databaseOperation.setParameter(TableColumn.ORDER_STATUS, orderStatus.toString().toLowerCase());
             if(databaseOperation.invokeWriteOperation()==0){
-                databaseOperation.rollBack();
+                databaseOperation.close();
                 throw new EntityNotFoundException("Order with id="+orderId+" was not found");
             }
         } catch (SQLException | ParameterNotFoundException | ConnectionPoolException e) {
+            if(databaseOperation!=null){
+                try {
+                    databaseOperation.close();
+                } catch (SQLException e1) {
+                    throw new DaoException("Can not cancel order with id="+orderId, e);
+                }
+            }
             throw new DaoException("Can not cancel order with id="+orderId, e);
         }
     }
 
     @Override
     public void insertOrder(Order order) throws DaoException {
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_ORDER_QUERY, true)){
-            databaseOperation.beginTransaction();
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_ORDER_QUERY)){
             databaseOperation.setParameter(TableColumn.ORDER_US_LOGIN, order.getClient().getLogin());
             databaseOperation.setParameter(TableColumn.ORDER_LOGIN_VIA, order.getClient().getRegistrationType().toString().toLowerCase());
             databaseOperation.setParameter(TableColumn.ORDER_DRUG_ID, order.getDrug().getId());
@@ -143,15 +151,6 @@ public class DatabaseOrderDAO implements OrderDAO {
             databaseOperation.invokeWriteOperation();
             DrugCountUpdater drugCountUpdater = new DrugCountUpdater(databaseOperation);
             drugCountUpdater.changeDrugCount(-order.getDrugCount(), order.getDrug().getId());
-            if(order.getDrug().isPrescriptionEnable()){
-                PrescriptionCountUpdater prescriptionCountUpdater = new PrescriptionCountUpdater(databaseOperation);
-                int rowsUpdated = prescriptionCountUpdater.changeDrugCount(order.getDrugCount(), order.getClient().getLogin(),
-                        order.getClient().getRegistrationType(), order.getDrug().getId(), order.getDrugDosage());
-                if(rowsUpdated==0){
-                    databaseOperation.rollBack();
-                    throw new EntityNotFoundException("Can not found prescription for drug with id="+order.getDrug().getId());
-                }
-            }
             databaseOperation.endTransaction();
         } catch (ParameterNotFoundException | ConnectionPoolException e) {
             throw new DaoException("Can not insert new order "+ order +" to database", e);
@@ -173,6 +172,8 @@ public class DatabaseOrderDAO implements OrderDAO {
     public void deleteOrder(int orderId) throws DaoException {
 
     }
+
+
 
 
    /* @Override

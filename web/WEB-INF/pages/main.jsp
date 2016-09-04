@@ -40,6 +40,9 @@
                     <b>e-mail: </b>&nbsp
                     <span><a href="mailto:<jsp:getProperty name="user" property="mail"/>"><jsp:getProperty name="user" property="mail"/></a> </span>
                     <br/>
+                    <b>${balance}:</b>
+                    <span>${user.balance}</span>
+                    <br/>
                     <b>${gender}: </b>&nbsp
                     <c:choose>
                         <c:when test="${user.gender eq 'MALE'}">

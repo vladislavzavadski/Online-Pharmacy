@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Created by vladislav on 31.07.16.
@@ -36,9 +35,8 @@ public class UploadProfileImageCommand implements Command {
         Part part = request.getPart(Parameter.PROFILE_IMAGE);
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         UserService userService = serviceFactory.getUserService();
-        String realPath = request.getServletContext().getRealPath(Page.USER_IMAGES);
         try {
-            userService.uploadProfileImage(user, part, realPath);
+            userService.uploadProfileImage(user, part);
             jsonObject.put(Parameter.RESULT, true);
         } catch (InvalidContentException|InvalidParameterException e) {
             jsonObject.put(Parameter.RESULT, false);

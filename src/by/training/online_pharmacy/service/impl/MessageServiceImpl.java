@@ -6,6 +6,7 @@ import by.training.online_pharmacy.dao.exception.DaoException;
 import by.training.online_pharmacy.dao.exception.EntityDeletedException;
 import by.training.online_pharmacy.dao.exception.EntityNotFoundException;
 import by.training.online_pharmacy.domain.message.Message;
+import by.training.online_pharmacy.domain.message.SearchMessageCriteria;
 import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.service.MessageService;
 import by.training.online_pharmacy.service.exception.InternalServerException;
@@ -53,7 +54,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public List<Message> getMessages(User user, String messageStatus, String dateTo, String dateFrom, int limit, int startFrom) throws InvalidParameterException {
+    public List<Message> getMessages(User user, SearchMessageCriteria searchMessageCriteria, int startFrom, int limit) throws InvalidParameterException {
         if(user==null||user.getLogin()==null||user.getLogin().isEmpty()||user.getRegistrationType()==null){
             throw new InvalidParameterException("Parameter user is invalid");
         }
@@ -63,10 +64,13 @@ public class MessageServiceImpl implements MessageService {
         if(startFrom<0){
             throw new InvalidParameterException("Invalid parameter startFrom startFrom can be >0");
         }
+        if(searchMessageCriteria==null){
+            throw new InvalidParameterException("Invalid parameter searchMessageCriteria");
+        }
         DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
         MessageDao messageDao = daoFactory.getMessageDAO();
         try {
-            List<Message> messages = messageDao.getMessages(user, messageStatus, dateTo, dateFrom, limit, startFrom);
+            List<Message> messages = messageDao.getMessages(user, searchMessageCriteria, startFrom, limit);
             return messages;
         } catch (DaoException e) {
             logger.error("Something went wrong when trying to get messages", e);

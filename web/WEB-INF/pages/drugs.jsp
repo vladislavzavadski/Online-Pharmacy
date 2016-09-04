@@ -1,5 +1,4 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="utf-8" %>
 <%@include file="header.jsp"%>
@@ -8,6 +7,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta contentType="text/html; charset=UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Препараты</title>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -16,23 +16,37 @@
         <link href="css/simple-sidebar.css" rel="stylesheet">
         <link href="css/sticky-footer-navbar.css" rel="stylesheet">
         <script src="js/bootstrap.js"></script>
+        <style>
+            #notifies {
+                position:fixed;
+                width:400px;
+                height:auto;
+                top:100px;
+                right:20px;
+            }
+        </style>
     </head>
     <body>
+    <jsp:useBean id="user" scope="session" class="by.training.online_pharmacy.domain.user.User"/>
     <jsp:useBean id="drugList" scope="request" class="java.util.ArrayList"/>
     <jsp:useBean id="drugClasses" scope="request" class="java.util.ArrayList"/>
+    <jsp:useBean id="specializations" scope="request" class="java.util.ArrayList"/>
         <div id="wrapper">
         <div class="container content">
+            <div id="notifies"></div>
             <!-- Sidebar -->
             <div id="sidebar-wrapper">
                 <ul class="sidebar-nav">
                     <li class="sidebar-brand">
                         Классы лекарств:
                     </li>
-                    <c:forEach items="${drugClasses}" var="drugClass">
-                        <li>
-                            <a class="Class" href="/controller?command=GET_DRUGS_BY_CLASS&dr_class=${drugClass.name}&page=1" title="${drugClass.description}">${drugClass.name}</a>
-                        </li>
-                    </c:forEach>
+                    <div id="drug_classes">
+                        <c:forEach items="${drugClasses}" var="drugClass">
+                            <li>
+                                <a class="Class" href="/controller?command=GET_DRUGS_BY_CLASS&dr_class=${drugClass.name}&page=1" title="${drugClass.description}">${drugClass.name}</a>
+                            </li>
+                        </c:forEach>
+                    </div>
                     <li>
                         <a id="all_dr" href="/controller?command=GET_ALL_DRUGS&overload=false&page=1">Все классы</a>
                     </li>
@@ -40,7 +54,7 @@
             </div>
             <script>
                 var thisPageNum = 2;
-                $(".Class").click(function () {
+                $('#drug_classes').on('click', '.Class',function () {
                     //alert($(this).attr("href"));
                     var toLoad = $(this).attr("href");
                     //$("#drugs").load(toLoad);
@@ -79,39 +93,13 @@
                 });
             </script>
             <h1 class="display_1">Препараты</h1>
-            <div class="btn-toolbar">
-                <div class="btn-group btn-group-sm">
-                    <a type="button" href="#" class="btn btn-default">А</a>
-                    <a type="button" href="#" class="btn btn-default">Б</a>
-                    <a type="button" href="#" class="btn btn-default">В</a>
-                    <a type="button" href="#" class="btn btn-default">Г</a>
-                    <a type="button" href="#" class="btn btn-default">Д</a>
-                    <a type="button" href="#" class="btn btn-default">Е</a>
-                    <a type="button" href="#" class="btn btn-default">Ж</a>
-                    <a type="button" href="#" class="btn btn-default">З</a>
-                    <a type="button" href="#" class="btn btn-default">И</a>
-                    <a type="button" href="#" class="btn btn-default">Й</a>
-                    <a type="button" href="#" class="btn btn-default">К</a>
-                    <a type="button" href="#" class="btn btn-default">Л</a>
-                    <a type="button" href="#" class="btn btn-default">М</a>
-                    <a type="button" href="#" class="btn btn-default">Н</a>
-                    <a type="button" href="#" class="btn btn-default">О</a>
-                    <a type="button" href="#" class="btn btn-default">П</a>
-                    <a type="button" href="#" class="btn btn-default">Р</a>
-                    <a type="button" href="#" class="btn btn-default">С</a>
-                    <a type="button" href="#" class="btn btn-default">Т</a>
-                    <a type="button" href="#" class="btn btn-default">У</a>
-                    <a type="button" href="#" class="btn btn-default">Ф</a>
-                    <a type="button" href="#" class="btn btn-default">Х</a>
-                    <a type="button" href="#" class="btn btn-default">Ц</a>
-                    <a type="button" href="#" class="btn btn-default">Ч</a>
-                    <a type="button" href="#" class="btn btn-default">Ш</a>
-                    <a type="button" href="#" class="btn btn-default">Щ</a>
-                    <a type="button" href="#" class="btn btn-default">Э</a>
-                    <a type="button" href="#" class="btn btn-default">Ю</a>
-                    <a type="button" href="#" class="btn btn-default">Я</a>
+            <c:if test="${user.userRole eq 'PHARMACIST'}">
+                <div class="btn-group" style="padding-top:20px;" role="group">
+                    <button data-toggle="modal" data-target="#new-drug-modal" class="btn btn-primary btn-primary">Добавить лекарство</button>
+                    <button data-toggle="modal" data-target="#new-drug-class-modal" class="btn btn-primary btn-primary">Добавить класс лекарств</button>
+                    <button data-toggle="modal" data-target="#new-drug-manufacturer-modal" class="btn btn-primary btn-primary">Добавить производителя</button>
                 </div>
-            </div>
+            </c:if>
             <div id="drugs" class="row" align="justify" style="background:white;">
                 <c:forEach items="${drugList}" var="drugItem">
                     <div class="col-xs-6 col-lg-6" style="height:400px; overflow:hidden">
@@ -250,7 +238,337 @@
                     </div>
                 </div>
             </div>
-            </div>      
+            </div>
+            <c:if test="${user.userRole eq 'PHARMACIST'}">
+            <div class="modal fade" id="new-drug-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header" align="center">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">
+                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                            </button>
+                            <img class="img-circle img-responsive" id="img_logo" src="images/create.png" width="250" height="200" alt="Новое лекарство">
+                        </div>
+                        <form id="create-drug-form" action="/controller" method="post" enctype='multipart/form-data' accept-charset="utf-8">
+                            <input type="hidden" name="command" value="CREATE_DRUG">
+                            <input type="hidden" name="specialization" value="Терапевт">
+                            <div class="modal-body">
+                                <div id="div-register-msg">
+                                    <div id="icon-register-msg" class="glyphicon glyphicon-chevron-right"></div>
+                                    <span id="text-register-msg">Новое лекарство</span>
+                                </div>
+                                <div class="form_group">
+                                    <label for="drug_name11">Название: </label>
+                                    <input type="text" class="form-control" id="drug_name11" name="drug_name" required/>
+                                </div>
+                                <div class="form_group">
+                                    <label for="drug_image">Фото: </label>
+                                    <input class="form-control" type="file" id="drug_image" name="drug_image"/>
+                                </div>
+                                <div class="form_group">
+                                    <label for="manufacturer_name">Производитель: </label>
+                                    <select id="manufacturer_name" class="form-control" name="dr_manufacturer">
+                                        <c:forEach items="${drugManufactures}" var="man">
+                                            <option value="${man.name},${man.country}">${man.name}(${man.country})</option>
+                                        </c:forEach>
+                                    </select>
+                                </div>
+                                <div class="form_group">
+                                    <label id="drug_class">Класс лекарства:</label>
+                                    <select id="drug_class_select" class="form-control" name="dr_class">
+                                        <c:forEach items="${drugClasses}" var="cls">
+                                            <option value="${cls.name}">${cls.name}</option>
+                                        </c:forEach>
+                                    </select>
+                                </div>
+                                <div class="form_group">
+                                    <label id="prescription_enable">Требуется рецепт:</label>
+                                    <select id="prescription_enable" class="form-control" name="pr_status">
+                                        <option value="true">Да</option>
+                                        <option value="false">Нет</option>
+                                    </select>
+                                </div>
+                                <div class="form_group">
+                                    <label id="in_stock">В наличии:</label>
+                                    <input type="number" class="form-control" step="1" min="0" name="drugs_in_stock" required>
+                                </div>
+                                <div class="form_group">
+                                    <label id="drug_type">Тип лекарста</label>
+                                    <select id="drug_type" class="form-control" name="drug_type">
+                                        <option value="tablet">Таблетки</option>
+                                        <option value="capsule">Капсулы</option>
+                                        <option value="salve">Мазь</option>
+                                        <option value="syrop">Сироп</option>
+                                        <option value="injection">Укол</option>
+                                        <option value="candle">Свечи</option>
+                                        <option value="drops">Капли</option>
+                                        <option value="unknown" selected>Неизвестно</option>
+                                    </select>
+                                </div>
+                                <div class="form_group">
+                                    <label id="drug_type">Квалификация специалиста</label>
+                                    <select id="drug_type" class="form-control" name="specialization">
+                                        <c:forEach items="${specializations}" var="spec">
+                                            <option value="${spec.specialization}">${spec.specialization}</option>
+                                        </c:forEach>
+                                    </select>
+                                </div>
+                                <div class="form_group">
+                                    <label for="drug_active_substance">Активное вещество: </label>
+                                    <input class="form-control" type="text" id="drug_active_substance" name="active_substance" required/>
+                                </div>
+                                <div class="form_group">
+                                    <label for="drug_price">Цена: </label>
+                                    <input class="form-control" type="number" min="0" id="drug_price" step="0.1" name="drug_price" required/>
+                                </div>
+                                <div class="form_group">
+                                    <label>Дозировка: </label>
+                                    <span id="dos_message"></span>
+                                    <div class="row">
+                                        <c:forEach var="i" begin="50" end="1000" step="50">
+                                            <div class="col-lg-3">
+                                                <div class="checkbox">
+                                                    <label><input type="checkbox" value="${i}" name="drug_dosage">${i}</label>
+                                                </div>
+                                            </div>
+                                        </c:forEach>
+                                    </div>
+                                </div>
+                                <div class="form_group">
+                                    <label for="drug_price">Описание: </label>
+                                    <textarea class="form-control" maxlength="300" id="description" name="drug_description" placeholder="Комментарий"></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <div>
+                                    <button id="create_drug" type="submit" class="btn btn-primary btn-lg btn-block">Сохранить</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <script>
+                $("#create-drug-form").submit(function (event) {
+                    event.preventDefault();
+                    var formData = new FormData($(this)[0]);
+                    $.ajax({
+                        url:'controller',
+                        type:'POST',
+                        data:formData,
+                        async: false,
+                        cache: false,
+                        contentType:false,
+                        processData: false,
+                        success:function (data) {
+                            if(data.result==true) {
+                                $('#create-drug-form').trigger('reset');
+                                $('#new-drug-modal').modal('toggle');
+                                $('#dos_message').html("");
+                                Notify.generate("Новое лекарство создано", "Готово!", 1);
+                            }
+                            else {
+                                if(data.message.contains("dosages")){
+                                    $('#dos_message').html("<span style='color: red'>Выберите дозировку</span>");
+                                }
+                                else {
+                                    $('#create-drug-form').trigger('reset');
+                                    $('#new-drug-modal').modal('toggle');
+                                    $('#dos_message').html("");
+                                    Notify.generate("Не удалось создать лекарство ответ:"+data.message, "Ошибка", 3);
+                                }
+                            }
+                        }
+                    });
+                    return false;
+                });
+            </script>
+            <div class="modal fade" id="new-drug-class-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header" align="center">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">
+                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                            </button>
+                            <img class="img-circle img-responsive" id="img_logo" src="images/create.png" width="250" height="200" alt="Новый класс лекарства"/>
+                        </div>
+                        <form id="create_class_form">
+                            <input type="hidden" name="command" value="CREATE_CLASS">
+                            <div class="modal-body">
+                                <div id="div-register-msg">
+                                    <div id="icon-register-msg" class="glyphicon glyphicon-chevron-right"></div>
+                                    <span id="text-register-msg">Новый класс</span>
+                                </div>
+                                <div class="form_group">
+                                    <label for="drug_class_name">Название класса: </label>
+                                    <input type="text" class="form-control" id="drug_class_name" name="dr_class" required/>
+                                    <span id="create_class_message"></span>
+                                </div>
+                                <div class="form_group">
+                                    <label for="drug_price">Описание класса: </label>
+                                    <textarea class="form-control" id="description" name="class_description" placeholder="Комментарий" maxlength="200" required></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <div>
+                                    <button id="submit_drug_class" type="submit" class="btn btn-primary btn-lg btn-block" disabled>Сохранить</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <script>
+                $('#drug_class_name').blur(function () {
+                    var className = $(this).val();
+                    var message = $('#create_class_message');
+                    var button = $('#submit_drug_class');
+                    button.prop('disabled', true);
+                    if(className!=""){
+                        $.ajax({
+                            url:'controller',
+                            type:'POST',
+                            dataType:'json',
+                            data:{command:'CHECK_CLASS', dr_class:className},
+                            success:function (data) {
+                                if(data.result==true){
+                                    if(data.isExist==true) {
+                                        message.html("<span style='color: red'>Данный класс уже существует</span>");
+                                    }
+                                    else {
+                                        message.html("<span style='color: green'>Данный класс пока не создан</span>");
+                                        button.prop('disabled', false);
+                                    }
+                                }
+
+                            }
+                        });
+                    }
+                });
+                $('#create_class_form').submit(function () {
+                    var data = $(this).serialize();
+                    var className = $('#drug_class_name').val();
+                    var classDescription = $('#description').val();
+                    $.ajax({
+                        url:'controller',
+                        type:'POST',
+                        dataType:'json',
+                        data:data,
+                        success:function (data) {
+                            $('#create_class_message').html("");
+                            $(this).trigger('reset');
+                            $("#new-drug-class-modal").modal('toggle');
+                            if(data.result==true){
+                                Notify.generate("Новый класс успешно создан",'Готово!', 1);
+                                var drugClasses = $('#drug_classes');
+                                drugClasses.html("<li>" +
+                                        "<a class='Class' href='/controller?command=GET_DRUGS_BY_CLASS&dr_class="+className+"&page=1' title='"+classDescription+"'>"+className+"</a> " +
+                                        "</li>"+drugClasses.html());
+                                $('#drug_class_select').html("<option value='"+className+"'>"+className+"</option>"+$('#drug_class_select').html());
+                                $('#dr_class_select').html("<option value='"+className+"'>"+className+"</option>"+$('#dr_class_select').html());
+                            }
+                            else {
+                                Notify.generate("Не удалось создать новый класс. Ответ сервера:"+data.message,'Ошибка', 2);
+
+                            }
+                        }
+                    });
+                    return false;
+                });
+            </script>
+            <div class="modal fade" id="new-drug-manufacturer-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header" align="center">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">
+                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                            </button>
+                            <img class="img-circle img-responsive" id="img_logo" src="images/create.png" width="250" height="200" alt="Новый производитель">
+                        </div>
+                        <form id="create_manufacturer">
+                            <input type="hidden" name="command" value="CREATE_MANUFACTURER">
+                            <div class="modal-body">
+                                <div id="div-register-msg">
+                                    <div id="icon-register-msg" class="glyphicon glyphicon-chevron-right"></div>
+                                    <span id="text-register-msg">Новый производитель</span>
+                                </div>
+                                <div class="form_group">
+                                    <label for="drug_manufacturer_name">Название производителя: </label>
+                                    <input max="50" type="text" class="form-control new_man" id="drug_manufacturer_name" name="man_name" required/>
+                                </div>
+                                <div class="form_group">
+                                    <label for="drug_manufacturer_country">Страна производителя: </label>
+                                    <input max="50" type="text" class="form-control new_man" id="drug_manufacturer_country" name="man_country" required/>
+                                </div>
+                                <span id="create_man_message"></span>
+                                <div class="form_group">
+                                    <label for="drug_price">Описание производителя: </label>
+                                    <textarea maxlength="300" class="form-control" id="man_description" name="man_description" placeholder="Комментарий" required></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <div>
+                                    <button type="submit" id="submit_man" class="btn btn-primary btn-lg btn-block" disabled>Сохранить</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <script>
+                $('.new_man').blur(function () {
+                    var manName = $('#drug_manufacturer_name').val();
+                    var manCountry = $('#drug_manufacturer_country').val();
+                    $('#submit_man').prop('disabled', true);
+                    if(manName==""||manCountry==""){
+                        return false;
+                    }
+                    $.ajax({
+                        url:'controller',
+                        type:'POST',
+                        dataType:'json',
+                        data:{command:'CHECK_MANUFACTURER', man_name:manName, man_country:manCountry},
+                        success: function (data) {
+
+                            if(data.result==true){
+                                if(data.isExist==true){
+                                    $('#create_man_message').html("<span style='color:red'>Данный производитель уже существует</span>");
+                                }
+                                else {
+                                    $('#create_man_message').html("<span style='color:green'>Данный производитель не существует</span>");
+                                    $('#submit_man').prop('disabled', false);
+                                }
+                            }
+                        }
+                    });
+                });
+                $('#create_manufacturer').submit(function () {
+                    var manName = $('#drug_manufacturer_name').val();
+                    var manCountry = $('#drug_manufacturer_country').val();
+                    var description = $('#man_description').val();
+                    var data = $(this).serialize();
+                    $.ajax({
+                        url:'controller',
+                        type:'POST',
+                        dataType:'json',
+                        data:data,
+                        success:function (data) {
+                            $(this).trigger('reset');
+                            $('#new-drug-manufacturer-modal').modal('toggle');
+                            $('#create_man_message').html("");
+                            if(data.result==true){
+                                Notify.generate("Новый производитель создан", "Готово!", 1);
+                                $('#drug_manufacturer_s').html("<option value='"+manName+","+manCountry+"'>"+manName+"("+manCountry+")"+"</option>>"+$('#drug_manufacturer_s').html());
+                            }
+                            else {
+                                Notify.generate("Не удалось создать нового производителя. Ответ сервера: "+data.message, 'Ошибка', 3);
+                            }
+                        }
+                    });
+                    return false;
+                });
+            </script>
+        </c:if>
             <footer class="footer">
                 <div class="container">
                     <p class="navbar-text pull-left"> 
@@ -269,4 +587,34 @@
                 });
             </script>
     </body>
+    <script>
+        Notify = {
+            TYPE_INFO: 0,
+            TYPE_SUCCESS: 1,
+            TYPE_WARNING: 2,
+            TYPE_DANGER: 3,
+
+            generate: function (aText, aOptHeader, aOptType_int) {
+                var lTypeIndexes = [this.TYPE_INFO, this.TYPE_SUCCESS, this.TYPE_WARNING, this.TYPE_DANGER];
+                var ltypes = ['alert-info', 'alert-success', 'alert-warning', 'alert-danger'];
+
+                var ltype = ltypes[this.TYPE_INFO];
+                if (aOptType_int !== undefined && lTypeIndexes.indexOf(aOptType_int) !== -1) {
+                    ltype = ltypes[aOptType_int];
+                }
+
+                var lText = '';
+                if (aOptHeader) {
+                    lText += "<h4>"+aOptHeader+"</h4>";
+                }
+                lText += "<p>"+aText+"</p>";
+
+                var lNotify_e = $("<div class='alert "+ltype+"'><button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>×</span></button>"+lText+"</div>");
+                setTimeout(function () {
+                    lNotify_e.alert('close');
+                }, 3000);
+                lNotify_e.appendTo($("#notifies"));
+            }
+        };
+    </script>
 </html>

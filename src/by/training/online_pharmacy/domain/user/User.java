@@ -16,6 +16,7 @@ public class User {
     private String pathToImage;
     private UserDescription userDescription;
     private RegistrationType registrationType;
+    private double balance;
 
     @Override
     public String toString() {
@@ -31,6 +32,7 @@ public class User {
                 ", pathToImage='" + pathToImage + '\'' +
                 ", userDescription=" + userDescription +
                 ", registrationType=" + registrationType +
+                ", balance=" + balance +
                 '}';
     }
 
@@ -41,6 +43,7 @@ public class User {
 
         User user = (User) o;
 
+        if (Double.compare(user.balance, balance) != 0) return false;
         if (login != null ? !login.equals(user.login) : user.login != null) return false;
         if (password != null ? !password.equals(user.password) : user.password != null) return false;
         if (firstName != null ? !firstName.equals(user.firstName) : user.firstName != null) return false;
@@ -58,7 +61,9 @@ public class User {
 
     @Override
     public int hashCode() {
-        int result = login != null ? login.hashCode() : 0;
+        int result;
+        long temp;
+        result = login != null ? login.hashCode() : 0;
         result = 31 * result + (password != null ? password.hashCode() : 0);
         result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
         result = 31 * result + (secondName != null ? secondName.hashCode() : 0);
@@ -69,6 +74,8 @@ public class User {
         result = 31 * result + (pathToImage != null ? pathToImage.hashCode() : 0);
         result = 31 * result + (userDescription != null ? userDescription.hashCode() : 0);
         result = 31 * result + (registrationType != null ? registrationType.hashCode() : 0);
+        temp = Double.doubleToLongBits(balance);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
     }
 
@@ -159,5 +166,13 @@ public class User {
 
     public void setRegistrationType(RegistrationType registrationType) {
         this.registrationType = registrationType;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public void setBalance(double balance) {
+        this.balance = balance;
     }
 }

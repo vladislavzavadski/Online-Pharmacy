@@ -15,4 +15,5 @@ public class CanceledAuthorizationException extends ServiceException {
     public CanceledAuthorizationException(Exception ex) {
         super(ex);
     }
+
 }

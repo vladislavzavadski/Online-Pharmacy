@@ -159,7 +159,9 @@
                             <div class="testimonial-desc">
                                 <img src="/controller?command=GET_USER_IMAGE&login=${message.receiver.login}&register_type=${message.receiver.registrationType}" alt="" />
                                 <div class="testimonial-writer">
-                                    <div class="testimonial-writer-name">${message.receiver.firstName} ${message.receiver.secondName}</div>
+                                    <a href="/controller?command=GET_USER_DETAILS&login=${message.receiver.login}&register_type=${message.receiver.registrationType}">
+                                        <div class="testimonial-writer-name">${message.receiver.firstName} ${message.receiver.secondName}</div>
+                                    </a>
                                     <div class="testimonial-writer-designation">${message.responseDate}</div>
                                     <c:if test="${message.messageStatus eq 'NEW'}">
                                         <div>

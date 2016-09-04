@@ -60,21 +60,30 @@ public class ConnectionPool {
 
     }
 
-    public Connection takeConnection() throws ConnectionPoolException {
+    public void reserveConnection() throws ConnectionPoolException {
         Connection connection;
-        synchronized (freeConnections) {
-               try {
-                    while (freeConnections.isEmpty()) {
-                        freeConnections.wait();
-                    }
-                } catch (InterruptedException e) {
-                       throw new ConnectionPoolException("Exception while trying to take new Connection");
+        synchronized (freeConnections){
+            try {
+                while (freeConnections.isEmpty()) {
+                    freeConnections.wait();
                 }
+            } catch (InterruptedException e) {
+                throw new ConnectionPoolException("Exception while trying to take new Connection");
+            }
             connection = freeConnections.remove(0);
         }
         long threadId = Thread.currentThread().getId();
         reservedConnections.put(threadId, connection);
-        return connection;
+    }
+
+    public void freeConnection() throws ConnectionPoolException {
+        long threadId = Thread.currentThread().getId();
+        Connection connection = reservedConnections.get(threadId);
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            throw new ConnectionPoolException("Exception while trying to free connection");
+        }
     }
 
     public Connection takeReservedConnection(){

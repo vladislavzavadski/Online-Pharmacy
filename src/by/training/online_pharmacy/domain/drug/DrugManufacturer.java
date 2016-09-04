@@ -4,7 +4,6 @@ package by.training.online_pharmacy.domain.drug;
  * Created by vladislav on 18.06.16.
  */
 public class DrugManufacturer {
-    private int id;
     private String name;
     private String description;
     private String country;
@@ -12,8 +11,7 @@ public class DrugManufacturer {
     @Override
     public String toString() {
         return "DrugManufacturer{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
+                "name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", country='" + country + '\'' +
                 '}';
@@ -26,7 +24,6 @@ public class DrugManufacturer {
 
         DrugManufacturer that = (DrugManufacturer) o;
 
-        if (id != that.id) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (description != null ? !description.equals(that.description) : that.description != null) return false;
         return country != null ? country.equals(that.country) : that.country == null;
@@ -35,23 +32,14 @@ public class DrugManufacturer {
 
     @Override
     public int hashCode() {
-        int result = id;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
+        int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (country != null ? country.hashCode() : 0);
         return result;
     }
 
-    public int getId() {
-
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getName() {
+
         return name;
     }
 

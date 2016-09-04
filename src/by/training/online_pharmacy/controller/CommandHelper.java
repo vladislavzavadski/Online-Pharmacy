@@ -48,6 +48,19 @@ public class CommandHelper {
         commands.put(CommandName.MARK_MESSAGE, new MarkMessageAsReadedCommand());
         commands.put(CommandName.GET_MESSAGE_COUNT, new GetMessageCountCommand());
         commands.put(CommandName.GET_REQUESTS, new GetRequestsCommand());
+        commands.put(CommandName.GET_PRESCRIPTIONS, new GetAllPrescriptionsCommand());
+        commands.put(CommandName.REESTABLISH_ORDER, new ReestablishOrderCommand());
+        commands.put(CommandName.PAY_ORDER, new PayForOrderCommand());
+        commands.put(CommandName.CREATE_DRUG, new CreateDrugCommand());
+        commands.put(CommandName.CHECK_CLASS, new CheckIsDrugClassExistCommand());
+        commands.put(CommandName.CREATE_CLASS, new CreateDrugClassCommand());
+        commands.put(CommandName.CHECK_MANUFACTURER, new CheckIsManufacturerExistCommand());
+        commands.put(CommandName.CREATE_MANUFACTURER, new CreateDrugManufacturerCommand());
+        commands.put(CommandName.RESERVE_CONNECTION, new ReserveConnectionCommand());
+        commands.put(CommandName.FREE_CONNECTION, new FreeConnectionCommand());
+        commands.put(CommandName.UPDATE_DRUG, new UpdateDrugCommand());
+        commands.put(CommandName.DELETE_DRUG, new DeleteDrugCommand());
+        commands.put(CommandName.DOCTOR_REGISTRATION, new DoctorRegistrationCommand());
     }
     public static Command getCommand(CommandName commandName){
         return commands.get(commandName);

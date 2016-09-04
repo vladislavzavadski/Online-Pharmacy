@@ -38,7 +38,7 @@ public class CancelOrderCommand implements Command {
         }
         catch (NumberFormatException ex){
             jsonObject.put(Parameter.RESULT, false);
-            jsonObject.put(Parameter.IS_CRITICAL, true);
+            jsonObject.put(Parameter.IS_CRITICAL, false);
             jsonObject.put(Parameter.MESSAGE, ex.getMessage());
             servletOutputStream.write(jsonObject.toString().getBytes());
             return;

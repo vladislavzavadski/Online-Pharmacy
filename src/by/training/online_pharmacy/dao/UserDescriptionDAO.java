@@ -11,6 +11,9 @@ import java.util.List;
  */
 public interface UserDescriptionDAO {
     void insertUserDescription(UserDescription userDescription) throws DaoException;
+
+    boolean isSpecializationExist(String specialization) throws DaoException;
+
     UserDescription getUserDescriptionByLogin(String userLogin) throws DaoException;
     void updateUserDescription(UserDescription userDescription) throws DaoException;
     void deleteUserDescription(String userLogin) throws DaoException;

@@ -4,6 +4,7 @@ import by.training.online_pharmacy.command.Command;
 import by.training.online_pharmacy.domain.drug.Drug;
 import by.training.online_pharmacy.domain.drug.DrugClass;
 import by.training.online_pharmacy.domain.drug.DrugManufacturer;
+import by.training.online_pharmacy.domain.drug.SearchDrugsCriteria;
 import by.training.online_pharmacy.service.DrugService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
@@ -29,8 +30,17 @@ public class ExtendedSearchCommand implements Command {
         int pageNumber = Integer.parseInt(request.getParameter(Parameter.PAGE));
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         DrugService drugService = serviceFactory.getDrugService();
+        SearchDrugsCriteria searchDrugsCriteria = new SearchDrugsCriteria();
+        searchDrugsCriteria.setName(request.getParameter(Parameter.NAME));
+        searchDrugsCriteria.setActiveSubstance(request.getParameter(Parameter.ACTIVE_SUBSTANCE));
+        searchDrugsCriteria.setDrugMaxPrice(request.getParameter(Parameter.MAX_PRICE));
+        searchDrugsCriteria.setDrugClass(request.getParameter(Parameter.CLASS));
+        searchDrugsCriteria.setDrugManufacture(request.getParameter(Parameter.MANUFACTURER));
+        searchDrugsCriteria.setOnlyInStock(request.getParameter(Parameter.ONLY_IN_STOCK));
+        searchDrugsCriteria.setPrescriptionEnable(request.getParameter(Parameter.ONLY_FREE));
+
         try {
-            List<Drug> drugs = drugService.extendedDrugSearch(request.getParameter(Parameter.NAME), request.getParameter(Parameter.ACTIVE_SUBSTANCE), request.getParameter(Parameter.MAX_PRICE), request.getParameter(Parameter.CLASS), request.getParameter(Parameter.MANUFACTURER), request.getParameter(Parameter.ONLY_IN_STOCK), request.getParameter(Parameter.ONLY_FREE),  6, (pageNumber-1)*6);
+            List<Drug> drugs = drugService.extendedDrugSearch(searchDrugsCriteria,  6, (pageNumber-1)*6);
             request.setAttribute("drugList", drugs);
             request.getRequestDispatcher("/drug").forward(request, response);
         } catch (InvalidParameterException e) {

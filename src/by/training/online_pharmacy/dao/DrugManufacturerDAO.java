@@ -11,6 +11,9 @@ import java.util.List;
  */
 public interface DrugManufacturerDAO {
     List<DrugManufacturer> getManufacturesByCountry(String country, int limit, int startFrom) throws DaoException;
+
+    boolean isManufactureExist(DrugManufacturer drugManufacturer) throws DaoException;
+
     List<DrugManufacturer> getManufacturesByName(String name, int limit, int startFrom) throws DaoException;
     DrugManufacturer getManufacturerById(int manufactureId) throws DaoException;
     void insertDrugManufacturer(DrugManufacturer drugManufacturer) throws DaoException;

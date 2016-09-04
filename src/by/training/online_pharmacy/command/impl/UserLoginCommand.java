@@ -39,6 +39,7 @@ public class UserLoginCommand implements Command {
         httpSession = request.getSession(true);
         httpSession.setAttribute(Parameter.USER, user);
         httpSession.setAttribute(Parameter.PREV_REQUEST, UrlBuilder.build(request));
-        request.getRequestDispatcher(Page.MAIN).forward(request, response);
+        //request.getRequestDispatcher(Page.MAIN).forward(request, response);
+        response.sendRedirect("/");
     }
 }

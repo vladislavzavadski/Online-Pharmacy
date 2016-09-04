@@ -2,6 +2,7 @@ package by.training.online_pharmacy.command.impl;
 
 import by.training.online_pharmacy.command.Command;
 import by.training.online_pharmacy.domain.message.Message;
+import by.training.online_pharmacy.domain.message.SearchMessageCriteria;
 import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.service.MessageService;
 import by.training.online_pharmacy.service.ServiceFactory;
@@ -36,8 +37,12 @@ public class GetAllMessagesCommand implements Command {
         int page = Integer.parseInt(request.getParameter(Parameter.PAGE));
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         MessageService messageService = serviceFactory.getMessageService();
+        SearchMessageCriteria searchMessageCriteria = new SearchMessageCriteria();
+        searchMessageCriteria.setMessageStatus(messageStatus);
+        searchMessageCriteria.setDateTo(dateTo);
+        searchMessageCriteria.setDateFrom(dateFrom);
         try {
-            List<Message> messages = messageService.getMessages(user, messageStatus, dateTo, dateFrom, LIMIT, (page-1)*LIMIT);
+            List<Message> messages = messageService.getMessages(user, searchMessageCriteria, (page-1)*LIMIT, LIMIT);
             request.setAttribute("messageList", messages);
             if(page==1&&pageOverload){
                 request.getRequestDispatcher("/messages").forward(request, response);

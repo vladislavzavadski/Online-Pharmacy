@@ -13,13 +13,29 @@
       <title>Онлайн аптека</title>
       <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-
+      <script type="text/javascript" src="http://vk.com/js/api/share.js?90" charset="windows-1251"></script>
       <link href="css/bootstrap.css" rel="stylesheet">
       <link href="css/style.css" rel="stylesheet">
       <script src="js/bootstrap.js"></script>
+      <style>
+         #notifies {
+            position:fixed;
+            width:400px;
+            height:auto;
+            top:100px;
+            right:20px;
+         }
+      </style>
    </head>
    <body>
-
+   <div id="fb-root"></div>
+   <script>(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "//connect.facebook.net/ru_RU/sdk.js#xfbml=1&version=v2.7&appId=1472508072774891";
+      fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));</script>
       <nav class="navbar navbar-default navbar-fixed-top" style="background:#507ecf">
          <div class="container-fluid">
             <!-- Brand and toggle get grouped for better mobile display -->
@@ -40,6 +56,7 @@
          <!-- /.container-fluid -->
       </nav>
       <div class="container content">
+         <div id="notifies"></div>
           <h1 class="display_1">Онлайн аптека</h1>
          <div id="main-carousel" class="carousel slide">
             <ol class="carousel-indicators">
@@ -163,7 +180,7 @@
                   </button>
                   <img class="img-circle img-responsive" id="img_logo" src="images/reg.png" alt="Регистрация">
                </div>
-               <form id="register-form" method="post" action="/controller">
+               <form id="register-form" method="post" action="/controller" accept-charset="utf-8">
                   <input name="command" type="hidden" value="USER_REGISTRATION">
                   <div class="modal-body">
                      <div id="div-register-msg">
@@ -197,6 +214,30 @@
             </div>
          </div>
       </div>
+      <script>
+         $('#register-form').submit(function () {
+            var data = $(this).serialize();
+            $.ajax({
+               type:'POST',
+               url:'controller',
+               dataType:'json',
+               data:data,
+               success:function (data) {
+                  $('#login_message').html("");
+                  $('#registration-modal').modal('toggle');
+                  $(this).trigger('reset');
+                  if(data.result==true){
+                     Notify.generate('Вы успешно зарегестрированы. Проверьте ваш почтовый ящик.', 'Готово', 1);
+
+                  }
+                  else {
+                     Notify.generate('Ответ сервера '+data.message, 'Ошибка', 3);
+                  }
+               }
+            });
+            return false;
+         });
+      </script>
       <script src="js/index.js"></script>
       <div class="modal fade" id="about-modal" tabindex="-1" role="dialog"   aria-hidden="true" style="display: none;">
          <div class="modal-dialog">
@@ -242,15 +283,53 @@
                    Site Built By <a href="mailto:vladislav.zavadski@gmail.com">Vladislav Zavadski</a>, EPAM Systems, 2016
                </p>
                <div class="nav navbar-nav navbar-left" style="line-height:50px">
+                  <nobr>
                    <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#about-modal">О проекте</button>
                    <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#contacts-modal">Контакты</button>
+                  <script type="text/javascript">
+
+                     <!--
+
+                     document.write(VK.Share.button());
+
+                     -->
+                  </script>
+
+                  <div class="fb-share-button" data-href="https://www.onliner.by/" data-layout="button_count" data-size="large" data-mobile-iframe="true"><a class="fb-xfbml-parse-ignore" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fwww.onliner.by%2F&amp;src=sdkpreparse">Поделиться</a></div>
+                  </nobr>
                </div>
+
            </div>
-       </footer>
+  </footer>
    </body>
-</html>
-<c:if test="${requestScope.registrationSuccess eq true}">
    <script>
-      alert("Поздравляем, вы успешно зарегестрированы на нашем сайте. Мы выслали на ваш электронный адрес дальнейшие инструкции.");
+      Notify = {
+         TYPE_INFO: 0,
+         TYPE_SUCCESS: 1,
+         TYPE_WARNING: 2,
+         TYPE_DANGER: 3,
+
+         generate: function (aText, aOptHeader, aOptType_int) {
+            var lTypeIndexes = [this.TYPE_INFO, this.TYPE_SUCCESS, this.TYPE_WARNING, this.TYPE_DANGER];
+            var ltypes = ['alert-info', 'alert-success', 'alert-warning', 'alert-danger'];
+
+            var ltype = ltypes[this.TYPE_INFO];
+            if (aOptType_int !== undefined && lTypeIndexes.indexOf(aOptType_int) !== -1) {
+               ltype = ltypes[aOptType_int];
+            }
+
+            var lText = '';
+            if (aOptHeader) {
+               lText += "<h4>"+aOptHeader+"</h4>";
+            }
+            lText += "<p>"+aText+"</p>";
+
+            var lNotify_e = $("<div class='alert "+ltype+"'><button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>×</span></button>"+lText+"</div>");
+            setTimeout(function () {
+               lNotify_e.alert('close');
+            }, 3000);
+            lNotify_e.appendTo($("#notifies"));
+         }
+      };
    </script>
-</c:if>
+</html>

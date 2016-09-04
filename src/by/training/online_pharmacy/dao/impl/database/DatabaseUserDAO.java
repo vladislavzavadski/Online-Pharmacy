@@ -5,6 +5,8 @@ import by.training.online_pharmacy.dao.UserDAO;
 import by.training.online_pharmacy.dao.connection_pool.exception.ConnectionPoolException;
 import by.training.online_pharmacy.dao.exception.DaoException;
 import by.training.online_pharmacy.dao.exception.EntityDeletedException;
+import by.training.online_pharmacy.dao.exception.EntityNotFoundException;
+import by.training.online_pharmacy.dao.exception.OutOfRangeException;
 import by.training.online_pharmacy.dao.impl.database.util.DatabaseOperation;
 import by.training.online_pharmacy.dao.impl.database.util.exception.ParameterNotFoundException;
 import by.training.online_pharmacy.domain.user.*;
@@ -18,13 +20,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static by.training.online_pharmacy.dao.impl.database.Param.AND;
+import static by.training.online_pharmacy.dao.impl.database.Param.OR;
+
 /**
  * Created by vladislav on 14.06.16.
  */
 public class DatabaseUserDAO implements UserDAO {
 
-    private static final String GET_USER_NATIVE_QUERY = "select US_LOGIN, us_first_name, us_second_name, us_image, us_mail, us_phone, us_group, us_gender, login_via, sd_description, sd_specialization from users left join staff_descriptions on sd_user_login=us_login WHERE  us_login=? and us_password=md5(?) and login_via=?;";
-    private static final String GET_USER_QUERY = "select US_LOGIN, us_first_name, us_second_name, us_image, us_mail, us_phone, us_group, us_gender, login_via, sd_description, sd_specialization from users left join staff_descriptions on sd_user_login=us_login WHERE  us_login=? and login_via=?;";
+    private static final String GET_USER_NATIVE_QUERY = "select us_balance, US_LOGIN, us_first_name, us_second_name, us_image, us_mail, us_phone, us_group, us_gender, login_via, sd_description, sd_specialization from users left join staff_descriptions on sd_user_login=us_login WHERE  us_login=? and us_password=md5(?) and login_via=?;";
+    private static final String GET_USER_QUERY = "select us_balance, US_LOGIN, us_first_name, us_second_name, us_image, us_mail, us_phone, us_group, us_gender, login_via, sd_description, sd_specialization from users left join staff_descriptions on sd_user_login=us_login WHERE  us_login=? and login_via=?;";
     private static final String GET_USER_BY_LOGIN_QUERY = "SELECT us_login, us_first_name, us_second_name, us_group, us_mail, us_phone, us_image, us_gender, login_via, sd_specialization, sd_description FROM users LEFT JOIN staff_descriptions ON users.us_login = staff_descriptions.sd_user_login WHERE us_login=? and login_via=?;";
     private static final String SEARCH_USER_BY_ROLE_QUERY = "SELECT us_login, us_first_name, us_second_name, us_mail, us_phone, us_image, us_gender, login_via, sd_specialization, sd_description FROM users LEFT JOIN staff_descriptions ON us_login=sd_user_login WHERE us_group=? LIMIT ?, ?;";
     private static final String SEARCH_USERS_QUERY = "select us_login, us_first_name, us_second_name, us_image, us_mail, us_phone, us_group, us_gender, login_via, sd_specialization, sd_description from users LEFT JOIN staff_descriptions on sd_user_login=us_login where us_first_name LIKE ? and us_second_name LIKE ? LIMIT ?, ?;";
@@ -37,13 +42,12 @@ public class DatabaseUserDAO implements UserDAO {
     private static final String UPLOAD_PROFILE_IMAGE = "update users set us_image=? where us_login=? and login_via=?;";
     private static final String GET_ALL_DOCTORS_QUERY = "select us_login, login_via, us_first_name, us_second_name, us_image, sd_specialization from users inner join staff_descriptions on us_login=sd_user_login and login_via=sd_login_via where us_group='doctor' order by us_second_name limit ?, ?";
     private static final String GET_DOCTORS_BY_SPECIALIZATION = "select us_login, login_via, us_first_name, us_second_name, us_image, sd_specialization from users inner join staff_descriptions on us_login=sd_user_login and login_via=sd_login_via where us_group='doctor' and sd_specialization=? order by us_second_name limit ?, ?";
-    private static final String GET_DOCTORS_DETAILS = "select us_first_name,  us_second_name, us_image, us_mail, us_phone, us_gender, sd_specialization, sd_description from users left join staff_descriptions on us_login=sd_user_login and login_via=sd_login_via where us_login=? and login_via=?";
+    private static final String GET_DOCTORS_DETAILS = "select us_group, us_balance, us_login, login_via, us_first_name,  us_second_name, us_image, us_mail, us_phone, us_gender, sd_specialization, sd_description from users left join staff_descriptions on us_login=sd_user_login and login_via=sd_login_via where us_login=? and login_via=?";
     private static final String SEARCH_DOCTOR_BY_NAME_QUERY = "select us_login, login_via, us_first_name, us_second_name, us_image, sd_specialization from users inner join staff_descriptions on us_login=sd_user_login and login_via=sd_login_via where us_group='doctor' and (";
     private static final String GET_IMAGE_QUERY = "select us_image from users where us_login=? and login_via=?;";
     private static final String TEMPLATE = " (us_first_name like ? and us_second_name like ?) ";
     private static final String QUERY_TAIL = ") order by us_first_name limit ?, ?";
-    private static final String OR = " or ";
-    private static final String AND = " and ";
+    private static final String WITHDRAW_MONEY_QUERY = "update users set us_balance=us_balance-(select or_sum from orders where or_id=? and or_client_login=? and or_login_via=?) where us_login=? and login_via=?;";
 
     @Override
     public InputStream getProfileImage(User user) throws DaoException {
@@ -73,8 +77,6 @@ public class DatabaseUserDAO implements UserDAO {
             List<User> result = resultSetToUser(resultSet);
             if(!result.isEmpty()){
                 User user = result.get(0);
-                user.setLogin(userLogin);
-                user.setRegistrationType(registrationType);
                 return user;
             }
             return null;
@@ -242,8 +244,11 @@ public class DatabaseUserDAO implements UserDAO {
 
     @Override
     public void insertUser(User user) throws DaoException {
-        boolean isConnectionReserved = user.getRegistrationType()!=RegistrationType.NATIVE;
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_USER_QUERY, isConnectionReserved)){
+        try {
+            DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_USER_QUERY);
+            if(user.getUserRole()==UserRole.DOCTOR){
+                databaseOperation.beginTransaction();
+            }
             databaseOperation.setParameter(TableColumn.USER_LOGIN, user.getLogin());
             databaseOperation.setParameter(TableColumn.USER_PASSWORD, user.getPassword());
             databaseOperation.setParameter(TableColumn.USER_FIRST_NAME, user.getFirstName());
@@ -349,10 +354,10 @@ public class DatabaseUserDAO implements UserDAO {
     }
 
     @Override
-    public List<User> getAllDoctors(int limit, int startFrom, boolean pageOverload) throws DaoException {
+    public List<User> getAllDoctors(int limit, int startFrom) throws DaoException {
         List<User> doctors;
-        boolean isConnectionReserved = startFrom==0&&pageOverload;
-        try(DatabaseOperation databaseOperation = new DatabaseOperation(GET_ALL_DOCTORS_QUERY, isConnectionReserved)){
+        boolean isConnectionReserved = startFrom==0;
+        try(DatabaseOperation databaseOperation = new DatabaseOperation(GET_ALL_DOCTORS_QUERY)){
             databaseOperation.setParameter(TableColumn.LIMIT, 1, startFrom);
             databaseOperation.setParameter(TableColumn.LIMIT, 2, limit);
             ResultSet resultSet = databaseOperation.invokeReadOperation();
@@ -363,18 +368,44 @@ public class DatabaseUserDAO implements UserDAO {
         }
     }
 
+    @Override
+    public void withdrawMoneyFromBalance(User user, int orderId) throws DaoException {
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(WITHDRAW_MONEY_QUERY)){
+            databaseOperation.setParameter(1, orderId);
+            databaseOperation.setParameter(2, user.getLogin());
+            databaseOperation.setParameter(3, user.getRegistrationType().toString().toLowerCase());
+            databaseOperation.setParameter(4, user.getLogin());
+            databaseOperation.setParameter(5, user.getRegistrationType().toString().toLowerCase());
+            if(databaseOperation.invokeWriteOperation()==0){
+                throw new EntityNotFoundException("User="+user+" was not found or order with id="+orderId+" does't exist");
+            }
+            databaseOperation.endTransaction();
+        } catch (SQLException e) {
+            if(e.getErrorCode()==ErrorCode.ERROR_CODE_1264){
+                throw new OutOfRangeException("Can not update balance", e);
+            }
+            throw new DaoException("Can not withdraw cash from balance "+e.getErrorCode(), e);
+        } catch (ConnectionPoolException e) {
+            throw new DaoException("Can not withdraw cash from balance", e);
+        }
+    }
+
     private List<User> resultSetToUser(ResultSet resultSet) throws SQLException {
         List<User> result = new ArrayList<>();
         while (resultSet.next()) {
             User user = new User();
             UserDescription userDescription = new UserDescription();
             user.setUserDescription(userDescription);
+            user.setLogin(resultSet.getString(TableColumn.USER_LOGIN));
+            user.setRegistrationType(RegistrationType.valueOf(resultSet.getString(TableColumn.LOGIN_VIA).toUpperCase()));
             user.setFirstName(resultSet.getString(TableColumn.USER_FIRST_NAME));
             user.setSecondName(resultSet.getString(TableColumn.USER_SECOND_NAME));
             user.setMail(resultSet.getString(TableColumn.USER_MAIL));
             user.setPhone(resultSet.getString(TableColumn.USER_PHONE));
             user.setPathToImage((resultSet.getString(TableColumn.USER_IMAGE)));
             user.setGender(Gender.valueOf(resultSet.getString(TableColumn.USER_GENDER).toUpperCase()));
+            user.setBalance(resultSet.getDouble(TableColumn.USER_BALANCE));
+            user.setUserRole(UserRole.valueOf(resultSet.getString(TableColumn.USER_GROUP).toUpperCase()));
             userDescription.setDescription(resultSet.getString(TableColumn.USER_DESCRIPTION));
             userDescription.setSpecialization(resultSet.getString(TableColumn.USER_SPECIALIZATION));
             result.add(user);

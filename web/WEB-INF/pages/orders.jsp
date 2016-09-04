@@ -143,7 +143,7 @@
                                 <span>${order.drugCount}</span>
                                 <br/>
                                 <b>Сумма: </b>&nbsp;
-                                <span>$${order.totalSum}</span>
+                                <span class="sum">$${order.totalSum}</span>
                                 <br/>
                                 <b>Дата заказа: </b>&nbsp;
                                 <span>${order.orderDate}</span>
@@ -151,7 +151,7 @@
                             <c:if test="${order.orderStatus eq 'ORDERED'}">
                                 <div class="col-lg-4" style="padding-top:40px;">
                                     <a class="btn btn-primary btn-danger cancel_order" href="/controller" data-order="${order.id}">Отменить</a>
-                                    <a href="#" class="btn btn-primary btn-success">Оплатить</a>
+                                    <a href="#" data-toggle="modal" data-target="#confirm-pay" class="btn btn-primary btn-success pay_order" data-sum="${order.totalSum}" data-order="${order.id}">Оплатить</a>
                                 </div>
                             </c:if>
                         </div>         
@@ -194,7 +194,7 @@
                     paginationUrl=url;
                     $.get(url+1, function (data) {
                         $("#orders").html(data);
-                    })value;
+                    });
                     thisPageNum = 2;
                     return false;
                 });
@@ -235,27 +235,20 @@
                         }
                     });
                 });
-
+                var tmpHtml;
                 $("#orders").on('click', '.cancel_order', function () {
-                    var parent = $(this).parent().parent();
                     var buttons = $(this).parent();
+                    var orderId = $(this).attr('data-order');
                     $.ajax({
                         url: 'controller',
                         dataType:'json',
                         type: 'POST',
-                        data: {command:'CANCEL_ORDER', order_id:$(this).attr('data-order')},
+                        data: {command:'CANCEL_ORDER', order_id:orderId},
                         success:function (data) {
                             if(data.result){
-                                Notify.generate('Ваш заказ успешно удален', 'Успешно', 1);
-                                if(currentStatus=="ORDERED") {
-                                    parent.hide('slow');
-                                }else if(currentStatus==""){
-                                    var child = parent.find('.label-warning');
-                                    child.removeClass('label-warning');
-                                    child.html("Отменено");
-                                    child.addClass('label-danger');
-                                    buttons.hide('slow');
-                                }
+                                tmpHtml  = buttons.html();
+                                buttons.html("<span style='color:green'>Заказ отменен...</span>" +
+                                        "<a href='#' class='reestablish' data-order='"+orderId+"'>Восстановить</a>");
                             }
                             else {
                                 Notify.generate('Заказ не был найден', 'Ошибка', 3);
@@ -264,6 +257,29 @@
                     });
 
                     return false;
+                });
+                $("#orders").on('click', '.reestablish', function () {
+                    var buttons = $(this).parent();
+                    var orderId = $(this).attr('data-order');
+                    $.ajax({
+                       url: 'controller',
+                       dataType: 'json',
+                       type: 'POST',
+                       data:{command: 'REESTABLISH_ORDER', order_id:orderId},
+                       success: function (data) {
+                           if(data.result==true){
+                               buttons.html(tmpHtml);
+                           }
+                       }
+                    });
+                    return false;
+                });
+                var currentParent;
+                $("#orders").on('click', '.pay_order', function () {
+                    currentParent = $(this).parent();
+                    var parent = $(this).attr("data-sum");
+                    $('#price').html(parent);
+                    $('#buy_drug').attr("data-order", $(this).attr("data-order"));
                 });
             </script>
         <div class="modal fade" id="about-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
@@ -302,44 +318,52 @@
                         </div>
                     </div>
                 </div>
-            </div>    
-            <div class="modal fade" id="order-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+            </div>
+            <div class="modal fade" id="confirm-pay" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
-                        <div class="modal-header" align="center">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">
-                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                            </button>
-                            <img class="img-circle img-responsive" id="img_logo" src="images/order.jpg" alt="Заказ">
+
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            <h4 class="modal-title" id="myModalLabel">Оплата</h4>
                         </div>
-                        <form id="register-form">
-                            <div class="modal-body">
-                                <div id="div-register-msg">
-                                    <div id="icon-register-msg" class="glyphicon glyphicon-chevron-right"></div>
-                                    <span id="text-register-msg">Заказ лекарства</span>
-                                </div>
-                                <div class="form_group">    
-                                    <label for="dosage">Дозировка: </label>
-                                    <select id="dosage" class="form-control">
-                                        <option value="one">150</option>
-                                        <option value="two">300</option>
-                                        <option value="three">500</option>
-                                    </select>
-                                </div>
-                                <div class="form_group">
-                                    <label for="drug_number">Количество: </label>     
-                                    <input id="drug_number" class="form-control" type="number" placeholder="Количество" step="0.2" min="1" max="20" required>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <div>
-                                    <button type="submit" class="btn btn-primary btn-lg btn-block">Заказать</button>
-                                </div>
-                            </div>
-                        </form>
+
+                        <div class="modal-body">
+                            <p>Вы действительно хотите оплатить заказ? Сумма заказа $<span id="price"></span></p>
+                            <p class="debug-url"></p>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
+                            <button id="buy_drug" class="btn btn-danger btn-ok" data-dismiss="modal" data-order="">Оплатить</button>
+                        </div>
                     </div>
                 </div>
             </div>
+            <script>
+                $('#buy_drug').click(function () {
+                    var orderId = $(this).attr('data-order');
+                    $.ajax({
+                        url: 'controller',
+                        dataType: 'json',
+                        type: 'POST',
+                        data:{command: 'PAY_ORDER', order_id:orderId},
+                        success: function (data) {
+                            if(data.result==true){
+                                currentParent.html("<span style='color: green'>Оплачено!</span>");
+                            }
+                            else {
+                                if(data.message=="Order not found"){
+                                    Notify.generate("Заказ не найден", "Ошибка", 2);
+                                }
+                                else if(data.message=="Insufficient funds"){
+                                    Notify.generate("Недостаточно средств", "Ошибка", 2);
+                                }
+                            }
+                        }
+                    });
+                });
+            </script>
             <footer class="footer">
                 <div class="container">
                     <p class="navbar-text pull-left"> 

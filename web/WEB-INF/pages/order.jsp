@@ -42,7 +42,7 @@
             <c:if test="${order.orderStatus eq 'ORDERED'}">
                 <div class="col-lg-4" style="padding-top:40px;">
                     <a class="btn btn-primary btn-danger cancel_order" href="/controller" data-order="${order.id}">Отменить</a>
-                    <a href="#" class="btn btn-primary btn-success">Оплатить</a>
+                    <a href="#" class="btn btn-primary btn-success pay_order" data-order="${order.id}">Оплатить</a>
                 </div>
             </c:if>
         </div>

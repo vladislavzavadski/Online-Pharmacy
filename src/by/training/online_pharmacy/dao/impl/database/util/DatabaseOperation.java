@@ -28,17 +28,7 @@ public class DatabaseOperation implements AutoCloseable {
 
     public DatabaseOperation(String sqlQuery) throws ConnectionPoolException, SQLException {
         this();
-        connection = connectionPool.takeConnection();
-        init(sqlQuery);
-    }
-
-    public DatabaseOperation(String sqlQuery, boolean isConnectionReserved) throws ConnectionPoolException, SQLException {
-        this();
-        if(isConnectionReserved){
-            connection = connectionPool.takeReservedConnection();
-        }else {
-            connection = connectionPool.takeConnection();
-        }
+        connection = connectionPool.takeReservedConnection();
         init(sqlQuery);
     }
 
@@ -122,14 +112,6 @@ public class DatabaseOperation implements AutoCloseable {
 
     @Override
     public void close() throws SQLException {
-        if(resultSet!=null){
-            resultSet.close();
-        }
-        if(preparedStatement!=null){
-            preparedStatement.close();
-        }
-        if(connection!=null){
-            connection.close();
-        }
+
     }
 }

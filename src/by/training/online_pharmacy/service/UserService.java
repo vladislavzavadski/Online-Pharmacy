@@ -20,7 +20,7 @@ public interface UserService {
     void updatePersonalInformation(User user) throws InvalidParameterException, NotFoundException;
     void updatePassword(User user, String newPassword, String oldPassword) throws InvalidPasswordException, InvalidParameterException, NotFoundException;
     void updateContacts(User user) throws InvalidParameterException, NotFoundException;
-    void uploadProfileImage(User user, Part part, String realPath) throws InvalidContentException, IOException, InvalidParameterException, NotFoundException;
+    void uploadProfileImage(User user, Part part) throws InvalidContentException, IOException, InvalidParameterException, NotFoundException;
     void deleteUser(User user) throws InvalidPasswordException;
 
     List<User> getAllDoctors(int limit, int startFrom, boolean pageOverload) throws InvalidParameterException;
@@ -34,4 +34,6 @@ public interface UserService {
     User getUserDetails(String userLogin, RegistrationType registrationType) throws InvalidParameterException;
 
     InputStream getUserImage(User user) throws InvalidParameterException;
+
+    void staffRegistration(User user, User newUser) throws InvalidParameterException, InvalidUserStatusException;
 }

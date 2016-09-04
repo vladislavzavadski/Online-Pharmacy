@@ -10,6 +10,7 @@ import by.training.online_pharmacy.dao.impl.database.util.DatabaseOperation;
 import by.training.online_pharmacy.dao.impl.database.util.exception.ParameterNotFoundException;
 import by.training.online_pharmacy.domain.message.Message;
 import by.training.online_pharmacy.domain.message.MessageStatus;
+import by.training.online_pharmacy.domain.message.SearchMessageCriteria;
 import by.training.online_pharmacy.domain.user.RegistrationType;
 import by.training.online_pharmacy.domain.user.User;
 
@@ -63,15 +64,15 @@ public class DatabaseMessageDao implements MessageDao {
     }
 
     @Override
-    public List<Message> getMessages(User user, String messageStatus, String dateTo, String dateFrom, int limit, int startFrom) throws DaoException {
+    public List<Message> getMessages(User user, SearchMessageCriteria searchMessageCriteria, int startFrom, int limit) throws DaoException {
         StringBuilder query = new StringBuilder(GET_ALL_MESSAGES_QUERY_PREFIX);
-        if(messageStatus!=null&&!messageStatus.isEmpty()){
+        if(searchMessageCriteria.getMessageStatus()!=null&&!searchMessageCriteria.getMessageStatus().isEmpty()){
             query.append(MESSAGE_STATUS);
         }
-        if(dateTo!=null&&!dateTo.isEmpty()){
+        if(searchMessageCriteria.getDateTo()!=null&&!searchMessageCriteria.getDateTo().isEmpty()){
             query.append(LAST_UPDATE_TO);
         }
-        if(dateFrom!=null&&!dateFrom.isEmpty()){
+        if(searchMessageCriteria.getDateFrom()!=null&&!searchMessageCriteria.getDateFrom().isEmpty()){
             query.append(LAST_UPDATE_FROM);
         }
         query.append(GET_ALL_MESSAGES_QUERY_POSTFIX);
@@ -81,18 +82,18 @@ public class DatabaseMessageDao implements MessageDao {
             databaseOperation.setParameter(paramNumber++, user.getRegistrationType().toString().toLowerCase());
             databaseOperation.setParameter(paramNumber++, user.getLogin());
             databaseOperation.setParameter(paramNumber++, user.getRegistrationType().toString().toLowerCase());
-            if(messageStatus!=null&&!messageStatus.isEmpty()){
-                databaseOperation.setParameter(paramNumber++, messageStatus);
+            if(searchMessageCriteria.getMessageStatus()!=null&&!searchMessageCriteria.getMessageStatus().isEmpty()){
+                databaseOperation.setParameter(paramNumber++, searchMessageCriteria.getMessageStatus());
             }
-            if(dateTo!=null&&!dateTo.isEmpty()){
-                Date date = new Date(dateTo);
+            if(searchMessageCriteria.getDateTo()!=null&&!searchMessageCriteria.getDateTo().isEmpty()){
+                Date date = new Date(searchMessageCriteria.getDateTo());
                 date.setHours(23);
                 date.setMinutes(59);
                 date.setSeconds(59);
                 databaseOperation.setParameter(paramNumber++, date);
             }
-            if(dateFrom!=null&&!dateFrom.isEmpty()){
-                databaseOperation.setParameter(paramNumber++, new Date(dateFrom));
+            if(searchMessageCriteria.getDateFrom()!=null&&!searchMessageCriteria.getDateFrom().isEmpty()){
+                databaseOperation.setParameter(paramNumber++, new Date(searchMessageCriteria.getDateFrom()));
             }
             databaseOperation.setParameter(paramNumber++, startFrom);
             databaseOperation.setParameter(paramNumber++, limit);

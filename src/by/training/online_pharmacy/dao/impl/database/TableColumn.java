@@ -26,7 +26,7 @@ public class TableColumn {
     public static final String DRUG_IMAGE = "dr_image";
     public static final String ORDER_ID = "or_id";
     public static final String ORDER_DATE = "or_date";
-    public static final String USER_LOGIN = "US_LOGIN";
+    public static final String USER_LOGIN = "us_login";
     public static final String USER_FIRST_NAME = "us_first_name";
     public static final String USER_SECOND_NAME = "us_second_name";
     public static final String PRESCRIPTION_APPOINTMENT_DATE = "pr_appointment_date";
@@ -83,5 +83,6 @@ public class TableColumn {
     public static final String REQUEST_DOCTOR_FIRST_NAME = "doc_first_name";
     public static final String REQUEST_DOCTOR_SECOND_NAME = "doc_second_name";
     public static final String RESPONSE_DATE=  "re_response_date";
+    public static final String USER_BALANCE = "us_balance";
 
 }

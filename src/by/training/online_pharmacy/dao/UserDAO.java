@@ -37,5 +37,7 @@ public interface UserDAO {
     void updateUsersContacts(User user) throws DaoException;
     void uploadProfileImage(User user) throws DaoException;
 
-    List<User> getAllDoctors(int limit, int startFrom, boolean pageOverload) throws DaoException;
+    List<User> getAllDoctors(int limit, int startFrom) throws DaoException;
+
+    void withdrawMoneyFromBalance(User user, int orderId) throws DaoException;
 }

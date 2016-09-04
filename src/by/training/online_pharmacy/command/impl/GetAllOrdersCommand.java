@@ -2,6 +2,7 @@ package by.training.online_pharmacy.command.impl;
 
 import by.training.online_pharmacy.command.Command;
 import by.training.online_pharmacy.domain.order.Order;
+import by.training.online_pharmacy.domain.order.SearchOrderCriteria;
 import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.service.OrderService;
 import by.training.online_pharmacy.service.ServiceFactory;
@@ -32,8 +33,13 @@ public class GetAllOrdersCommand implements Command {
         int page = Integer.parseInt(request.getParameter(Parameter.PAGE));
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         OrderService orderService = serviceFactory.getOrderService();
+        SearchOrderCriteria searchOrderCriteria = new SearchOrderCriteria();
+        searchOrderCriteria.setDateFrom(request.getParameter(Parameter.DATE_FROM));
+        searchOrderCriteria.setDateTo(request.getParameter(Parameter.DATE_TO));
+        searchOrderCriteria.setDrugName(request.getParameter(Parameter.DRUG_NAME));
+        searchOrderCriteria.setOrderStatus(request.getParameter(Parameter.ORDER_STATUS));
         try {
-            List<Order> orderList = orderService.getAllUsersOrders(user, request.getParameter(Parameter.ORDER_STATUS), request.getParameter(Parameter.DATE_FROM), request.getParameter(Parameter.DATE_TO), request.getParameter(Parameter.DRUG_NAME), (page - 1) * LIMIT, LIMIT);
+            List<Order> orderList = orderService.getAllUsersOrders(user, searchOrderCriteria, LIMIT, (page - 1) * LIMIT);
             request.setAttribute("orderList", orderList);
 
             if(page==1&&pageOverload) {

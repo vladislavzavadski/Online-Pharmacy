@@ -15,4 +15,6 @@ public interface DrugClassDAO {
     void updateDrugClass(DrugClass drugClass, String oldDrugClassName) throws DaoException;
     void deleteDrugClass(String name) throws DaoException;
     List<DrugClass> getAllDrugClasses() throws DaoException;
+
+    boolean isDrugClassExist(String className) throws DaoException;
 }

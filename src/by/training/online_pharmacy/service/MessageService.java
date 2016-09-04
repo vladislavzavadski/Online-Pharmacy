@@ -1,6 +1,7 @@
 package by.training.online_pharmacy.service;
 
 import by.training.online_pharmacy.domain.message.Message;
+import by.training.online_pharmacy.domain.message.SearchMessageCriteria;
 import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
 import by.training.online_pharmacy.service.exception.MessageNotFoundException;
@@ -14,7 +15,7 @@ import java.util.List;
 public interface MessageService {
     void sendMessage(Message message) throws InvalidParameterException, NotFoundException;
 
-    List<Message> getMessages(User user, String messageStatus, String dateTo, String dateFrom, int limit, int startFrom) throws InvalidParameterException;
+    List<Message> getMessages(User user, SearchMessageCriteria searchMessageCriteria, int startFrom, int limit) throws InvalidParameterException;
 
     void markMessageAsReaded(User user, int messageId) throws InvalidParameterException, MessageNotFoundException;
 

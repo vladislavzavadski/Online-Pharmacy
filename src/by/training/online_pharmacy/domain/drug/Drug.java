@@ -21,6 +21,7 @@ public class Drug {
     private DrugManufacturer drugManufacturer;
     private DrugClass drugClass;
     private int drugsInStock;
+    private String doctorSpecialization;
 
     @Override
     public String toString() {
@@ -38,6 +39,7 @@ public class Drug {
                 ", drugManufacturer=" + drugManufacturer +
                 ", drugClass=" + drugClass +
                 ", drugsInStock=" + drugsInStock +
+                ", doctorSpecialization='" + doctorSpecialization + '\'' +
                 '}';
     }
 
@@ -62,7 +64,8 @@ public class Drug {
         if (dosages != null ? !dosages.equals(drug.dosages) : drug.dosages != null) return false;
         if (drugManufacturer != null ? !drugManufacturer.equals(drug.drugManufacturer) : drug.drugManufacturer != null)
             return false;
-        return drugClass != null ? drugClass.equals(drug.drugClass) : drug.drugClass == null;
+        if (drugClass != null ? !drugClass.equals(drug.drugClass) : drug.drugClass != null) return false;
+        return doctorSpecialization != null ? doctorSpecialization.equals(drug.doctorSpecialization) : drug.doctorSpecialization == null;
 
     }
 
@@ -81,6 +84,7 @@ public class Drug {
         result = 31 * result + (drugManufacturer != null ? drugManufacturer.hashCode() : 0);
         result = 31 * result + (drugClass != null ? drugClass.hashCode() : 0);
         result = 31 * result + drugsInStock;
+        result = 31 * result + (doctorSpecialization != null ? doctorSpecialization.hashCode() : 0);
         return result;
     }
 
@@ -187,5 +191,13 @@ public class Drug {
 
     public void setDrugsInStock(int drugsInStock) {
         this.drugsInStock = drugsInStock;
+    }
+
+    public String getDoctorSpecialization() {
+        return doctorSpecialization;
+    }
+
+    public void setDoctorSpecialization(String doctorSpecialization) {
+        this.doctorSpecialization = doctorSpecialization;
     }
 }

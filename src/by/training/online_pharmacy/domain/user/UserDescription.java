@@ -7,6 +7,7 @@ public class UserDescription {
     private String specialization;
     private String description;
     private String userLogin;
+    private RegistrationType registrationType;
 
     @Override
     public String toString() {
@@ -14,6 +15,7 @@ public class UserDescription {
                 "specialization='" + specialization + '\'' +
                 ", description='" + description + '\'' +
                 ", userLogin='" + userLogin + '\'' +
+                ", registrationType=" + registrationType +
                 '}';
     }
 
@@ -27,7 +29,8 @@ public class UserDescription {
         if (specialization != null ? !specialization.equals(that.specialization) : that.specialization != null)
             return false;
         if (description != null ? !description.equals(that.description) : that.description != null) return false;
-        return userLogin != null ? userLogin.equals(that.userLogin) : that.userLogin == null;
+        if (userLogin != null ? !userLogin.equals(that.userLogin) : that.userLogin != null) return false;
+        return registrationType == that.registrationType;
 
     }
 
@@ -36,6 +39,7 @@ public class UserDescription {
         int result = specialization != null ? specialization.hashCode() : 0;
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (userLogin != null ? userLogin.hashCode() : 0);
+        result = 31 * result + (registrationType != null ? registrationType.hashCode() : 0);
         return result;
     }
 
@@ -62,5 +66,13 @@ public class UserDescription {
 
     public void setUserLogin(String userLogin) {
         this.userLogin = userLogin;
+    }
+
+    public RegistrationType getRegistrationType() {
+        return registrationType;
+    }
+
+    public void setRegistrationType(RegistrationType registrationType) {
+        this.registrationType = registrationType;
     }
 }

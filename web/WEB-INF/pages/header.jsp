@@ -28,6 +28,7 @@
 <fmt:message bundle="${loc}" key="locale.gender.female" var="female"/>
 <fmt:message bundle="${loc}" key="locale.gender.unknown" var="unknown"/>
 <fmt:message bundle="${loc}" key="locale.my_cabinet" var="myCabinet"/>
+<fmt:message bundle="${loc}" key="locale.balance" var="balance"/>
 <c:if test="${sessionScope.user eq null}">
     <c:redirect url="/index.jsp"/>
 </c:if>
@@ -105,7 +106,7 @@
                     </div>
                     <li>
                         <label>Класс лекарства</label>
-                        <select id="dr_class" name="dr_class">
+                        <select id="dr_class_select" name="dr_class">
                             <option value="" selected>Unknown</option>
                             <c:forEach items="${drugClasses}" var="drugClass">
                                 <option value="${drugClass.name}">${drugClass.name}</option>
@@ -114,10 +115,10 @@
                     </li>
                     <li>
                         <label>Производитель</label>
-                        <select id="dr_man" name="dr_manufacture">
+                        <select id="drug_manufacturer_s" name="dr_manufacture">
                             <option value="" selected>Unknown</option>
                             <c:forEach items="${drugManufactures}" var="man">
-                                <option value="${man.id}">${man.name}</option>
+                                <option value="${man.name},${man.country}">${man.name}(${man.country})</option>
                             </c:forEach>
                         </select>
                     </li>

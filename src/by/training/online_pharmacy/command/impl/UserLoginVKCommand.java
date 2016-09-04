@@ -38,6 +38,7 @@ public class UserLoginVKCommand implements Command {
         }
         request.getSession(true).setAttribute(Parameter.USER, user);
         request.getSession(true).setAttribute(Parameter.PREV_REQUEST, UrlBuilder.build(request));
-        request.getRequestDispatcher(Page.MAIN).forward(request, response);
+        //request.getRequestDispatcher(Page.MAIN).forward(request, response);
+        response.sendRedirect("/");
     }
 }

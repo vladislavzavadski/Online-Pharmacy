@@ -55,4 +55,16 @@ public class Parameter {
     public static final String MESSAGE_ID = "me_id";
     public static final String MESSAGES_COUNT = "count";
     public static final String REQUEST_STATUS = "status";
+    public static final String PRESCRIPTION_STATUS = "pr_status";
+    public static final String DRUG_DESCRIPTION = "drug_description";
+    public static final String DRUG_TYPE = "drug_type";
+    public static final String DRUG_PRICE = "drug_price";
+    public static final String DRUGS_IN_STOCK = "drugs_in_stock";
+    public static final String DRUG_IMAGE  = "drug_image";
+    public static final String CLASS_DESCRIPTION = "class_description";
+    public static final String COMMA = ",";
+    public static final String MANUFACTURER_NAME = "man_name";
+    public static final String MANUFACTURER_COUNTRY = "man_country";
+    public static final String MANUFACTURER_DESCRIPTION = "man_description";
+    public static final String DESCRIPTION = "description";
 }

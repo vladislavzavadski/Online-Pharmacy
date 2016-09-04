@@ -134,6 +134,14 @@
         <servlet-name>message</servlet-name>
         <url-pattern>/message</url-pattern>
     </servlet-mapping>
+    <filter>
+        <filter-name>ConnectionFiler</filter-name>
+        <filter-class>by.training.online_pharmacy.controller.filter.ControllerFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>ConnectionFiler</filter-name>
+        <servlet-name>Controller</servlet-name>
+    </filter-mapping>
     <error-page>
         <error-code>404</error-code>
         <location>/WEB-INF/pages/error/404.html</location>

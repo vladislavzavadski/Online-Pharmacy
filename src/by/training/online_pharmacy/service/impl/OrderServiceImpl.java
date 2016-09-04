@@ -1,14 +1,13 @@
 package by.training.online_pharmacy.service.impl;
 
-import by.training.online_pharmacy.dao.DaoFactory;
-import by.training.online_pharmacy.dao.DrugDAO;
-import by.training.online_pharmacy.dao.OrderDAO;
+import by.training.online_pharmacy.dao.*;
 import by.training.online_pharmacy.dao.exception.DaoException;
 import by.training.online_pharmacy.dao.exception.EntityDeletedException;
 import by.training.online_pharmacy.dao.exception.EntityNotFoundException;
 import by.training.online_pharmacy.dao.exception.OutOfRangeException;
 import by.training.online_pharmacy.domain.order.Order;
 import by.training.online_pharmacy.domain.order.OrderStatus;
+import by.training.online_pharmacy.domain.order.SearchOrderCriteria;
 import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.service.OrderService;
 import by.training.online_pharmacy.service.exception.*;
@@ -44,14 +43,26 @@ public class OrderServiceImpl implements OrderService {
 
         DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
         DrugDAO drugDAO = daoFactory.getDrugDAO();
+        boolean isPrescriptionEnable;
         try {
-            boolean isPrescriptionEnable = drugDAO.isPrescriptionEnable(order.getDrug().getId());
-            order.getDrug().setPrescriptionEnable(isPrescriptionEnable);
+            isPrescriptionEnable = drugDAO.isPrescriptionEnable(order.getDrug().getId());
         }catch (EntityDeletedException ex){
             throw new NotFoundException("Drug with id=" + order.getDrug().getId() + " was not found", ex);
         }catch (DaoException e) {
             logger.error("Something went wrong when trying check is prescription enable", e);
             throw new InternalServerException(e);
+        }
+
+        if(isPrescriptionEnable){
+            PrescriptionDAO prescriptionDAO = daoFactory.getPrescriptionDAO();
+            try {
+                prescriptionDAO.reduceDrugCount(order.getClient(), order.getDrug().getId(), order.getDrugCount(), order.getDrugDosage());
+            }catch (EntityNotFoundException ex){
+                throw new PrescriptionNotFoundException("Prescription not found", ex);
+            }catch (DaoException e) {
+                logger.error("Something went wrong when trying to reduce drug count in prescription");
+                throw new InternalServerException(e);
+            }
         }
 
         OrderDAO orderDAO = daoFactory.getOrderDao();
@@ -61,8 +72,6 @@ public class OrderServiceImpl implements OrderService {
             throw new NotFoundException("Drug with id=" + order.getDrug().getId() + " was not found", e);
         } catch (OutOfRangeException ex) {
             throw new AmbiguousValueException("The are not " + order.getDrugCount() + " count of drug with id=" + order.getDrug().getId());
-        } catch (EntityNotFoundException ex){
-            throw new PrescriptionNotFoundException("Prescription not found or timeout");
         } catch (DaoException e) {
             logger.error("Something went wrong when trying to insert order", e);
             throw new InternalServerException(e);
@@ -70,7 +79,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> getAllUsersOrders(User user, String orderStatus, String dateFrom, String dateTo, String drugName, int startFrom, int limit) throws InvalidParameterException {
+    public List<Order> getAllUsersOrders(User user, SearchOrderCriteria searchOrderCriteria, int limit, int startFrom) throws InvalidParameterException {
         if(user==null||user.getLogin()==null||user.getLogin().isEmpty()||user.getRegistrationType()==null){
             throw new InvalidParameterException("Parameter user is invalid");
         }
@@ -80,12 +89,73 @@ public class OrderServiceImpl implements OrderService {
         if(startFrom<0){
             throw new InvalidParameterException("Invalid parameter startFrom startFrom can be >0");
         }
+        if(searchOrderCriteria==null){
+            throw new InvalidParameterException("Invalid parameter searchOrderCriteria");
+        }
         DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
         OrderDAO orderDAO = daoFactory.getOrderDao();
         try {
-            return orderDAO.searchOrders(user, dateFrom, dateTo, orderStatus, drugName, limit, startFrom);
+            return orderDAO.searchOrders(user, searchOrderCriteria, startFrom, limit);
         } catch (DaoException e) {
             logger.error("Something went wrong when trying to load orders from database", e);
+            throw new InternalServerException(e);
+        }
+    }
+
+    @Override
+    public void reestablishOrder(User user, int orderId) throws InvalidParameterException, OrderNotFoundException {
+        if(user==null||user.getLogin()==null||user.getLogin().isEmpty()||user.getRegistrationType()==null){
+            throw new InvalidParameterException("Parameter user is invalid");
+        }
+        if(orderId<0){
+            throw new InvalidParameterException("Parameter orderId is invalid");
+        }
+        DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
+        OrderDAO orderDAO = daoFactory.getOrderDao();
+        try {
+            orderDAO.setOrderStatus(user, OrderStatus.ORDERED, orderId);
+            DrugDAO drugDAO = daoFactory.getDrugDAO();
+            boolean isPrescriptionEnable = drugDAO.isPrescriptionEnableByOrder(orderId);
+            if(isPrescriptionEnable){
+                PrescriptionDAO prescriptionDAO = daoFactory.getPrescriptionDAO();
+                prescriptionDAO.reduceDrugCount(user, orderId);
+            }
+            drugDAO.reduceDrugCountByReestablishedOrder(user, orderId);
+        } catch (EntityNotFoundException ex){
+            throw new OrderNotFoundException("Order was not found", ex);
+        } catch (DaoException e) {
+            logger.error("Something went wrong when trying to delete order with id="+orderId);
+            throw new InternalServerException(e);
+        }
+    }
+
+    @Override
+    public void payForOrder(User user, int orderId) throws InvalidParameterException, OrderNotFoundException, AmbiguousValueException {
+        if(user==null||user.getLogin()==null||user.getLogin().isEmpty()||user.getRegistrationType()==null){
+            throw new InvalidParameterException("Parameter user is invalid");
+        }
+        if(orderId<0){
+            throw new InvalidParameterException("Parameter orderId is invalid");
+        }
+        DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
+        OrderDAO orderDAO = daoFactory.getOrderDao();
+        try {
+            orderDAO.setOrderStatus(user, OrderStatus.PAID, orderId);
+        }catch (EntityNotFoundException e){
+            throw new OrderNotFoundException(e);
+        }catch (DaoException e) {
+            logger.error("Something went wrong when trying to change order status to paid", e);
+            throw new InternalServerException(e);
+        }
+        UserDAO userDAO = daoFactory.getUserDAO();
+        try {
+            userDAO.withdrawMoneyFromBalance(user, orderId);
+        }catch (EntityNotFoundException e){
+            throw new OrderNotFoundException(e);
+        }catch (OutOfRangeException e){
+            throw new AmbiguousValueException("Insufficient funds", e);
+        }catch (DaoException e) {
+            logger.error("something went wrong when trying to withdraw cash from user's balance", e);
             throw new InternalServerException(e);
         }
     }
@@ -101,9 +171,14 @@ public class OrderServiceImpl implements OrderService {
         DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
         OrderDAO orderDAO = daoFactory.getOrderDao();
         try {
-            orderDAO.cancelOrder(user, orderId);
+            orderDAO.setOrderStatus(user, OrderStatus.CANCELED, orderId);
             DrugDAO drugDAO = daoFactory.getDrugDAO();
-            drugDAO.updateDrugCountByCanceledOrder(orderId);
+            boolean isPrescriptionEnable = drugDAO.isPrescriptionEnableByOrder(orderId);
+            if(isPrescriptionEnable){
+                PrescriptionDAO prescriptionDAO = daoFactory.getPrescriptionDAO();
+                prescriptionDAO.increaseDrugCountByOrder(user, orderId);
+            }
+            drugDAO.updateDrugCountByCanceledOrder(user, orderId);
         } catch (EntityNotFoundException ex){
             throw new OrderNotFoundException("Order was not found", ex);
         } catch (DaoException e) {
