@@ -11,8 +11,10 @@ import by.training.online_pharmacy.service.DrugService;
 import by.training.online_pharmacy.service.PrescriptionService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
+import org.json.JSONObject;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -37,7 +39,7 @@ public class GetDrugDetailsCommand implements Command {
         try {
             Drug drug = drugService.getDrugDetails(drugId);
             boolean isPrescriptionExist = false;
-            if(drug.isPrescriptionEnable()){
+            if(drug.isPrescriptionEnable()&&user.getUserRole()==UserRole.CLIENT){
                 PrescriptionService prescriptionService = serviceFactory.getPrescriptionService();
                 isPrescriptionExist  = prescriptionService.isPrescriptionExist(user, drugId);
             }
@@ -45,15 +47,20 @@ public class GetDrugDetailsCommand implements Command {
                 List<DrugManufacturer> drugManufacturers = drugService.getDrugManufactures();
                 List<DrugClass> drugClasses = drugService.getAllDrugClasses();
                 List<UserDescription> userDescriptions = ServiceFactory.getInstance().getUserService().getAllSpecializations();
-                request.setAttribute("specializations", userDescriptions);
-                request.setAttribute("drugManufacturers", drugManufacturers);
-                request.setAttribute("drugClasses", drugClasses);
+                request.setAttribute(Parameter.SPECIALIZATIONS, userDescriptions);
+                request.setAttribute(Parameter.DRUG_MANUFACTURES, drugManufacturers);
+                request.setAttribute(Parameter.DRUG_CLASSES, drugClasses);
             }
-            request.setAttribute("prescriptionExist", isPrescriptionExist);
-            request.setAttribute("drug", drug);
-            request.getRequestDispatcher("/drug-details").forward(request, response);
+            request.setAttribute(Parameter.PRESCRIPTION_EXIST, isPrescriptionExist);
+            request.setAttribute(Parameter.DRUG, drug);
+            request.getRequestDispatcher(Page.DRUG_DETAILS).forward(request, response);
         } catch (InvalidParameterException e) {
-            e.printStackTrace();//TODO: что-то сделать
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.MESSAGE, e.getMessage());
+            ServletOutputStream servletOutputStream = response.getOutputStream();
+            response.setContentType(Content.JSON);
+            servletOutputStream.write(jsonObject.toString().getBytes());
         }
 
     }

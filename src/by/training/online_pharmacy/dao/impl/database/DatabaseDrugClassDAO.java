@@ -78,47 +78,6 @@ public class DatabaseDrugClassDAO implements DrugClassDAO {
         }
     }
 
-    /*@Override
-    public DrugClass getDrugClassByName(String name) throws DaoException {
-        try(DatabaseOperation databaseOperation = new DatabaseOperation(GET_CLASS_BY_NAME_QUERY, name)) {
-            ResultSet resultSet = databaseOperation.invokeReadOperation();
-            List<DrugClass> result = resultSetToDrugClass(resultSet);
-            if(!result.isEmpty()){
-                return result.get(0);
-            }
-        } catch (Exception ex) {
-            throw new DaoException("Can not load drug class from database with name = \'"+name+"\'", ex);
-        }
-        return null;
-    }
-
-    @Override
-    public void insertDrugClass(DrugClass drugClass) throws DaoException {
-        try(DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_DRUG_CLASS_QUERY, drugClass.getName(), drugClass.getDescription());) {
-            databaseOperation.invokeWriteOperation();
-        } catch (Exception e) {
-            throw new DaoException("Can not insert drug class " + drugClass, e);
-        }
-    }
-
-    @Override
-    public void updateDrugClass(DrugClass drugClass, String oldDrugName) throws DaoException {
-        try(DatabaseOperation databaseOperation  = new DatabaseOperation(UPDATE_DRUG_CLASS_QUERY, drugClass.getName(), drugClass.getDescription(), oldDrugName)) {
-            databaseOperation.invokeWriteOperation();
-        } catch (Exception e) {
-            throw new DaoException("Can not update drug class " +drugClass, e);
-        }
-
-    }
-
-    @Override
-    public void deleteDrugClass(String name) throws DaoException {
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(DELETE_DRUG_CLASS_QUERY, name)){
-            databaseOperation.invokeWriteOperation();
-        } catch (Exception e) {
-            throw new DaoException("Can not delete drug class with name = \'"+name+"\'", e);
-        }
-    }*/
 
     private List<DrugClass> resultSetToDrugClass(ResultSet resultSet) throws SQLException {
         List<DrugClass> result = new ArrayList<>();

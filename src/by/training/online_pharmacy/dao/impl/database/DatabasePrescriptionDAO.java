@@ -23,8 +23,8 @@ import java.util.List;
  * Created by vladislav on 19.06.16.
  */
 public class DatabasePrescriptionDAO implements PrescriptionDAO {
-    private static final String GET_ALL_PRESCRIPTIONS_QUERY_PREFIX = "select pr_drug_id, pr_appointment_date, pr_expiration_date, pr_drug_count, pr_drug_dosage, dr_name, pr_doctor, pr_doctor_login_via, us_first_name, us_second_name" +
-            "\n inner join users on pr_doctor=us_login and login_via=pr_doctor_login_via where pr_client_login=? and pr_login_via=? ";
+    private static final String GET_ALL_PRESCRIPTIONS_QUERY_PREFIX = "select pr_drug_id, pr_appointment_date, pr_expiration_date, pr_drug_count, pr_drug_dosage, dr_name, dr_id, pr_doctor, pr_doctor_login_via, us_first_name, us_second_name, us_login, login_via" +
+            "\nfrom prescriptions inner join users on pr_doctor=us_login and login_via=pr_doctor_login_via inner join drugs on dr_id=pr_drug_id where pr_client_login=? and pr_login_via=? ";
     private static final String DRUG_NAME = " and dr_name like ? ";
     private static final String ACTIVE_PRESCRIPTIONS = " and pr_expiration_date>=curdate() ";
     private static final String NON_ACTIVE_PRESCRIPTIONS = " and pr_expiration_date<curdate() ";
@@ -108,9 +108,11 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
             switch (prescriptionCriteria.getPrescriptionStatus()){
                 case ACTIVE:{
                     query.append(ACTIVE_PRESCRIPTIONS);
+                    break;
                 }
                 case NON_ACTIVE:{
                     query.append(NON_ACTIVE_PRESCRIPTIONS);
+                    break;
                 }
             }
         }
@@ -176,142 +178,6 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
     public void deletePrescription(String clientLogin, int drugId) throws DaoException {
 
     }
-
-
-    /*@Override
-    public List<Prescription> getUsersPrescriptions(String clientLogin, int limit, int startFrom) throws DaoException {
-        List<Prescription> prescriptions = null;
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_USERS_PRESCRIPTIONS_QUERY, clientLogin, limit, startFrom)){
-            ResultSet resultSet = databaseOperation.invokeReadOperation();
-            prescriptions = resultSetToPrescription(resultSet);
-        } catch (Exception e) {
-            throw new DaoException("Can not load users prescriptions with login = \'" + clientLogin + "\' from database", e);
-        }
-        return prescriptions;
-    }
-
-    @Override
-    public List<Prescription> getPrescriptionsByDrugId(int drugId, int limit, int startFrom) throws DaoException {
-        List<Prescription> prescriptions = null;
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_PRESCRIPTIONS_BY_ID_QUERY, drugId, limit, startFrom)){
-            ResultSet resultSet = databaseOperation.invokeReadOperation();
-            prescriptions = resultSetToPrescription(resultSet);
-        } catch (Exception e) {
-            throw new DaoException("Can not load prescriptions with drugId = \'" + drugId + "\' from database", e);
-        }
-        return prescriptions;
-    }
-
-    @Override
-    public List<Prescription> getDoctorsPrescriptions(String doctorLogin, int limit, int startFrom) throws DaoException {
-        List<Prescription> prescriptions = null;
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_DOCTORS_PRESCRIPTIONS_QUERY, doctorLogin, limit, startFrom)){
-            ResultSet resultSet = databaseOperation.invokeReadOperation();
-            prescriptions = resultSetToPrescription(resultSet);
-        } catch (Exception e) {
-            throw new DaoException("Can not load prescriptions with doctor login = \'" + doctorLogin + "\' from database", e);
-        }
-        return prescriptions;
-    }
-
-    @Override
-    public Prescription getPrescriptionByPrimaryKey(String userLogin, int drugId) throws DaoException {
-        List<Prescription> prescriptions = null;
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_PRESCRIPTIONS_BY_PRIMARY_KEY_QUERY, userLogin, drugId)){
-            ResultSet resultSet = databaseOperation.invokeReadOperation();
-            prescriptions = resultSetToPrescription(resultSet);
-            if (!prescriptions.isEmpty()) {
-                return prescriptions.get(0);
-            }
-        } catch (Exception e) {
-            throw new DaoException("Can not load prescriptions with login = \'" + userLogin + "\' and drugId = \'" + drugId + "\' from database", e);
-        }
-        return null;
-    }
-
-    @Override
-    public List<Prescription> getPrescriptionsByAppointmentDate(Date date, Period period, int limit, int startFrom) throws DaoException {
-        List<Prescription> prescriptions = null;
-        try (DatabaseOperation databaseOperation = new DatabaseOperation()){
-            switch (period) {
-                case AFTER_DATE: {
-                    databaseOperation.init(GET_PRESCRIPTIONS_BY_APPOINTMENT_DATE_AFTER_QUERY, date, limit, startFrom);
-                    break;
-                }
-
-                case BEFORE_DATE: {
-                    databaseOperation.init(GET_PRESCRIPTIONS_BY_APPOINTMENT_DATE_BEFORE_QUERY, date, limit, startFrom);
-                    break;
-                }
-
-                case CURRENT_DATE: {
-                    databaseOperation.init(GET_PRESCRIPTIONS_BY_APPOINTMENT_DATE_CURRENT_QUERY, date, limit, startFrom);
-                    break;
-                }
-            }
-            ResultSet resultSet = databaseOperation.invokeReadOperation();
-            prescriptions = resultSetToPrescription(resultSet);
-        } catch (Exception e) {
-            throw new DaoException("Can not load prescriptions by appointment date = \'" + date + "\'", e);
-        }
-        return prescriptions;
-    }
-
-    @Override
-    public List<Prescription> getPrescriptionsByExpirationDate(Date date, Period period, int limit, int startFrom) throws DaoException {
-        List<Prescription> prescriptions = null;
-        try (DatabaseOperation databaseOperation = new DatabaseOperation()){
-            switch (period) {
-                case AFTER_DATE: {
-                    databaseOperation.init(GET_PRESCRIPTIONS_BY_EXPIRATION_DATE_AFTER_QUERY, date, limit, startFrom);
-                    break;
-                }
-
-                case BEFORE_DATE: {
-                    databaseOperation.init(GET_PRESCRIPTIONS_BY_EXPIRATION_DATE_BEFORE_QUERY, date, limit, startFrom);
-                    break;
-                }
-
-                case CURRENT_DATE: {
-                    databaseOperation.init(GET_PRESCRIPTIONS_BY_EXPIRATION_DATE_CURRENT_QUERY, date, limit, startFrom);
-                    break;
-                }
-            }
-            ResultSet resultSet = databaseOperation.invokeReadOperation();
-            prescriptions = resultSetToPrescription(resultSet);
-        } catch (Exception e) {
-            throw new DaoException("Can not load prescriptions by appointment date = \'" + date + "\'", e);
-        }
-        return prescriptions;
-    }
-
-    @Override
-    public void insertPrescription(Prescription prescription) throws DaoException {
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_PRESCRIPTION_QUERY, prescription.getClient().getLogin(), prescription.getDrug().getId(), prescription.getDoctor().getLogin(), prescription.getAppointmentDate(), prescription.getExpirationDate(), prescription.getDrugCount(), prescription.getDrugDosage())){
-            databaseOperation.invokeWriteOperation();
-        } catch (Exception e) {
-            throw new DaoException("Can not insert prescription " + prescription, e);
-        }
-    }
-
-    @Override
-    public void updatePrescription(Prescription prescription) throws DaoException {
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(UPDATE_PRESCRIPTION_QUERY, prescription.getDoctor().getLogin(), prescription.getAppointmentDate(), prescription.getExpirationDate(), prescription.getDrugCount(), prescription.getDrugDosage(), prescription.getClient().getLogin(), prescription.getDrug().getId())){
-            databaseOperation.invokeWriteOperation();
-        } catch (Exception e) {
-            throw new DaoException("Can not update prescription " + prescription, e);
-        }
-    }
-
-    @Override
-    public void deletePrescription(String clientLogin, int drugId) throws DaoException {
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(DELETE_PRESCRIPTION_QUERY, clientLogin, drugId)){
-            databaseOperation.invokeWriteOperation();
-        } catch (Exception e) {
-            throw new DaoException("Can not delete prescription with clientLogin = \'" + clientLogin + "\' and drugId = \'" + drugId, e);
-        }
-    }
-*/
     private List<Prescription> resultSetToPrescription(ResultSet resultSet) throws SQLException {
         List<Prescription> result = new ArrayList<>();
         while (resultSet.next()) {
@@ -321,7 +187,7 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
             Drug drug = new Drug();
             prescription.setDoctor(doctor);
             prescription.setClient(client);
-            prescription.setDoctor(doctor);
+            prescription.setDrug(drug);
             prescription.setAppointmentDate(resultSet.getDate(TableColumn.PRESCRIPTION_APPOINTMENT_DATE));
             prescription.setExpirationDate(resultSet.getDate(TableColumn.PRESCRIPTION_EXPIRATION_DATE));
             prescription.setDrugCount(resultSet.getShort(TableColumn.PRESCRIPTION_DRUG_COUNT));
@@ -332,7 +198,6 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
             doctor.setRegistrationType(RegistrationType.valueOf(resultSet.getString(TableColumn.LOGIN_VIA).toUpperCase()));
             drug.setName(resultSet.getString(TableColumn.DRUG_NAME));
             drug.setId(resultSet.getInt(TableColumn.DRUG_ID));
-
             result.add(prescription);
         }
         return result;

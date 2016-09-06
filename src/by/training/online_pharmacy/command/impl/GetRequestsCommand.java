@@ -38,9 +38,16 @@ public class GetRequestsCommand implements Command {
         criteria.setRequestDateTo(request.getParameter(Parameter.DATE_TO));
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         RequestService requestService = serviceFactory.getRequestService();
+        boolean pageOverload = Boolean.parseBoolean(request.getParameter(Parameter.OVERLOAD));
         try {
             List<RequestForPrescription> requestForPrescriptions = requestService.searchRequests(user, criteria, LIMIT, (page-1)*LIMIT);
-            //TODO:когда будут страницы
+            request.setAttribute(Parameter.REQUESTS, requestForPrescriptions);
+            if(pageOverload) {
+                request.getRequestDispatcher(Page.REQUESTS).forward(request, response);
+            }
+            else {
+                request.getRequestDispatcher(Page.REQUEST).forward(request, response);
+            }
         } catch (InvalidParameterException e) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put(Parameter.RESULT, false);

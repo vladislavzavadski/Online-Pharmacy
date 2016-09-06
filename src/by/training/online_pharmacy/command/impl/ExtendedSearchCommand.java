@@ -41,8 +41,8 @@ public class ExtendedSearchCommand implements Command {
 
         try {
             List<Drug> drugs = drugService.extendedDrugSearch(searchDrugsCriteria,  6, (pageNumber-1)*6);
-            request.setAttribute("drugList", drugs);
-            request.getRequestDispatcher("/drug").forward(request, response);
+            request.setAttribute(Parameter.DRUG_LIST, drugs);
+            request.getRequestDispatcher(Page.DRUG).forward(request, response);
         } catch (InvalidParameterException e) {
             e.printStackTrace();
         }

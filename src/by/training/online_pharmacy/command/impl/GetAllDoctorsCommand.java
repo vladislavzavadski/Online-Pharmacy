@@ -34,14 +34,14 @@ public class GetAllDoctorsCommand implements Command {
             if(page==1&&pageOverload){
                 List<UserDescription> userDescriptions = userService.getAllSpecializations();
                 List<User> doctors = userService.getAllDoctors(LIMIT, (page-1)*LIMIT, pageOverload);
-                request.setAttribute("doctorList", doctors);
-                request.setAttribute("specializations", userDescriptions);
-                request.getRequestDispatcher("/doctors").forward(request, response);
+                request.setAttribute(Parameter.DOCTOR_LIST, doctors);
+                request.setAttribute(Parameter.SPECIALIZATIONS,  userDescriptions);
+                request.getRequestDispatcher(Page.DOCTORS).forward(request, response);
             }
             else {
                 List<User> doctors = userService.getAllDoctors(LIMIT, (page-1)*LIMIT, pageOverload);
-                request.setAttribute("doctorList", doctors);
-                request.getRequestDispatcher("/doctor").forward(request, response);
+                request.setAttribute(Parameter.DOCTOR_LIST, doctors);
+                request.getRequestDispatcher(Page.DOCTOR).forward(request, response);
             }
         } catch (InvalidParameterException e) {
             e.printStackTrace();

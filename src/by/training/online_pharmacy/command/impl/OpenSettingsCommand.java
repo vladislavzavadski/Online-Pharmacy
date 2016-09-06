@@ -30,8 +30,8 @@ public class OpenSettingsCommand implements Command {
             ServiceFactory serviceFactory = ServiceFactory.getInstance();
             SecretQuestionService secretQuestionService = serviceFactory.getSecretQuestionService();
             List<SecretQuestion> secretQuestions = secretQuestionService.getAllSecretQuestions();
-            request.setAttribute("secretQuestions", secretQuestions);
+            request.setAttribute(Parameter.SECRET_QUESTIONS, secretQuestions);
         }
-        request.getRequestDispatcher("/settings").forward(request, response);
+        request.getRequestDispatcher(Page.SETTINGS).forward(request, response);
     }
 }

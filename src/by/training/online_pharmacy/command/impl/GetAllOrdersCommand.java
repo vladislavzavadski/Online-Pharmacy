@@ -7,8 +7,10 @@ import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.service.OrderService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
+import org.json.JSONObject;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -40,16 +42,21 @@ public class GetAllOrdersCommand implements Command {
         searchOrderCriteria.setOrderStatus(request.getParameter(Parameter.ORDER_STATUS));
         try {
             List<Order> orderList = orderService.getAllUsersOrders(user, searchOrderCriteria, LIMIT, (page - 1) * LIMIT);
-            request.setAttribute("orderList", orderList);
+            request.setAttribute(Parameter.ORDER_LIST, orderList);
 
             if(page==1&&pageOverload) {
-                request.getRequestDispatcher("/orders").forward(request, response);
+                request.getRequestDispatcher(Page.ORDERS).forward(request, response);
             }
             else {
-                request.getRequestDispatcher("/order").forward(request, response);
+                request.getRequestDispatcher(Page.ORDER).forward(request, response);
             }
         } catch (InvalidParameterException e) {
-            e.printStackTrace();
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.MESSAGE, e.getMessage());
+            ServletOutputStream servletOutputStream = response.getOutputStream();
+            response.setContentType(Content.JSON);
+            servletOutputStream.write(jsonObject.toString().getBytes());
         }
 
     }

@@ -6,8 +6,10 @@ import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.UserService;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
+import org.json.JSONObject;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -31,9 +33,14 @@ public class GetUserDetailsCommand implements Command {
         try {
             User user = userService.getUserDetails(userLogin, registrationType);
             request.setAttribute(Parameter.USER, user);
-            request.getRequestDispatcher("/doctor-description").forward(request, response);
+            request.getRequestDispatcher(Page.DOCTOR_DESCRIPTION).forward(request, response);
         } catch (InvalidParameterException e) {
-            e.printStackTrace();
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.MESSAGE, e.getMessage());
+            response.setContentType(Content.JSON);
+            ServletOutputStream servletOutputStream = response.getOutputStream();
+            servletOutputStream.write(jsonObject.toString().getBytes());
         }
     }
 }

@@ -28,11 +28,13 @@ public class DatabaseOperation implements AutoCloseable {
 
     public DatabaseOperation(String sqlQuery) throws ConnectionPoolException, SQLException {
         this();
-        connection = connectionPool.takeReservedConnection();
+        if((connection = connectionPool.takeReservedConnection())==null) {
+            connection = connectionPool.reserveConnection();
+        }
         init(sqlQuery);
     }
 
-    public DatabaseOperation() throws ConnectionPoolException {
+    private DatabaseOperation() throws ConnectionPoolException {
         if(connectionPool==null) {
             connectionPool = ConnectionPool.getInstance();
         }

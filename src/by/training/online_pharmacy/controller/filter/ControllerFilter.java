@@ -24,10 +24,8 @@ public class ControllerFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        Command command = CommandHelper.getCommand(CommandName.RESERVE_CONNECTION);
-        command.execute((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse);
+        Command command = CommandHelper.getCommand(CommandName.FREE_CONNECTION);
         filterChain.doFilter(servletRequest, servletResponse);
-        command = CommandHelper.getCommand(CommandName.FREE_CONNECTION);
         command.execute((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse);
 
     }

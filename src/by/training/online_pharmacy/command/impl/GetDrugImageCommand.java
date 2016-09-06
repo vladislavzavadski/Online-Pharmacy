@@ -5,6 +5,7 @@ import by.training.online_pharmacy.service.DrugService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
 import org.apache.commons.compress.utils.IOUtils;
+import org.json.JSONObject;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -29,8 +30,13 @@ public class GetDrugImageCommand implements Command {
         try {
             drugId = Integer.parseInt(request.getParameter(Parameter.DRUG_ID));
         }catch (NumberFormatException ex){
-            //TODO:ну
-            throw new RuntimeException(ex);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.MESSAGE, ex.getMessage());
+            ServletOutputStream servletOutputStream = response.getOutputStream();
+            response.setContentType(Content.JSON);
+            servletOutputStream.write(jsonObject.toString().getBytes());
+            return;
         }
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         DrugService drugService = serviceFactory.getDrugService();
@@ -40,7 +46,12 @@ public class GetDrugImageCommand implements Command {
             IOUtils.copy(inputStream, servletOutputStream);
             inputStream.close();
         } catch (InvalidParameterException e) {
-            e.printStackTrace();//TODO:ну
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.MESSAGE, e.getMessage());
+            ServletOutputStream servletOutputStream = response.getOutputStream();
+            response.setContentType(Content.JSON);
+            servletOutputStream.write(jsonObject.toString().getBytes());
         }
 
     }

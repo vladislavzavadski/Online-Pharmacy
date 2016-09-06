@@ -23,6 +23,38 @@
         <jsp-file>/WEB-INF/pages/main.jsp</jsp-file>
     </servlet>
     <servlet>
+        <servlet-name>ReestablishAccount</servlet-name>
+        <jsp-file>/WEB-INF/pages/ReestablishAccount.jsp</jsp-file>
+    </servlet>
+    <servlet>
+        <servlet-name>requests</servlet-name>
+        <jsp-file>/WEB-INF/pages/requests.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>requests</servlet-name>
+        <url-pattern>/requests</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ReestablishAccount</servlet-name>
+        <url-pattern>/reestablish</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>prescriptions</servlet-name>
+        <jsp-file>/WEB-INF/pages/prescriptions.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>prescriptions</servlet-name>
+        <url-pattern>/prescriptions</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>prescription</servlet-name>
+        <jsp-file>/WEB-INF/pages/prescription.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>prescription</servlet-name>
+        <url-pattern>/prescription</url-pattern>
+    </servlet-mapping>
+    <servlet>
         <servlet-name>Registration</servlet-name>
         <jsp-file>/WEB-INF/pages/registration.jsp</jsp-file>
     </servlet>
@@ -37,6 +69,14 @@
     <servlet-mapping>
         <servlet-name>AuthorizationPage</servlet-name>
         <url-pattern>/authorization.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>request</servlet-name>
+        <jsp-file>/WEB-INF/pages/request.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>request</servlet-name>
+        <url-pattern>/request</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>MainPage</servlet-name>

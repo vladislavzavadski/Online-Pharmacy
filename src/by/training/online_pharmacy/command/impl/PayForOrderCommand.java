@@ -42,10 +42,10 @@ public class PayForOrderCommand implements Command {
             jsonObject.put(Parameter.MESSAGE, e.getMessage());
         } catch (OrderNotFoundException e) {
             jsonObject.put(Parameter.RESULT, false);
-            jsonObject.put(Parameter.MESSAGE, "Order not found");
+            jsonObject.put(Parameter.MESSAGE, Message.ORDER_NOT_FOUND);
         } catch (AmbiguousValueException e) {
             jsonObject.put(Parameter.RESULT, false);
-            jsonObject.put(Parameter.MESSAGE, "Insufficient funds");
+            jsonObject.put(Parameter.MESSAGE, Message.INSUF_FUNDS);
         }
         servletOutputStream.write(jsonObject.toString().getBytes());
     }

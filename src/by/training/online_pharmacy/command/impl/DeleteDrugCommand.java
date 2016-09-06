@@ -32,7 +32,7 @@ public class DeleteDrugCommand implements Command {
         DrugService drugService = serviceFactory.getDrugService();
         try {
             drugService.deleteDrug(user, drugId);
-            response.sendRedirect("/controller?command=GET_ALL_DRUGS&overload=true&page=1");
+            response.sendRedirect(Page.DRUGS_REDIRECT);
         } catch (InvalidParameterException | InvalidUserStatusException e) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put(Parameter.RESULT, false);

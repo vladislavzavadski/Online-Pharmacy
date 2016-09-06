@@ -7,6 +7,7 @@ import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.UserService;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
 import org.apache.commons.compress.utils.IOUtils;
+import org.json.JSONObject;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -39,7 +40,12 @@ public class GetUserImageCommand implements Command {
             IOUtils.copy(inputStream, servletOutputStream);
             inputStream.close();
         } catch (InvalidParameterException e) {
-            e.printStackTrace();//TODO:сделать
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.MESSAGE, e.getMessage());
+            response.setContentType(Content.JSON);
+            ServletOutputStream servletOutputStream = response.getOutputStream();
+            servletOutputStream.write(jsonObject.toString().getBytes());
         }
 
     }

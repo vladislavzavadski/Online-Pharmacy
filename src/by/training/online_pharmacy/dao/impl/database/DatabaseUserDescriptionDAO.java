@@ -19,9 +19,6 @@ import java.util.List;
  */
 public class DatabaseUserDescriptionDAO implements UserDescriptionDAO {
     private static final String INSERT_DESCRIPTION_QUERY = "INSERT INTO staff_descriptions (sd_user_login, sd_specialization, sd_description, sd_login_via) VALUES (?, ?, ?, ?);";
-    private static final String GET_DESCRIPTION_QUERY = "SELECT sd_user_login, sd_specialization, sd_description FROM staff_descriptions WHERE sd_user_login=? limit 1;";
-    private static final String UPDATE_DESCRIPTION_QUERY = "UPDATE staff_descriptions SET sd_specialization=?, sd_description=? WHERE sd_user_login=?;";
-    private static final String DELETE_DESCRIPTION_QUERY = "DELETE FROM staff_descriptions WHERE sd_user_login=?;";
     private static final String GET_DOCTORS_SPECIALIZATION = "select distinct sd_specialization from staff_descriptions order by sd_specialization";
     private static final String IS_SPECIALIZATION_EXIST = "select distinct sd_specialization from staff_descriptions where sd_specialization=?;";
     @Override
@@ -94,51 +91,4 @@ public class DatabaseUserDescriptionDAO implements UserDescriptionDAO {
             throw new DaoException("Can not load doctors specializations from database", e);
         }
     }
-
-    /*@Override
-    public void insertUserDescription(UserDescription userDescription) throws DaoException {
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_DESCRIPTION_QUERY, userDescription.getUserLogin(), userDescription.getSpecialization(), userDescription.getDescription())){
-            databaseOperation.invokeWriteOperation();
-        } catch (Exception e) {
-            throw new DaoException("Can not insert new description "+userDescription, e);
-        }
-    }
-
-    @Override
-    public UserDescription getUserDescriptionByLogin(String userLogin) throws DaoException {
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_DESCRIPTION_QUERY, userLogin)){
-            ResultSet resultSet = databaseOperation.invokeReadOperation();
-            return resultSetToUserDescription(resultSet);
-        } catch (Exception e) {
-            throw new DaoException("Can load user description with login = \'"+userLogin+"\'", e);
-        }
-    }
-
-    @Override
-    public void updateUserDescription(UserDescription userDescription) throws DaoException {
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(UPDATE_DESCRIPTION_QUERY, userDescription.getSpecialization(), userDescription.getDescription(), userDescription.getUserLogin())){
-            databaseOperation.invokeWriteOperation();
-        } catch (Exception e) {
-            throw new DaoException("Cannot update user's description with login = \'"+userDescription.getUserLogin()+"\'", e);
-        }
-    }
-
-    @Override
-    public void deleteUserDescription(String userLogin) throws DaoException {
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(DELETE_DESCRIPTION_QUERY, userLogin)){
-            databaseOperation.invokeWriteOperation();
-        } catch (Exception e) {
-            throw new DaoException("Can not delete user description with login = \'"+userLogin+"\'", e);
-        }
-    }
-
-
-    private UserDescription resultSetToUserDescription(ResultSet resultSet) throws SQLException {
-        UserDescription userDescription = new UserDescription();
-        userDescription.setUserLogin(resultSet.getString(TableColumn.STAFF_USER_LOGIN));
-        userDescription.setSpecialization(resultSet.getString(TableColumn.USER_SPECIALIZATION));
-        userDescription.setDescription(resultSet.getString(TableColumn.USER_DESCRIPTION));
-
-        return userDescription;
-    }*/
 }

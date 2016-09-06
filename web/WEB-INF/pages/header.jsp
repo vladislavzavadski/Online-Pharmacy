@@ -149,7 +149,8 @@
             <div class="btn-group" style="padding-top:20px;" role="group">
                 <a href="/main.jsp" class="btn btn-lg btn-primary">${myCabinet}</a>
                 <a href="/controller?command=GET_ALL_ORDERS&page=1&overload=true" class="btn btn-lg btn-primary">${myOrders}</a>
-                <a href="#" class="btn btn-lg btn-primary">${myPrescriptions}</a>
+                <a href="/controller?command=GET_PRESCRIPTIONS&page=1&overload=true" class="btn btn-lg btn-primary">${myPrescriptions}</a>
+                <a href="/controller?command=GET_REQUESTS&page=1&overload=true" class="btn btn-lg btn-primary">My requests</a>
                 <a href="/controller?command=OPEN_SETTINGS" class="btn btn-lg btn-primary">${mySettings}</a>
                 <a href="/controller?command=GET_ALL_DRUGS&overload=true&page=1" class="btn btn-lg btn-primary">${drugs}</a>
                 <a href="/controller?command=GET_ALL_DOCTORS&overload=true&page=1" class="btn btn-lg btn-primary">${doctors}</a>

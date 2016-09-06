@@ -34,9 +34,16 @@ public class GetAllPrescriptionsCommand implements Command {
         int page = Integer.parseInt(request.getParameter(Parameter.PAGE));
         String drugName = request.getParameter(Parameter.DRUG_NAME);
         String prescriptionStatus = request.getParameter(Parameter.PRESCRIPTION_STATUS);
+        boolean pageOverload = Boolean.parseBoolean(request.getParameter(Parameter.OVERLOAD));
         try {
             List<Prescription> prescriptions = prescriptionService.searchPrescriptions(user, drugName, prescriptionStatus, LIMIT, (page-1)*LIMIT);
-            //TODO:страницы
+            request.setAttribute(Parameter.PRESCRIPTIONS, prescriptions);
+            if(pageOverload) {
+                request.getRequestDispatcher(Page.PRESCRIPTIONS).forward(request, response);
+            }
+            else {
+                request.getRequestDispatcher(Page.PRESCRIPTION).forward(request, response);
+            }
         } catch (InvalidParameterException e) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put(Parameter.RESULT, false);

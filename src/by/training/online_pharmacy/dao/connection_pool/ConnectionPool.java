@@ -60,7 +60,7 @@ public class ConnectionPool {
 
     }
 
-    public void reserveConnection() throws ConnectionPoolException {
+    public Connection reserveConnection() throws ConnectionPoolException {
         Connection connection;
         synchronized (freeConnections){
             try {
@@ -74,13 +74,16 @@ public class ConnectionPool {
         }
         long threadId = Thread.currentThread().getId();
         reservedConnections.put(threadId, connection);
+        return connection;
     }
 
     public void freeConnection() throws ConnectionPoolException {
         long threadId = Thread.currentThread().getId();
         Connection connection = reservedConnections.get(threadId);
         try {
-            connection.close();
+            if(connection!=null) {
+                connection.close();
+            }
         } catch (SQLException e) {
             throw new ConnectionPoolException("Exception while trying to free connection");
         }

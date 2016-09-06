@@ -54,7 +54,6 @@ public class CancelOrderCommand implements Command {
             jsonObject.put(Parameter.IS_CRITICAL, true);
             jsonObject.put(Parameter.MESSAGE, ex.getMessage());
             servletOutputStream.write(jsonObject.toString().getBytes());
-            return;
         } catch (OrderNotFoundException e) {
             jsonObject.put(Parameter.RESULT, false);
             jsonObject.put(Parameter.IS_CRITICAL, false);

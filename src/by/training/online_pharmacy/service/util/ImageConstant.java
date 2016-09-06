@@ -13,4 +13,5 @@ public class ImageConstant {
     public static final String IMAGES = "/home/vladislav/images/";
     public static final String DRUG_IMAGES = "/home/vladislav/images/drugs/";
     public static final String DEFAULT_DRUG_IMAGE = "/home/vladislav/images/drugs/def_drug.jpg";
+    public static final String IMAGE = "image/";
 }

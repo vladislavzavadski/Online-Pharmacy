@@ -101,32 +101,7 @@
                 </div>
             </c:if>
             <div id="drugs" class="row" align="justify" style="background:white;">
-                <c:forEach items="${drugList}" var="drugItem">
-                    <div class="col-xs-6 col-lg-6" style="height:400px; overflow:hidden">
-                        <a href="/controller?command=GET_DRUG_DETAILS&dr_id=${drugItem.id}">
-                            <h2>${drugItem.name}
-                                <span class="label label-success">$${drugItem.price}</span>
-                            </h2>
-                            <img src="/controller?command=GET_DRUG_IMAGE&dr_id=${drugItem.id}" class="img-responsive" alt="${drugItem.name}" height="150" width="150"/>
-                        </a>
-                        <b>
-                            Класс лекарства:
-                        </b>&nbsp;
-                        <span title="${drugItem.drugClass.description}">
-                                ${drugItem.drugClass.name}
-                        </span>
-                        <br/>
-                        <b>
-                            Активное вещество:
-                        </b>&nbsp;
-                        <span>
-                                ${drugItem.activeSubstance}
-                        </span>
-                        <br/>
-                        <p>${drugItem.description}</p>
-
-                    </div>
-                </c:forEach>
+                    <jsp:include page="/drug"/>
                 <c:if test="${drugList.size()eq 0}">
                     <h2>По запросу "${param.dr_class}" ничего не найдено</h2>
                 </c:if>

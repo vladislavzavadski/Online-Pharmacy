@@ -94,17 +94,7 @@
             </c:if>
             <div class="container content" style="background:white">
                 <div id="doctors" class="row">
-                    <c:forEach items="${doctorList}" var="doctor">
-                        <div class="col-lg-4">
-                            <a href="/controller?command=GET_USER_DETAILS&login=${doctor.login}&register_type=${doctor.registrationType}">
-                                <h2>${doctor.secondName} ${doctor.firstName}</h2>
-                                <img src="/controller?command=GET_USER_IMAGE&login=${doctor.login}&register_type=${doctor.registrationType}" class="img-responsive" width="150" height="200" alt="Фото доктора"/>
-                            </a>
-                            <br/>
-                            <b>Специализация:</b>&nbsp;
-                            <span>${doctor.userDescription.specialization}</span>
-                        </div>
-                    </c:forEach>
+                        <jsp:include page="/doctor"/>
                         <div id="LoadedContent"></div>
                 </div>
             </div>

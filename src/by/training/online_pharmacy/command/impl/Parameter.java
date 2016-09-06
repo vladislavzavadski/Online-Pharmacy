@@ -72,4 +72,16 @@ public class Parameter {
     public static final String QUESTION_ID = "question_id";
     public static final String SECRET_WORD = "secret_word";
     public static final String QUESTION = "question";
+    public static final String DRUG_LIST = "drugList";
+    public static final String DOCTOR_LIST = "doctorList";
+    public static final String SPECIALIZATIONS = "specializations";
+    public static final String DRUG_MANUFACTURES = "drugManufactures";
+    public static final String DRUG_CLASSES = "drugClasses";
+    public static final String MESSAGE_LIST = "messageList";
+    public static final String ORDER_LIST = "orderList";
+    public static final String PRESCRIPTIONS = "prescriptions";
+    public static final String PRESCRIPTION_EXIST = "prescriptionExist";
+    public static final String DRUG = "drug";
+    public static final String REQUESTS = "requests";
+    public static final String SECRET_QUESTIONS = "secretQuestions";
 }

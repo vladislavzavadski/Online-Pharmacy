@@ -43,12 +43,12 @@ public class GetAllMessagesCommand implements Command {
         searchMessageCriteria.setDateFrom(dateFrom);
         try {
             List<Message> messages = messageService.getMessages(user, searchMessageCriteria, (page-1)*LIMIT, LIMIT);
-            request.setAttribute("messageList", messages);
+            request.setAttribute(Parameter.MESSAGE_LIST, messages);
             if(page==1&&pageOverload){
-                request.getRequestDispatcher("/messages").forward(request, response);
+                request.getRequestDispatcher(Page.MESSAGES).forward(request, response);
             }
             else {
-                request.getRequestDispatcher("/message").forward(request, response);
+                request.getRequestDispatcher(Page.MESSAGE).forward(request, response);
             }
         } catch (InvalidParameterException e) {
             JSONObject jsonObject = new JSONObject();

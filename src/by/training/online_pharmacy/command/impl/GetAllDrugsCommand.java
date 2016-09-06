@@ -1,6 +1,7 @@
 package by.training.online_pharmacy.command.impl;
 
 import by.training.online_pharmacy.command.Command;
+import by.training.online_pharmacy.dao.impl.database.Param;
 import by.training.online_pharmacy.domain.drug.Drug;
 import by.training.online_pharmacy.domain.drug.DrugClass;
 import by.training.online_pharmacy.domain.drug.DrugManufacturer;
@@ -11,8 +12,10 @@ import by.training.online_pharmacy.service.DrugService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.UserService;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
+import org.json.JSONObject;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -41,24 +44,28 @@ public class GetAllDrugsCommand implements Command {
                 if(user.getUserRole()== UserRole.PHARMACIST) {
                     UserService userService = serviceFactory.getUserService();
                     List<UserDescription> userDescriptions = userService.getAllSpecializations();
-                    request.setAttribute("specializations", userDescriptions);
+                    request.setAttribute(Parameter.SPECIALIZATIONS, userDescriptions);
                 }
                 List<DrugClass> classes  = drugService.getAllDrugClasses();
                 List<DrugManufacturer> drugManufactures = drugService.getDrugManufactures();
                 List<Drug> drugs = drugService.getAllDrugs(DRUGS_ON_PAGE, (pageNumber-1)*DRUGS_ON_PAGE);
                 request.setAttribute(Parameter.DRUGS, drugs);
-                request.setAttribute("drugManufactures", drugManufactures);
-                request.setAttribute("drugClasses", classes);
-                request.getRequestDispatcher("/drugs").forward(request, response);
+                request.setAttribute(Parameter.DRUG_MANUFACTURES, drugManufactures);
+                request.setAttribute(Parameter.DRUG_CLASSES, classes);
+                request.getRequestDispatcher(Page.DRUGS).forward(request, response);
             }
             else {
                 List<Drug> drugs = drugService.getAllDrugs(DRUGS_ON_PAGE, (pageNumber-1)*DRUGS_ON_PAGE);
                 request.setAttribute(Parameter.DRUGS, drugs);
-                request.getRequestDispatcher("/drug").forward(request, response);
+                request.getRequestDispatcher(Page.DRUG).forward(request, response);
             }
         } catch (InvalidParameterException e) {
-            e.printStackTrace();//TODO:Что-то сделать
-            throw new RuntimeException();
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.MESSAGE, e.getMessage());
+            ServletOutputStream servletOutputStream = response.getOutputStream();
+            response.setContentType(Content.JSON);
+            servletOutputStream.write(jsonObject.toString().getBytes());
         }
     }
 }

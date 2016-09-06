@@ -217,18 +217,20 @@ public class UserServiceImpl implements UserService {
             throw new InvalidParameterException("Invalid new image parameter");
         }
         try {
-        InputStream newImageStream = part.getInputStream();
-        String content = URLConnection.guessContentTypeFromStream(newImageStream);
-        if(content==null||!content.startsWith("image/")){
-            throw new InvalidContentException("This file is not an image");
-        }
-        File uploads = new File(ImageConstant.USER_IMAGES);
-        File file = new File(uploads, user.getLogin()+user.getRegistrationType()+ImageConstant.IMAGE_JPG);
-        Files.copy(newImageStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        user.setPathToImage(file.getAbsolutePath());
-        DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
-        UserDAO userDAO = daoFactory.getUserDAO();
-        userDAO.uploadProfileImage(user);
+            InputStream newImageStream = part.getInputStream();
+            String content = URLConnection.guessContentTypeFromStream(newImageStream);
+            if(content==null||!content.startsWith(ImageConstant.IMAGE)){
+                throw new InvalidContentException("This file is not an image");
+            }
+            File uploads = new File(ImageConstant.USER_IMAGES);
+            File file = new File(uploads, user.getLogin()+user.getRegistrationType()+ImageConstant.IMAGE_JPG);
+            Files.copy(newImageStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            user.setPathToImage(file.getAbsolutePath());
+            DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
+            UserDAO userDAO = daoFactory.getUserDAO();
+            if(user.getPathToImage()==null||user.getPathToImage().isEmpty()) {
+                userDAO.uploadProfileImage(user);
+            }
         }catch (EntityDeletedException e) {
             throw new NotFoundException("User with login=" + user.getLogin() + " was not found", e);
         }  catch (DaoException e) {

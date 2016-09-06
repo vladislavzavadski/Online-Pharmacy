@@ -18,6 +18,6 @@ public class LogOutCommand implements Command {
         if(session!=null){
             session.invalidate();
         }
-        response.sendRedirect("/index.jsp");
+        response.sendRedirect(Page.INDEX);
     }
 }

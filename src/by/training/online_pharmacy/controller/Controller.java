@@ -21,7 +21,6 @@ public class Controller extends javax.servlet.http.HttpServlet {
         CommandName commandName = CommandName.valueOf(request.getParameter(Parameter.COMMAND));
         Command command = CommandHelper.getCommand(commandName);
         command.execute(request, response);
-
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

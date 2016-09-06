@@ -5,8 +5,10 @@ import by.training.online_pharmacy.domain.drug.Drug;
 import by.training.online_pharmacy.service.DrugService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
+import org.json.JSONObject;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -31,11 +33,16 @@ public class SearchDrugsCommand implements Command {
         DrugService drugService = serviceFactory.getDrugService();
         try {
             List<Drug> drugList = drugService.searchDrugs(query, DRUGS_ON_PAGE, (pageNumber-1)*DRUGS_ON_PAGE);
-            request.setAttribute("drugList", drugList);
-            request.getRequestDispatcher("/drug").forward(request, response);
+            request.setAttribute(Parameter.DRUG_LIST, drugList);
+            request.getRequestDispatcher(Page.DRUG).forward(request, response);
 
         } catch (InvalidParameterException e) {
-            e.printStackTrace();
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.MESSAGE, e.getMessage());
+            ServletOutputStream servletOutputStream = response.getOutputStream();
+            response.setContentType(Content.JSON);
+            servletOutputStream.write(jsonObject.toString().getBytes());
         }
     }
 }

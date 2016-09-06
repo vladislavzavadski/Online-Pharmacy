@@ -156,10 +156,8 @@
                         <label for="sign-password">Пароль:</label>
                         <input id="sign-password" class="form-control" type="password" placeholder="Пароль" name="password" required>
                      </div>
-                     <div class="checkbox">
-                        <label>
-                        <input type="checkbox"> запомнить меня
-                        </label>
+                     <div class="form-group">
+                        <a href="/reestablish">Забыли пароль?</a>
                      </div>
                   </div>
                   <div class="modal-footer">

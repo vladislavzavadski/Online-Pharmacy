@@ -28,23 +28,13 @@ import java.util.List;
  * Created by vladislav on 19.06.16.
  */
 public class DatabaseRequestForPrescriptionDAO implements RequestForPrescriptionDAO {
-    private static final String GET_REQUESTS_BY_CLIENT_QUERY =  "select cl.us_login, dr_id, re_doctor, re_id, re_prolong_to, re_request_date, re_clients_comment, re_doctors_comment, dr_name, cl.us_first_name, cl.us_second_name, doc.us_first_name as doc_first_name, doc.us_second_name as doc_second_name, doc.us_login as doc_login  from requests_for_prescriptions inner join drugs on dr_id = re_drug_id inner join users as cl on re_client_login = cl.us_login inner join users as doc on re_doctor = doc.us_login WHERE re_client_login=? LIMIT ?, ?;";
-    private static final String GET_REQUESTS_BY_DRUG_ID_QUERY = "select cl.us_login, dr_id, re_doctor, re_id, re_prolong_to, re_request_date, re_clients_comment,  re_doctors_comment, dr_name, cl.us_first_name, cl.us_second_name, doc.us_first_name as doc_first_name, doc.us_second_name as doc_second_name, doc.us_login as doc_login  from requests_for_prescriptions inner join drugs on dr_id = re_drug_id inner join users as cl on re_client_login = cl.us_login inner join users as doc on re_doctor = doc.us_login WHERE re_drug_id=? LIMIT ?, ?;";
-    private static final String GET_REQUESTS_BY_DOCTOR_QUERY = "select cl.us_login, dr_id, re_doctor, re_id, re_prolong_to, re_request_date, re_clients_comment, re_doctors_comment, dr_name, cl.us_first_name, cl.us_second_name, doc.us_first_name as doc_first_name, doc.us_second_name as doc_second_name, doc.us_login as doc_login  from requests_for_prescriptions inner join drugs on dr_id = re_drug_id inner join users as cl on re_client_login = cl.us_login inner join users as doc on re_doctor = doc.us_login WHERE re_doctor=? LIMIT ?, ?;";
-    private static final String GET_REQUESTS_BY_STATUS_QUERY = "select cl.us_login, dr_id, re_doctor, re_id, re_prolong_to, re_request_date, re_clients_comment, re_doctors_comment, dr_name, cl.us_first_name, cl.us_second_name, doc.us_first_name as doc_first_name, doc.us_second_name as doc_second_name, doc.us_login as doc_login  from requests_for_prescriptions inner join drugs on dr_id = re_drug_id inner join users as cl on re_client_login = cl.us_login inner join users as doc on re_doctor = doc.us_login WHERE re_status=? LIMIT ?, ?;";
-    private static final String GET_REQUESTS_BY_DATE_BEFORE_QUERY = "select cl.us_login, dr_id, re_doctor, re_id, re_prolong_to, re_request_date, re_clients_comment, re_doctors_comment, dr_name, cl.us_first_name, cl.us_second_name, doc.us_first_name as doc_first_name, doc.us_second_name as doc_second_name, doc.us_login as doc_login  from requests_for_prescriptions inner join drugs on dr_id = re_drug_id inner join users as cl on re_client_login = cl.us_login inner join users as doc on re_doctor = doc.us_login WHERE re_request_date<? LIMIT ?, ?;";
-    private static final String GET_REQUESTS_BY_DATE_AFTER_QUERY = "select cl.us_login, dr_id, re_doctor, re_id, re_prolong_to, re_request_date, re_clients_comment, re_doctors_comment, dr_name, cl.us_first_name, cl.us_second_name, doc.us_first_name as doc_first_name, doc.us_second_name as doc_second_name, doc.us_login as doc_login  from requests_for_prescriptions inner join drugs on dr_id = re_drug_id inner join users as cl on re_client_login = cl.us_login inner join users as doc on re_doctor = doc.us_login WHERE re_request_date>? LIMIT ?, ?;";
-    private static final String GET_REQUESTS_BY_DATE_CURRENT_QUERY = "select cl.us_login, dr_id, re_doctor, re_id, re_prolong_to, re_request_date, re_clients_comment, re_doctors_comment, dr_name, cl.us_first_name, cl.us_second_name, doc.us_first_name as doc_first_name, doc.us_second_name as doc_second_name, doc.us_login as doc_login  from requests_for_prescriptions inner join drugs on dr_id = re_drug_id inner join users as cl on re_client_login = cl.us_login inner join users as doc on re_doctor = doc.us_login WHERE re_request_date=? LIMIT ?, ?;";
-    private static final String GET_REQUESTS_BY_ID = "select re_status, cl.us_login, dr_id, re_doctor, re_id, re_prolong_to, re_request_date, re_clients_comment, re_doctors_comment, dr_name, cl.us_first_name, cl.us_second_name, doc.us_first_name as doc_first_name, doc.us_second_name as doc_second_name, doc.us_login as doc_login  from requests_for_prescriptions inner join drugs on dr_id = re_drug_id inner join users as cl on re_client_login = cl.us_login inner join users as doc on re_doctor = doc.us_login WHERE re_id=? LIMIT 1;";
-    private static final String UPDATE_REQUEST_QUERY = "UPDATE requests_for_prescriptions SET re_drug_id=?, re_doctor=?, re_prolong_to=?, re_status=?, re_clients_comment=?, re_doctors_comment=? WHERE re_id=?;";
-    private static final String DELETE_REQUEST_QUERY = "DELETE FROM requests_for_prescriptions WHERE re_id=?;";
-    private static final String SEARCH_REQESTS_QUERY_PREFIX = "select re_drug_id, drug_name, re_prolong_to, re_status, re_clients_comment, re_doctors_comment, re_request_date, re_response_date, re_doctor, re_doctor_login_via, doctors.us_first_name as doc_first_name, doctors.us_second_name as doc_second_name" +
-            " from requests_for_prescriptions inner join users as clients on re_client_login=users.us_login and re_user_login_via=login_via" +
-            " inner join users as doctors on doctors.us_login=re_doctor and doctors.login_via=re_doctor_login_via inner join drugs on dr_id=re_drug_id where users.us_login=? and users.login_via=? ";
+ private static final String SEARCH_REQESTS_QUERY_PREFIX = "select re_drug_id, dr_name, re_prolong_to, re_status, re_clients_comment, re_doctors_comment, re_request_date, re_response_date, re_doctor, re_doctor_login_via, doctors.us_first_name as doc_first_name, doctors.us_second_name as doc_second_name" +
+            " from requests_for_prescriptions inner join users as clients on re_client_login=clients.us_login and re_user_login_via=clients.login_via" +
+            " inner join users as doctors on doctors.us_login=re_doctor and doctors.login_via=re_doctor_login_via inner join drugs on dr_id=re_drug_id where clients.us_login=? and clients.login_via=? ";
     private static final String DRUG_NAME = " and dr_name like ? ";
     private static final String REQUEST_STATUS  = " and re_status=? ";
-    private static final String REQUEST_DATE_TO = " and re_request_date<? ";
-    private static final String REQUEST_DATE_FROM = " and re_request_date>? ";
+    private static final String REQUEST_DATE_TO = " and re_request_date<=? ";
+    private static final String REQUEST_DATE_FROM = " and re_request_date>=? ";
     private static final String SEARCH_REQUESTS_QUERY_POSTFIX = " order by re_request_date desc limit ?, ?";
 
     private static final String INSERT_REQUEST_QUERY = "insert into requests_for_prescriptions" +
@@ -130,47 +120,6 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
         } catch (SQLException | ConnectionPoolException e) {
             throw new DaoException("Can not load requests from database by criteria="+criteria, e);
         }
-    }
-
-    @Override
-    public List<RequestForPrescription> getRequestsByClient(String clientLogin, int limit, int startFrom) throws DaoException {
-        return null;
-    }
-
-    @Override
-    public List<RequestForPrescription> getRequestsByDrugId(int drugId, int limit, int startFrom) throws DaoException {
-        return null;
-    }
-
-    @Override
-    public List<RequestForPrescription> getRequestsByDoctor(String doctorLogin, int limit, int startFrom) throws DaoException {
-        return null;
-    }
-
-    @Override
-    public List<RequestForPrescription> getRequestsByStatus(RequestStatus requestStatus, int limit, int startFrom) throws DaoException {
-        return null;
-    }
-
-    @Override
-    public List<RequestForPrescription> getRequestsByDate(Date requestDate, Period period, int limit, int startFrom) throws DaoException {
-        return null;
-    }
-
-    @Override
-    public RequestForPrescription getRequestById(int requestId) throws DaoException {
-        return null;
-    }
-
-
-    @Override
-    public void updateRequest(RequestForPrescription requestForPrescription) throws DaoException {
-
-    }
-
-    @Override
-    public void deleteRequest(int requestId) throws DaoException {
-
     }
 
     private List<RequestForPrescription> resultSetToRequestList(ResultSet resultSet) throws SQLException {
