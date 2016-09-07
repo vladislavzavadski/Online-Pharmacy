@@ -34,7 +34,7 @@ public class GetDrugsByClassCommand implements Command {
         try {
             List<Drug> drugs = drugService.getDrugsByClass(className, DRUGS_ON_PAGE, (page-1)*DRUGS_ON_PAGE);
             request.setAttribute(Parameter.DRUGS, drugs);
-            request.getRequestDispatcher(Page.DRUGS).forward(request, response);
+            request.getRequestDispatcher(Page.DRUG).forward(request, response);
         } catch (InvalidParameterException e) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put(Parameter.RESULT, false);

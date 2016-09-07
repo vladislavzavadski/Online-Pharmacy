@@ -52,6 +52,7 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
             "re_doctor_login_via  order by count limit 1) as doc where not exists (select re_client_login, re_drug_id, re_user_login_via" +
             " from requests_for_prescriptions\n" +
             "where re_status='in_progress' and re_client_login=? and re_drug_id=? and re_user_login_via=?));";
+    private static final String SET_REQUEST_FOR_PRESCRIPTION_STATUS = "update requests_for_prescriptions set re_status=? where ";
     private static final String FK_DRUG = "fk_drug";
     private static final String FK_CLIENT = "fk_client";
 
@@ -82,6 +83,10 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
                 throw new DaoException("Can not insert new request for prescription "+requestForPrescription, ex);
             }
         }
+    }
+
+    public void setRequestForPrescriptionStatus(User user, RequestStatus requestStatus){
+
     }
 
     @Override

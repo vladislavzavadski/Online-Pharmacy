@@ -31,9 +31,12 @@ public class CreateSecretWordCommand implements Command {
             return;
         }
         int questionId = Integer.parseInt(request.getParameter(Parameter.QUESTION_ID));
+
         String secretResponse = request.getParameter(Parameter.SECRET_WORD);
+
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         UserService userService = serviceFactory.getUserService();
+
         SecretWord secretWord = new SecretWord();
         SecretQuestion secretQuestion = new SecretQuestion();
         secretQuestion.setId(questionId);

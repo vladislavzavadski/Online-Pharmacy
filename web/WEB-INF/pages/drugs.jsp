@@ -43,7 +43,7 @@
                     <div id="drug_classes">
                         <c:forEach items="${drugClasses}" var="drugClass">
                             <li>
-                                <a class="Class" href="/controller?command=GET_DRUGS_BY_CLASS&dr_class=${drugClass.name}&page=1" title="${drugClass.description}">${drugClass.name}</a>
+                                <a class="Class" href="/controller?command=GET_DRUGS_BY_CLASS&overload=false&dr_class=${drugClass.name}&page=1" title="${drugClass.description}">${drugClass.name}</a>
                             </li>
                         </c:forEach>
                     </div>
