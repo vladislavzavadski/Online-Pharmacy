@@ -28,9 +28,13 @@ import java.util.List;
  * Created by vladislav on 19.06.16.
  */
 public class DatabaseRequestForPrescriptionDAO implements RequestForPrescriptionDAO {
- private static final String SEARCH_REQESTS_QUERY_PREFIX = "select re_drug_id, dr_name, re_prolong_to, re_status, re_clients_comment, re_doctors_comment, re_request_date, re_response_date, re_doctor, re_doctor_login_via, doctors.us_first_name as doc_first_name, doctors.us_second_name as doc_second_name" +
+ private static final String SEARCH_REQESTS_QUERY_PREFIX = "select re_drug_id, dr_name, re_prolong_to, re_status, re_clients_comment, re_doctors_comment, re_request_date, re_response_date, re_client_login, re_user_login_via, clients.us_first_name as cli_first_name, clients.us_second_name as cli_second_name, re_doctor, re_doctor_login_via, doctors.us_first_name as doc_first_name, doctors.us_second_name as doc_second_name" +
             " from requests_for_prescriptions inner join users as clients on re_client_login=clients.us_login and re_user_login_via=clients.login_via" +
             " inner join users as doctors on doctors.us_login=re_doctor and doctors.login_via=re_doctor_login_via inner join drugs on dr_id=re_drug_id where clients.us_login=? and clients.login_via=? ";
+
+    private static final String SEARCH_DOCTORS_REQUESTS_PREFIX = "select re_drug_id, dr_name, re_prolong_to, re_status, re_clients_comment, re_doctors_comment, re_request_date, re_response_date, re_client_login, re_user_login_via, clients.us_first_name as cli_first_name, clients.us_second_name as cli_second_name, re_doctor, re_doctor_login_via, doctors.us_first_name as doc_first_name, doctors.us_second_name as doc_second_name" +
+            " from requests_for_prescriptions inner join users as clients on re_client_login=clients.us_login and re_user_login_via=clients.login_via" +
+            " inner join users as doctors on doctors.us_login=re_doctor and doctors.login_via=re_doctor_login_via inner join drugs on dr_id=re_drug_id where doctors.us_login=? and doctors.login_via=? ";
     private static final String DRUG_NAME = " and dr_name like ? ";
     private static final String REQUEST_STATUS  = " and re_status=? ";
     private static final String REQUEST_DATE_TO = " and re_request_date<=? ";
@@ -81,8 +85,17 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
     }
 
     @Override
-    public List<RequestForPrescription> getRequestsForPrescriptions(User user, RequestForPrescriptionCriteria criteria, int limit, int startFrom) throws DaoException {
-        StringBuilder query = new StringBuilder(SEARCH_REQESTS_QUERY_PREFIX);
+    public List<RequestForPrescription> getDoctorsRequest(User user, RequestForPrescriptionCriteria criteria, int limit, int startFrom) throws DaoException {
+        return getRequestsForPrescriptions(user, criteria, limit, startFrom, SEARCH_DOCTORS_REQUESTS_PREFIX);
+    }
+
+    @Override
+    public List<RequestForPrescription> getClientRequests(User user, RequestForPrescriptionCriteria criteria, int limit, int startFrom) throws DaoException {
+        return getRequestsForPrescriptions(user, criteria, limit, startFrom, SEARCH_REQESTS_QUERY_PREFIX);
+    }
+
+    private List<RequestForPrescription> getRequestsForPrescriptions(User user, RequestForPrescriptionCriteria criteria, int limit, int startFrom, String prefix) throws DaoException {
+        StringBuilder query = new StringBuilder(prefix);
         if(criteria.getDrugName()!=null&&!criteria.getDrugName().isEmpty()){
             query.append(DRUG_NAME);
         }
@@ -128,6 +141,7 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
             RequestForPrescription requestForPrescription = new RequestForPrescription();
             User doctor = new User();
             Drug drug = new Drug();
+            User client = new User();
             requestForPrescription.setDrug(drug);
             requestForPrescription.setDoctor(doctor);
             drug.setName(resultSet.getString(TableColumn.DRUG_NAME));
@@ -142,6 +156,11 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
             requestForPrescription.setDoctorComment(resultSet.getString(TableColumn.REQUEST_DOCTOR_COMMENT));
             requestForPrescription.setRequestDate(resultSet.getDate(TableColumn.REQUEST_DATE));
             requestForPrescription.setResponseDate(resultSet.getDate(TableColumn.RESPONSE_DATE));
+            client.setLogin(resultSet.getString(TableColumn.REQUEST_CLIENT_LOGIN));
+            client.setRegistrationType(RegistrationType.valueOf(resultSet.getString(TableColumn.REQUEST_CLIENT_LOGIN_VIA).toUpperCase()));
+            client.setFirstName(resultSet.getString(TableColumn.REQUEST_CLIENT_FIRST_NAME));
+            client.setSecondName(resultSet.getString(TableColumn.REQUEST_CLIENT_SECOND_NAME));
+            requestForPrescription.setClient(client);
             result.add(requestForPrescription);
         }
         return result;

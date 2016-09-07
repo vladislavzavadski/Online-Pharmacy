@@ -15,6 +15,10 @@ import java.util.List;
  * Created by vladislav on 19.06.16.
  */
 public interface RequestForPrescriptionDAO {
-    List<RequestForPrescription> getRequestsForPrescriptions(User user, RequestForPrescriptionCriteria criteria, int limit, int startFrom) throws DaoException;
+
     void insertRequest(RequestForPrescription requestForPrescription) throws DaoException;
+
+    List<RequestForPrescription> getDoctorsRequest(User user, RequestForPrescriptionCriteria criteria, int limit, int startFrom) throws DaoException;
+
+    List<RequestForPrescription> getClientRequests(User user, RequestForPrescriptionCriteria criteria, int limit, int startFrom) throws DaoException;
 }

@@ -72,8 +72,8 @@ public class DatabaseDrugManufacturerDao implements DrugManufacturerDAO {
     @Override
     public List<DrugManufacturer> getDrugManufactures() throws DaoException {
         List<DrugManufacturer> result = new ArrayList<>();
-        try {
-            DatabaseOperation databaseOperation = new DatabaseOperation(GET_MANUFACTURES_NAMES);
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_MANUFACTURES_NAMES);){
+
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             while (resultSet.next()){
                 DrugManufacturer drugManufacturer = new DrugManufacturer();

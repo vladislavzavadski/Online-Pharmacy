@@ -21,8 +21,8 @@ public class SecretQuestionDaoImpl implements SecretQuestionDao {
     @Override
     public List<SecretQuestion> getAllQuestions() throws DaoException {
         List<SecretQuestion> secretQuestions = new ArrayList<>();
-        try {
-            DatabaseOperation databaseOperation = new DatabaseOperation(GET_ALL_QUESTIONS_QUERY);
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_ALL_QUESTIONS_QUERY);){
+
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             while (resultSet.next()){
                 SecretQuestion secretQuestion = new SecretQuestion();
@@ -39,8 +39,8 @@ public class SecretQuestionDaoImpl implements SecretQuestionDao {
 
     @Override
     public SecretQuestion getUsersSecretQuestion(User user) throws DaoException {
-        try {
-            DatabaseOperation databaseOperation = new DatabaseOperation(GET_USERS_QUESTION_QUERY);
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_USERS_QUESTION_QUERY);){
+
             databaseOperation.setParameter(1, user.getLogin());
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             if(resultSet.next()){

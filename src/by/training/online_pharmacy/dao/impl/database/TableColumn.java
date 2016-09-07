@@ -86,5 +86,9 @@ public class TableColumn {
     public static final String USER_BALANCE = "us_balance";
     public static final String QUESTION_ID = "sq_id";
     public static final String QUESTION = "sq_question";
+    public static final String REQUEST_CLIENT_LOGIN = "re_client_login";
+    public static final String REQUEST_CLIENT_LOGIN_VIA = "re_user_login_via";
+    public static final String REQUEST_CLIENT_FIRST_NAME = "cli_first_name";
+    public static final String REQUEST_CLIENT_SECOND_NAME = "cli_second_name";
 
 }

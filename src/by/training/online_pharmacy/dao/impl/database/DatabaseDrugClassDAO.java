@@ -50,19 +50,10 @@ public class DatabaseDrugClassDAO implements DrugClassDAO {
 
     @Override
     public List<DrugClass> getAllDrugClasses() throws DaoException{
-        DatabaseOperation databaseOperation = null;
-        try {
-            databaseOperation = new DatabaseOperation(GET_ALL_CLASSES);
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_ALL_CLASSES)){
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             return resultSetToDrugClass(resultSet);
         } catch (ConnectionPoolException | SQLException e) {
-            if(databaseOperation!=null){
-                try {
-                    databaseOperation.close();
-                } catch (SQLException e1) {
-                    throw new DaoException("Can not load drug classes from database", e);
-                }
-            }
             throw new DaoException("Can not load drug classes from database", e);
         }
     }

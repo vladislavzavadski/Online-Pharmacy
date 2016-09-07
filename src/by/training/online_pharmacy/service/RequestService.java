@@ -4,6 +4,7 @@ import by.training.online_pharmacy.domain.prescription.RequestForPrescription;
 import by.training.online_pharmacy.domain.prescription.RequestForPrescriptionCriteria;
 import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
+import by.training.online_pharmacy.service.exception.InvalidUserStatusException;
 import by.training.online_pharmacy.service.exception.NotFoundException;
 
 import java.util.List;

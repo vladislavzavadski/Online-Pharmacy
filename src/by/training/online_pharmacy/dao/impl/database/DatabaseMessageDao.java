@@ -39,6 +39,7 @@ public class DatabaseMessageDao implements MessageDao {
     private static final String FK_RECEIVER = "fk_me_receiver";
     private static final String MARK_MESSAGE_AS_READED_QUERY = "update messages set me_status='completed' where me_sender_login=? and me_sender_login_via=? and me_status='new' and me_id=? ";
     private static final String GET_NEW_MESSAGE_COUNT = "select count(me_id) as me_count from messages where me_sender_login=? and me_sender_login_via=? and me_status='new';";
+
     @Override
     public void sendMessage(Message message) throws DaoException {
         try(DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_MESSAGE_QUERY)){

@@ -8,12 +8,15 @@ import by.training.online_pharmacy.dao.exception.EntityNotFoundException;
 import by.training.online_pharmacy.domain.prescription.RequestForPrescription;
 import by.training.online_pharmacy.domain.prescription.RequestForPrescriptionCriteria;
 import by.training.online_pharmacy.domain.user.User;
+import by.training.online_pharmacy.domain.user.UserRole;
 import by.training.online_pharmacy.service.RequestService;
 import by.training.online_pharmacy.service.exception.InternalServerException;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
+import by.training.online_pharmacy.service.exception.InvalidUserStatusException;
 import by.training.online_pharmacy.service.exception.NotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.Ignore;
 
 import java.util.List;
 
@@ -56,7 +59,6 @@ public class RequestServiceImpl implements RequestService {
             logger.error("Something went wrong when trying to insert request", e);
             throw new InternalServerException(e);
         }
-
     }
 
     @Override
@@ -70,10 +72,18 @@ public class RequestServiceImpl implements RequestService {
         if(startFrom<0){
             throw new InvalidParameterException("Invalid parameter startFrom startFrom can be >0");
         }
+        if(user.getUserRole()==null||user.getUserRole()==UserRole.PHARMACIST){
+            throw new InvalidParameterException("Invalid parameter user role. Only clients and doctors can search requests");
+        }
         DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
         RequestForPrescriptionDAO requestForPrescriptionDAO = daoFactory.getRequestForPrescriptionDAO();
         try {
-            return requestForPrescriptionDAO.getRequestsForPrescriptions(user, criteria, limit, startFrom);
+            if(user.getUserRole()==UserRole.DOCTOR) {
+                return requestForPrescriptionDAO.getDoctorsRequest(user, criteria, limit, startFrom);
+            }
+            else {
+                return requestForPrescriptionDAO.getClientRequests(user, criteria, limit, startFrom);
+            }
         } catch (DaoException e) {
             logger.error("Something went wrong when trying to load requests from DB", e);
             throw new InternalServerException(e);

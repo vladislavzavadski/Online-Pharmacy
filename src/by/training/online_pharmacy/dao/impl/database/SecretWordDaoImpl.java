@@ -19,8 +19,7 @@ public class SecretWordDaoImpl implements SecretWordDao {
     private static final String FK_SECRET_QUESTIONS = "fk_secret_questions";
     @Override
     public void createSecretWord(SecretWord secretWord) throws DaoException {
-        try {
-            DatabaseOperation databaseOperation = new DatabaseOperation(CREATE_SECRET_QUERY);
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(CREATE_SECRET_QUERY);){
             databaseOperation.setParameter(1, secretWord.getUser().getLogin());
             databaseOperation.setParameter(2, secretWord.getUser().getRegistrationType().toString().toLowerCase());
             databaseOperation.setParameter(3, secretWord.getSecretQuestion().getId());

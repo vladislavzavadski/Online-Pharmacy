@@ -23,8 +23,8 @@ public class DatabaseUserDescriptionDAO implements UserDescriptionDAO {
     private static final String IS_SPECIALIZATION_EXIST = "select distinct sd_specialization from staff_descriptions where sd_specialization=?;";
     @Override
     public void insertUserDescription(UserDescription userDescription) throws DaoException {
-        try {
-            DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_DESCRIPTION_QUERY);
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_DESCRIPTION_QUERY);){
+
             databaseOperation.setParameter(1, userDescription.getUserLogin());
             databaseOperation.setParameter(2, userDescription.getSpecialization());
             databaseOperation.setParameter(3, userDescription.getDescription());
@@ -38,10 +38,10 @@ public class DatabaseUserDescriptionDAO implements UserDescriptionDAO {
 
     @Override
     public boolean isSpecializationExist(String specialization) throws DaoException {
-        DatabaseOperation databaseOperation;
+
         boolean result;
-        try {
-            databaseOperation = new DatabaseOperation(IS_SPECIALIZATION_EXIST);
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(IS_SPECIALIZATION_EXIST);){
+
             databaseOperation.setParameter(1, specialization);
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             result = resultSet.next();
@@ -70,9 +70,8 @@ public class DatabaseUserDescriptionDAO implements UserDescriptionDAO {
     @Override
     public List<UserDescription> getAllSpecializations() throws DaoException {
         List<UserDescription> result = new ArrayList<>();
-        DatabaseOperation databaseOperation = null;
-        try{
-            databaseOperation = new DatabaseOperation(GET_DOCTORS_SPECIALIZATION);
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_DOCTORS_SPECIALIZATION);){
+
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             while (resultSet.next()){
                 UserDescription userDescription = new UserDescription();
@@ -81,13 +80,6 @@ public class DatabaseUserDescriptionDAO implements UserDescriptionDAO {
             }
             return result;
         } catch (SQLException | ConnectionPoolException e) {
-            if(databaseOperation!=null){
-                try {
-                    databaseOperation.close();
-                } catch (SQLException e1) {
-                    throw new DaoException("Can not load doctors specializations from database", e);
-                }
-            }
             throw new DaoException("Can not load doctors specializations from database", e);
         }
     }

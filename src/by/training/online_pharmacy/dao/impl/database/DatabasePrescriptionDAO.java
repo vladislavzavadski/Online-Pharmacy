@@ -35,8 +35,8 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
     private static final String IS_PRESCRIPTION_EXIST_QUERY = "select pr_drug_id from prescriptions where pr_client_login=? and pr_login_via=? and pr_drug_id=? and pr_expiration_date>=curdate();";
     @Override
     public void increaseDrugCountByOrder(User user, int orderId) throws DaoException {
-        try {
-            DatabaseOperation databaseOperation = new DatabaseOperation(INCREACE_DRUG_COUNT_IN_PRESCRIPTION_BY_NEW_ORDER);
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(INCREACE_DRUG_COUNT_IN_PRESCRIPTION_BY_NEW_ORDER);){
+
             databaseOperation.setParameter(1, orderId);
             databaseOperation.setParameter(2, user.getLogin());
             databaseOperation.setParameter(3, user.getRegistrationType().toString().toLowerCase());
@@ -62,8 +62,8 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
 
     @Override
     public void reduceDrugCount(User user, int orderId) throws DaoException {
-        try {
-            DatabaseOperation databaseOperation = new DatabaseOperation(REDUCE_DRUG_COUNT_IN_PRESCRIPTION_BY_ORDER);
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(REDUCE_DRUG_COUNT_IN_PRESCRIPTION_BY_ORDER);){
+
             databaseOperation.setParameter(1, orderId);
             databaseOperation.setParameter(2, user.getLogin());
             databaseOperation.setParameter(3, user.getRegistrationType().toString().toLowerCase());
@@ -81,8 +81,8 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
 
     @Override
     public void reduceDrugCount(User user, int drugId, int drugCount, int drugDosage) throws DaoException {
-        try {
-            DatabaseOperation databaseOperation = new DatabaseOperation(REDUCE_DRUG_COUNT_IN_PRESCRIPTION_QUERY_BY_ORDER);
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(REDUCE_DRUG_COUNT_IN_PRESCRIPTION_QUERY_BY_ORDER);){
+
             databaseOperation.setParameter(1, drugCount);
             databaseOperation.setParameter(2, user.getLogin());
             databaseOperation.setParameter(3, user.getRegistrationType().toString().toLowerCase());

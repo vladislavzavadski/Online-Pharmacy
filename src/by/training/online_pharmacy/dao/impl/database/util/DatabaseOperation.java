@@ -114,6 +114,11 @@ public class DatabaseOperation implements AutoCloseable {
 
     @Override
     public void close() throws SQLException {
-
+        if(resultSet!=null){
+            resultSet.close();
+        }
+        if(preparedStatement!=null){
+            preparedStatement.close();
+        }
     }
 }

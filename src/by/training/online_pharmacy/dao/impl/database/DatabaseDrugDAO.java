@@ -80,31 +80,17 @@ public class DatabaseDrugDAO implements DrugDAO {
 
     @Override
     public Drug getDrugById(int drugId) throws DaoException {
-        DatabaseOperation databaseOperation = null;
-        boolean isPrescriptionEnable = false;
-        try {
-            databaseOperation = new DatabaseOperation(GET_DRUGS_BY_ID_QUERY);
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_DRUGS_BY_ID_QUERY);){
+
             databaseOperation.setParameter(TableColumn.DRUG_ID, drugId);
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             List<Drug> result = resultSetToDrug(resultSet);
             if(!result.isEmpty()){
-                isPrescriptionEnable = result.get(0).isPrescriptionEnable();
                 return result.get(0);
             }
             return null;
         } catch (SQLException | ParameterNotFoundException | ConnectionPoolException e) {
             throw new DaoException("Something went wrong when trying to get drug by id", e);
-        }
-        finally {
-            if(!isPrescriptionEnable) {
-                if (databaseOperation != null) {
-                    try {
-                        databaseOperation.close();
-                    } catch (SQLException e) {
-                        throw new DaoException("Something went wrong when trying to get drug by id", e);
-                    }
-                }
-            }
         }
     }
 
@@ -165,8 +151,7 @@ public class DatabaseDrugDAO implements DrugDAO {
 
     @Override
     public boolean isPrescriptionEnable(int drugId) throws DaoException {
-        try {
-            DatabaseOperation databaseOperation = new DatabaseOperation(IS_PRESCRIPTION_ENABLE_QUERY);
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(IS_PRESCRIPTION_ENABLE_QUERY)){
             databaseOperation.beginTransaction();
             databaseOperation.setParameter(TableColumn.DRUG_ID, drugId);
             ResultSet resultSet = databaseOperation.invokeReadOperation();
@@ -181,8 +166,8 @@ public class DatabaseDrugDAO implements DrugDAO {
 
     @Override
     public boolean isPrescriptionEnableByOrder(int orderId) throws DaoException {
-        try {
-            DatabaseOperation databaseOperation = new DatabaseOperation(IS_PRESCRIPTION_ENABLE_BY_ORDER);
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(IS_PRESCRIPTION_ENABLE_BY_ORDER);){
+
             databaseOperation.setParameter(1, orderId);
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             if (resultSet.next()) {
@@ -297,8 +282,8 @@ public class DatabaseDrugDAO implements DrugDAO {
 
     @Override
     public void updateDrug(Drug drug) throws DaoException {
-        try {
-            DatabaseOperation databaseOperation = new DatabaseOperation(UPDATE_DRUG_QUERY);
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(UPDATE_DRUG_QUERY);){
+
             databaseOperation.setParameter(1, drug.getName());
             databaseOperation.setParameter(2, drug.getPrice());
             databaseOperation.setParameter(3, drug.isPrescriptionEnable());
@@ -329,8 +314,7 @@ public class DatabaseDrugDAO implements DrugDAO {
 
     @Override
     public void deleteDrug(int drugId) throws DaoException {
-        try {
-            DatabaseOperation databaseOperation = new DatabaseOperation(DELETE_DRUG_QUERY);
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(DELETE_DRUG_QUERY);){
             databaseOperation.setParameter(1, drugId);
             databaseOperation.invokeWriteOperation();
         } catch (ConnectionPoolException | SQLException e) {

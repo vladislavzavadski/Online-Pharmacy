@@ -54,8 +54,8 @@ public class DatabaseUserDAO implements UserDAO {
 
     @Override
     public String getUserMailBySecretWord(SecretWord secretWord) throws DaoException {
-        try {
-            DatabaseOperation databaseOperation = new DatabaseOperation(GET_USER_MAIL_BY_SECRET_WORD);
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_USER_MAIL_BY_SECRET_WORD);){
+
             databaseOperation.setParameter(1, secretWord.getUser().getLogin());
             databaseOperation.setParameter(2, secretWord.getResponse());
             ResultSet resultSet = databaseOperation.invokeReadOperation();
@@ -70,10 +70,8 @@ public class DatabaseUserDAO implements UserDAO {
 
     @Override
     public void addMoneyToBalance(User user, float payment) throws DaoException {
-        DatabaseOperation databaseOperation;
-        try {
-            databaseOperation = new DatabaseOperation(ADD_MONEY_TO_BALANCE_QUERY);
 
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(ADD_MONEY_TO_BALANCE_QUERY);){
             databaseOperation.setParameter(1, payment);
             databaseOperation.setParameter(2, user.getLogin());
             databaseOperation.setParameter(3, user.getRegistrationType().toString().toLowerCase());
@@ -156,10 +154,9 @@ public class DatabaseUserDAO implements UserDAO {
 
     @Override
     public User userAuthentication(String login, RegistrationType registrationType) throws DaoException {
-        DatabaseOperation databaseOperation = null;
         User user = null;
-        try {
-            databaseOperation = new DatabaseOperation(GET_USER_QUERY);
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_USER_QUERY);){
+
             databaseOperation.setParameter(TableColumn.USER_LOGIN, login);
             databaseOperation.setParameter(TableColumn.REGISTRATION_TYPE, registrationType.toString().toLowerCase());
             ResultSet resultSet = databaseOperation.invokeReadOperation();
@@ -171,15 +168,6 @@ public class DatabaseUserDAO implements UserDAO {
             return null;
         } catch (SQLException | ConnectionPoolException | ParameterNotFoundException e) {
             throw new DaoException("Cannot load user from database with login = \'"+login+"\' and register type = \'"+registrationType+"\'",e);
-        }
-        finally {
-            if(user!=null){
-                try {
-                    databaseOperation.close();
-                } catch (SQLException e) {
-                    throw new DaoException("Cannot load user from database with login = \'"+login+"\' and register type = \'"+registrationType+"\'",e);
-                }
-            }
         }
     }
 
@@ -283,8 +271,8 @@ public class DatabaseUserDAO implements UserDAO {
 
     @Override
     public void insertUser(User user) throws DaoException {
-        try {
-            DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_USER_QUERY);
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_USER_QUERY);){
+
             if(user.getUserRole()==UserRole.DOCTOR){
                 databaseOperation.beginTransaction();
             }
@@ -395,7 +383,6 @@ public class DatabaseUserDAO implements UserDAO {
     @Override
     public List<User> getAllDoctors(int limit, int startFrom) throws DaoException {
         List<User> doctors;
-        boolean isConnectionReserved = startFrom==0;
         try(DatabaseOperation databaseOperation = new DatabaseOperation(GET_ALL_DOCTORS_QUERY)){
             databaseOperation.setParameter(TableColumn.LIMIT, 1, startFrom);
             databaseOperation.setParameter(TableColumn.LIMIT, 2, limit);

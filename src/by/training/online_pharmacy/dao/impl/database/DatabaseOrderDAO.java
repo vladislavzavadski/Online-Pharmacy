@@ -43,8 +43,8 @@ public class DatabaseOrderDAO implements OrderDAO {
 
     @Override
     public float getOrderSum(int orderId) throws DaoException {
-        try {
-            DatabaseOperation databaseOperation = new DatabaseOperation(GET_ORDER_SUM_QUERY);
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_ORDER_SUM_QUERY);){
+
             databaseOperation.setParameter(1, orderId);
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             if(resultSet.next()){
@@ -132,9 +132,7 @@ public class DatabaseOrderDAO implements OrderDAO {
 
     @Override
     public void setOrderStatus(User user, OrderStatus orderStatus, int orderId) throws DaoException {
-        DatabaseOperation databaseOperation = null;
-        try {
-            databaseOperation = new DatabaseOperation(CHANGE_ORDER_STATUS);
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(CHANGE_ORDER_STATUS);){
             databaseOperation.beginTransaction();
             databaseOperation.setParameter(TableColumn.ORDER_US_LOGIN, user.getLogin());
             databaseOperation.setParameter(TableColumn.ORDER_LOGIN_VIA, user.getRegistrationType().toString().toLowerCase());
@@ -145,13 +143,6 @@ public class DatabaseOrderDAO implements OrderDAO {
                 throw new EntityNotFoundException("Order with id="+orderId+" was not found");
             }
         } catch (SQLException | ParameterNotFoundException | ConnectionPoolException e) {
-            if(databaseOperation!=null){
-                try {
-                    databaseOperation.close();
-                } catch (SQLException e1) {
-                    throw new DaoException("Can not cancel order with id="+orderId, e);
-                }
-            }
             throw new DaoException("Can not cancel order with id="+orderId, e);
         }
     }
