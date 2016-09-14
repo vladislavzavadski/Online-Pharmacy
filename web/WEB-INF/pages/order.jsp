@@ -48,4 +48,7 @@
         </div>
     </div>
 </c:forEach>
+<c:if test="${orderList.size() eq 0 and param.page eq 1}">
+    <h2>По вашему запросу ничего не найдено</h2>
+</c:if>
 <div id="LoadedContent"></div>

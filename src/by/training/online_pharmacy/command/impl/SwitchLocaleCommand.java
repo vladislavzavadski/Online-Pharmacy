@@ -16,11 +16,15 @@ public class SwitchLocaleCommand implements Command {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession();
         httpSession.setAttribute(Parameter.LANGUAGE, request.getParameter(Parameter.LANGUAGE));
+
         String prevRequest = (String)httpSession.getAttribute(Parameter.PREV_REQUEST);
+
         if(prevRequest==null){
             response.sendRedirect(Page.INDEX);
+
         }else {
             response.sendRedirect(prevRequest);
+
         }
 
     }

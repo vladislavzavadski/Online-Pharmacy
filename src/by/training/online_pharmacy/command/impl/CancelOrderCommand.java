@@ -3,6 +3,7 @@ package by.training.online_pharmacy.command.impl;
 import by.training.online_pharmacy.command.Command;
 import by.training.online_pharmacy.dao.impl.database.Param;
 import by.training.online_pharmacy.domain.user.User;
+import by.training.online_pharmacy.service.InitConnectionService;
 import by.training.online_pharmacy.service.OrderService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
@@ -25,42 +26,43 @@ public class CancelOrderCommand implements Command {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);
         User user;
+
         if(httpSession==null||(user=(User)httpSession.getAttribute(Parameter.USER))==null){
             response.sendRedirect(Page.INDEX);
             return;
         }
+
+        int orderId = Integer.parseInt(request.getParameter(Parameter.ORDER_ID));
+
         JSONObject jsonObject = new JSONObject();
         response.setContentType(Content.JSON);
         ServletOutputStream servletOutputStream = response.getOutputStream();
-        int orderId;
-        try {
-            orderId = Integer.parseInt(request.getParameter(Parameter.ORDER_ID));
-        }
-        catch (NumberFormatException ex){
-            jsonObject.put(Parameter.RESULT, false);
-            jsonObject.put(Parameter.IS_CRITICAL, false);
-            jsonObject.put(Parameter.MESSAGE, ex.getMessage());
-            servletOutputStream.write(jsonObject.toString().getBytes());
-            return;
-        }
+
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         OrderService orderService = serviceFactory.getOrderService();
+
         try {
             orderService.cancelOrder(user, orderId);
             jsonObject.put(Parameter.RESULT, true);
-            servletOutputStream.write(jsonObject.toString().getBytes());
+
         } catch (InvalidParameterException ex) {
             jsonObject.put(Parameter.RESULT, false);
             jsonObject.put(Parameter.IS_CRITICAL, true);
-            jsonObject.put(Parameter.MESSAGE, ex.getMessage());
-            servletOutputStream.write(jsonObject.toString().getBytes());
+            jsonObject.put(Parameter.MESSAGE, "One of the parameters is invalid");
+
         } catch (OrderNotFoundException e) {
             jsonObject.put(Parameter.RESULT, false);
             jsonObject.put(Parameter.IS_CRITICAL, false);
-            jsonObject.put(Parameter.MESSAGE, e.getMessage());
-            servletOutputStream.write(jsonObject.toString().getBytes());
+            jsonObject.put(Parameter.MESSAGE, "Order with id="+orderId+" was not found");
+
+        }
+        finally {
+            InitConnectionService initConnectionService = serviceFactory.getInitConnectionService();
+            initConnectionService.freeConnection();
+
         }
 
+        servletOutputStream.write(jsonObject.toString().getBytes());
 
     }
 }

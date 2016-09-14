@@ -3,6 +3,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="utf-8" %>
 <%@include file="header.jsp"%>
 <jsp:useBean id="messageList" scope="request" class="java.util.ArrayList"/>
+<jsp:useBean id="user" scope="session" class="by.training.online_pharmacy.domain.user.User"/>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -24,6 +25,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
     <![endif]-->
     <script src="../../js/bootstrap.js"></script>
+    <style>
+        #notifies {
+            position:fixed;
+            width:400px;
+            height:auto;
+            top:100px;
+            right:20px;
+        }
+    </style>
     <script>
         $(document).ready(function(){
             var date_input=$('input[class=date]'); //our date input has the name "date"
@@ -58,27 +68,28 @@
 <div id="wrapper">
     <div class="container content">
         <!-- Sidebar -->
-
+        <div id="notifies"></div>
         <div id="sidebar-wrapper">
             <ul class="sidebar-nav">
                 <li class="sidebar-brand">
                     Сообщения:
                 </li>
+                <c:if test="${user.userRole eq 'CLIENT'}">
+                    <li>
+                        <a href="#" class="status" data-status="IN_PROGRESS">В обработке</a>
+                    </li>
+                </c:if>
                 <li>
-                    <a href="#" class="status" data-status="IN_PROGRESS">В обработке</a>
+                    <a href="#" class="status" data-status="NEW">Новые</a>
                 </li>
                 <li>
-                    <a href="#" class="status" data-status="NEW">Новые <span id="message_count">1</span></a>
-                </li>
-                <li>
-                    <a href="#" class="status" data-status="COMPLETED">Прочитанные</a>
+                     <a href="#" class="status" data-status="COMPLETED">Прочитанные</a>
                 </li>
                 <li>
                     <a href="#" class="status" data-status="">Все сообщения</a>
                 </li>
             </ul>
         </div>
-
         <h1 class="display_1">Сообщения</h1>
         <form>
             <nobr>
@@ -166,6 +177,64 @@
                 </div>
             </div>
         </div>
+        <c:if test="${user.userRole eq 'DOCTOR'}">
+            <div class="modal fade" id="response-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display:none;">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header" align="center">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"/>
+                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                        </div>
+                        <form class="form-horizontal" id="resp-form">
+                            <div class="modal-body">
+                                <b>Кому:</b>
+                                <span id="receiver"></span>
+                                <br/>
+
+                                <input name="me_id" type="hidden" id="message_id">
+                                <input type="hidden" name="command" value="ANSWER_MESSAGE">
+                                <label for="response_message">Ответ</label>
+                                <textarea id="response_message" class="form-control" name="rec_message" placeholder="Ответ" required></textarea>
+
+                                </div>
+                            <div class="modal-footer">
+                                <input type="submit" class="btn btn-primary" value="Отправить">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <script>
+                var parent;
+                $('#messages').on('click', '.response-button', function () {
+                    $('#message_id').val($(this).attr('data-message'));
+                    $('#receiver').html($(this).attr('data-receiver'));
+                    parent = $(this).parent();
+                    $('#response_message').val("");
+                });
+                $('#resp-form').submit(function () {
+                    var data = $(this).serialize();
+                    $.ajax({
+                        url:'controller',
+                        type:'POST',
+                        dataType:'json',
+                        data:data,
+                        success:function (data) {
+                            if(data.result==true){
+                                Notify.generate('Сообщение успешно отправлено', 'Готово', 1);
+                                $('#response-modal').modal('toggle');
+                                parent.html($('#response_message').val());
+                            }
+                            else {
+                                Notify.generate('Ошибка при отправке сообщения', 'Ошибка', 3);
+                            }
+                        }
+                    });
+                    return false;
+                });
+
+            </script>
+        </c:if>
         <div class="modal fade" id="contacts-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -230,21 +299,39 @@
                         downloadContent();
                     }
                 });
-                setInterval(function () {
-                    var messageCount = $("#message_count");
-                    $.ajax({
-                        url:'controller',
-                        type:'GET',
-                        dataType:'json',
-                        data:{command:'GET_MESSAGE_COUNT'},
-                        success: function (data) {
-                            if(data.result==true){
-                                messageCount.html(data.count);
-                            }
-                        }
-                    });
-                }, 5000);
             });
         </script>
+        <script>
+            Notify = {
+                TYPE_INFO: 0,
+                TYPE_SUCCESS: 1,
+                TYPE_WARNING: 2,
+                TYPE_DANGER: 3,
+                generate: function (aText, aOptHeader, aOptType_int) {
+                    var lTypeIndexes = [this.TYPE_INFO, this.TYPE_SUCCESS, this.TYPE_WARNING, this.TYPE_DANGER];
+                    var ltypes = ['alert-info', 'alert-success', 'alert-warning', 'alert-danger'];
+                    var ltype = ltypes[this.TYPE_INFO];
+                    if (aOptType_int !== undefined && lTypeIndexes.indexOf(aOptType_int) !== -1) {
+                        ltype = ltypes[aOptType_int];
+                    }
+                    var lText = '';
+                    if (aOptHeader) {
+                        lText += "<h4>"+aOptHeader+"</h4>";
+                    }
+                    lText += "<p>"+aText+"</p>";
+                    var lNotify_e = $("<div class='alert "+ltype+"'><button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>×</span></button>"+lText+"</div>");
+                    setTimeout(function () {
+                        lNotify_e.alert('close');
+                    }, 3000);
+                    lNotify_e.appendTo($("#notifies"));
+                }
+            };
+        </script>
+        <c:if test="${user.userRole eq 'CLIENT' or user.userRole eq 'DOCTOR'}">
+            <script src="js/sendRequest.js"></script>
+        </c:if>
+        <c:if test="${user.userRole eq 'DOCTOR'}">
+            <script src="js/requestsForPrescription.js"></script>
+        </c:if>
 </body>
 </html>

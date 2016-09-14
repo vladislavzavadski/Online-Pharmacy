@@ -9,12 +9,19 @@ import java.io.IOException;
  */
 public interface Api {
     void authorization(String code) throws IOException;
+
     String getFirstName();
+
     String getSecondName();
+
     String getEmail();
+
     String getId();
+
     String getImage();
+
     Gender getGender();
+
     default String getPhone(){
         return null;
     }

@@ -9,5 +9,4 @@ import by.training.online_pharmacy.domain.user.User;
  */
 public interface SecretWordDao {
     void createSecretWord(SecretWord secretWord) throws DaoException;
-    SecretWord getUsersSecret(User user);
 }

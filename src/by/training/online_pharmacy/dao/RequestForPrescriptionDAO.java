@@ -2,13 +2,10 @@ package by.training.online_pharmacy.dao;
 
 
 import by.training.online_pharmacy.dao.exception.DaoException;
-import by.training.online_pharmacy.domain.Period;
 import by.training.online_pharmacy.domain.prescription.RequestForPrescription;
 import by.training.online_pharmacy.domain.prescription.RequestForPrescriptionCriteria;
-import by.training.online_pharmacy.domain.prescription.RequestStatus;
 import by.training.online_pharmacy.domain.user.User;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -16,7 +13,11 @@ import java.util.List;
  */
 public interface RequestForPrescriptionDAO {
 
+    int getInProgressRequestsCount(User user) throws DaoException;
+
     void insertRequest(RequestForPrescription requestForPrescription) throws DaoException;
+
+    void updateRequestForPrescription(RequestForPrescription requestForPrescription) throws DaoException;
 
     List<RequestForPrescription> getDoctorsRequest(User user, RequestForPrescriptionCriteria criteria, int limit, int startFrom) throws DaoException;
 

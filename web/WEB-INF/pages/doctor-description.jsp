@@ -1,16 +1,16 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="utf-8" %>
 <%@include file="header.jsp"%>
-<jsp:useBean id="user" scope="request" class="by.training.online_pharmacy.domain.user.User"/>
+<jsp:useBean id="doctor" scope="request" class="by.training.online_pharmacy.domain.user.User"/>
 <!DOCTYPE html>
 <html lang="ru">
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>${user.secondName} ${user.firstName}</title>
+        <title>${doctor.secondName} ${doctor.firstName}</title>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet">
         <script src="js/bootstrap-datetimepicker.min.js"></script>
@@ -42,24 +42,24 @@
             <div class="container" style="background:white;">
                 <div class="row">
                     <div class="col-lg-6">
-                        <h1>${user.secondName} ${user.firstName}</h1>
-                        <img src="/controller?command=GET_USER_IMAGE&login=${user.login}&register_type=${user.registrationType}" alt="Фото доктора" width="220" height="250"/>
+                        <h1>${doctor.secondName} ${doctor.firstName}</h1>
+                        <img src="/controller?command=GET_USER_IMAGE&login=${doctor.login}&register_type=${doctor.registrationType}" alt="Фото доктора" width="220" height="250"/>
                     </div>
                     <div class="col-lg-6" style="padding-top:30px;">
                             <b>Специализация:</b>&nbsp;
-                            <span>${user.userDescription.specialization}</span>
+                            <span>${doctor.userDescription.specialization}</span>
                             <br/>
                             <b>Телефон:</b>&nbsp;
-                            <span>${user.phone}</span>
+                            <span>${doctor.phone}</span>
                             <br/>
                             <b>Пол:</b>&nbsp;
                         <c:choose>
-                            <c:when test="${user.gender eq 'MALE'}">
+                            <c:when test="${doctor.gender eq 'MALE'}">
                                 <span>Мужчина</span>
                             </c:when>
                             <c:otherwise>
                                 <c:choose>
-                                    <c:when test="${user.gender eq 'FEMALE'}">
+                                    <c:when test="${doctor.gender eq 'FEMALE'}">
                                         <span>Женщина</span>
                                     </c:when>
                                     <c:otherwise>
@@ -70,11 +70,11 @@
                         </c:choose>
                             <br/>
                             <b>e-mail</b>&nbsp;
-                            <span><a href="mailto:${user.mail}">${user.mail}</a></span>
+                            <span><a href="mailto:${doctor.mail}">${doctor.mail}</a></span>
                             <br/>
                             <b>Описание:</b>
                             <p align="justify" style="height:200px; overflow:auto">
-                                ${user.userDescription.description}
+                                ${doctor.userDescription.description}
                             </p>
 
                     </div>
@@ -108,7 +108,7 @@
                             url: 'controller',
                             dataType: 'json',
                             type: 'POST',
-                            data: {command:'SEND_MESSAGE', message:comment, receiver_login:'${user.login}', receiver_login_via: '${user.registrationType}'},
+                            data: {command:'SEND_MESSAGE', message:comment, receiver_login:'${doctor.login}', receiver_login_via: '${doctor.registrationType}'},
                             success:function (data) {
                                 if(data.result){
                                     Notify.generate('Ваше сообщение успешно отправлено', 'Успешно!', 1);
@@ -205,4 +205,10 @@
             }
         };
     </script>
+    <c:if test="${doctor.userRole eq 'CLIENT' or doctor.userRole eq 'DOCTOR'}">
+        <script src="js/sendRequest.js"></script>
+    </c:if>
+    <c:if test="${doctor.userRole eq 'DOCTOR'}">
+        <script src="js/requestsForPrescription.js"></script>
+    </c:if>
 </html>

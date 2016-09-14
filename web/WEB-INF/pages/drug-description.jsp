@@ -2,8 +2,12 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@include file="header.jsp"%>
+<jsp:useBean id="user" scope="session" class="by.training.online_pharmacy.domain.user.User"/>
 <jsp:useBean id="drug" scope="request" class="by.training.online_pharmacy.domain.drug.Drug"/>
-<jsp:useBean id="prescriptionExist" scope="request" type="java.lang.Boolean" />
+<jsp:useBean id="prescriptionExist" scope="request" type="java.lang.Boolean"/>
+<c:if test="${user.userRole eq 'CLIENT' and drug.prescriptionEnable}">
+    <jsp:useBean id="prescription" scope="request" type="by.training.online_pharmacy.domain.prescription.Prescription"/>
+</c:if>
 <!DOCTYPE html>
 <html lang="ru">
     <head>
@@ -37,7 +41,7 @@
                     var date_input=$('input[name="date"]'); //our date input has the name "date"
                     var container=$('.bootstrap-iso form').length>0 ? $('.bootstrap-iso form').parent() : "body";
                     date_input.datepicker({
-                        format: 'mm/dd/yyyy',
+                        format: 'yyyy-MM-dd',
                         container: container,
                         todayHighlight: true,
                         autoclose: true,
@@ -48,7 +52,7 @@
         </c:if>
     </head>
     <body>
-    <jsp:useBean id="user" scope="session" class="by.training.online_pharmacy.domain.user.User"/>
+
         <div class="container content">
             <div id="notifies"></div>
             <!-- Sidebar -->
@@ -175,15 +179,22 @@
                      </div>
                      <div class="form_group">    
                         <label for="dosage">Дозировка: </label>
-                        <select id="dosage" class="form-control">
-                            <c:forEach items="${drug.dosages}" var="dosage">
-                                <option value="${dosage}">${dosage}</option>
-                            </c:forEach>
+                         <select id="dosage" class="form-control">
+                         <c:choose>
+                             <c:when test="${drug.prescriptionEnable and prescriptionExist}">
+                                 <option value="${prescription.drugDosage}">${prescription.drugDosage}</option>
+                             </c:when>
+                             <c:otherwise>
+                                 <c:forEach items="${drug.dosages}" var="dosage">
+                                     <option value="${dosage}">${dosage}</option>
+                                 </c:forEach>
+                             </c:otherwise>
+                         </c:choose>
                         </select>
                      </div>
                      <div class="form_group">
                         <label for="drug_count">Количество: </label>     
-                        <input id="drug_count"  class="form-control" type="number" placeholder="Количество" step="1" min="0" max="${drug.drugsInStock}" required>
+                        <input id="drug_count"  class="form-control" type="number" placeholder="Количество" step="1" min="1" max="${prescriptionExist?prescription.drugCount:drug.drugsInStock}" required>
                      </div>
                   </div>
                   <div class="modal-footer">
@@ -246,8 +257,8 @@
                             Notify.generate('Ваш заказ успешно выполнен', 'Завершено', 1);
                             var inStock = parseInt($("#in_stock").html())-count;
                             $("#in_stock").html(inStock);
-                            $("#drug_count").attr("max", inStock);
-                            $("#drug_count").val(0);
+                            $("#drug_count").attr("max", parseInt($("#drug_count").attr('max'))-count);
+                            $("#drug_count").val(1);
 
                         }
                         else {
@@ -325,7 +336,8 @@
                                 </div>
                                 <div class="form_group">
                                     <label for="drug_image">Фото: </label>
-                                    <input class="form-control" type="file" id="drug_image" name="drug_image"/>
+                                    <input class="form-control" type="file" id="drug_image" name="drug_image" accept="image/*"/>
+                                    <span id="mes_img"></span>
                                 </div>
                                 <div class="form_group">
                                     <label for="manufacturer_name">Производитель: </label>
@@ -423,7 +435,14 @@
                 });
                 $('#update_drug_form').submit(function () {
                     var data = new FormData($(this)[0]);
-                    
+                    if($('#drug_image').val()!=""&&!$('#drug_image')[0].files[0].type.contains('image')){
+                        $('#mes_img').html("Файл не является картинкой");
+                        return false;
+                    }
+                    if($('#drug_image').val()!=""&&$('#drug_image')[0].files[0].size>1.342e+9){
+                        $('#mes_img').html("Размер файла слишком велик");
+                        return false;
+                    }
                     $.ajax({
                         url:'controller',
                         type:'POST',
@@ -543,4 +562,10 @@
             }
         };
     </script>
+    <c:if test="${user.userRole eq 'CLIENT' or user.userRole eq 'DOCTOR'}">
+        <script src="js/sendRequest.js"></script>
+    </c:if>
+    <c:if test="${user.userRole eq 'DOCTOR'}">
+        <script src="js/requestsForPrescription.js"></script>
+    </c:if>
 </html>

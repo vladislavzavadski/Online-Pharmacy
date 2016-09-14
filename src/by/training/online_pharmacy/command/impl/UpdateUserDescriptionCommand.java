@@ -1,8 +1,9 @@
 package by.training.online_pharmacy.command.impl;
 
 import by.training.online_pharmacy.command.Command;
+import by.training.online_pharmacy.dao.impl.database.Param;
 import by.training.online_pharmacy.domain.user.User;
-import by.training.online_pharmacy.service.InitConnectionService;
+import by.training.online_pharmacy.domain.user.UserDescription;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.UserService;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
@@ -17,9 +18,9 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 /**
- * Created by vladislav on 04.09.16.
+ * Created by vladislav on 13.09.16.
  */
-public class ReplenishBalanceCommand implements Command {
+public class UpdateUserDescriptionCommand implements Command {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);
@@ -30,8 +31,9 @@ public class ReplenishBalanceCommand implements Command {
             return;
         }
 
-        float payment = Float.parseFloat(request.getParameter(Parameter.PAYMENT));
-        String cardNumber = request.getParameter(Parameter.CARD_NUMBER);
+        UserDescription userDescription = new UserDescription();
+        userDescription.setSpecialization(request.getParameter(Parameter.SPECIALIZATION));
+        userDescription.setDescription(request.getParameter(Parameter.DESCRIPTION));
 
         JSONObject jsonObject = new JSONObject();
         ServletOutputStream servletOutputStream = response.getOutputStream();
@@ -41,7 +43,7 @@ public class ReplenishBalanceCommand implements Command {
         UserService userService = serviceFactory.getUserService();
 
         try {
-            userService.addFunds(user, cardNumber, payment);
+            userService.updateUserDescription(user, userDescription);
             jsonObject.put(Parameter.RESULT, true);
 
         } catch (InvalidParameterException e) {
@@ -50,11 +52,7 @@ public class ReplenishBalanceCommand implements Command {
 
         } catch (InvalidUserStatusException e) {
             jsonObject.put(Parameter.RESULT, false);
-            jsonObject.put(Parameter.MESSAGE, "Invalid user status. Only CLIENT can replenish balance");
-
-        } finally {
-            InitConnectionService initConnectionService = serviceFactory.getInitConnectionService();
-            initConnectionService.freeConnection();
+            jsonObject.put(Parameter.MESSAGE, "Only doctors can update user description");
 
         }
 

@@ -2,7 +2,9 @@ package by.training.online_pharmacy.service;
 
 import by.training.online_pharmacy.domain.prescription.Prescription;
 import by.training.online_pharmacy.domain.user.User;
+import by.training.online_pharmacy.service.exception.InternalServerException;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
+import by.training.online_pharmacy.service.exception.InvalidUserStatusException;
 
 import java.util.List;
 
@@ -11,7 +13,8 @@ import java.util.List;
  */
 public interface PrescriptionService {
 
-    List<Prescription> searchPrescriptions(User user, String drugName, String prescriptionStatus, int limit, int startFrom) throws InvalidParameterException;
+    List<Prescription> searchPrescriptions(User user, String drugName, String prescriptionStatus, int limit, int startFrom) throws InvalidParameterException, InvalidUserStatusException;
 
-    boolean isPrescriptionExist(User user, int drugId) throws InvalidParameterException;
+
+    Prescription getActivePrescription(User user, int drugId) throws InternalServerException, InvalidParameterException;
 }

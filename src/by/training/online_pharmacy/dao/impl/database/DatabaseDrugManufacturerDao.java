@@ -21,69 +21,55 @@ public class DatabaseDrugManufacturerDao implements DrugManufacturerDAO {
     private static final String IS_MANUFACTURE_EXIST = "select dm_name from drugs_manufactures where dm_name=? and dm_country=?;";
 
     @Override
-    public List<DrugManufacturer> getManufacturesByCountry(String country, int limit, int startFrom) throws DaoException {
-        return null;
-    }
-
-    @Override
     public boolean isManufactureExist(DrugManufacturer drugManufacturer) throws DaoException {
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(IS_MANUFACTURE_EXIST)){
             databaseOperation.setParameter(1, drugManufacturer.getName());
             databaseOperation.setParameter(2, drugManufacturer.getCountry());
             ResultSet resultSet = databaseOperation.invokeReadOperation();
+
             return resultSet.next();
+
         } catch (SQLException | ConnectionPoolException e) {
             throw new DaoException("Can not check is manufacturer exist", e);
+
         }
-    }
-
-    @Override
-    public List<DrugManufacturer> getManufacturesByName(String name, int limit, int startFrom) throws DaoException {
-        return null;
-    }
-
-    @Override
-    public DrugManufacturer getManufacturerById(int manufactureId) throws DaoException {
-        return null;
     }
 
     @Override
     public void insertDrugManufacturer(DrugManufacturer drugManufacturer) throws DaoException {
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_MANUFACTURER_QUERY)){
             databaseOperation.setParameter(1, drugManufacturer.getName());
             databaseOperation.setParameter(2, drugManufacturer.getCountry());
             databaseOperation.setParameter(3, drugManufacturer.getDescription());
+
             databaseOperation.invokeWriteOperation();
         } catch (SQLException | ConnectionPoolException e) {
             throw new DaoException("Can not insert new drug manufacturer", e);
+
         }
-    }
-
-    @Override
-    public void updateManufacturer(DrugManufacturer drugManufacturer) throws DaoException {
-
-    }
-
-    @Override
-    public void deleteManufacturer(int manufacturerId) throws DaoException {
-
     }
 
     @Override
     public List<DrugManufacturer> getDrugManufactures() throws DaoException {
         List<DrugManufacturer> result = new ArrayList<>();
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_MANUFACTURES_NAMES);){
 
             ResultSet resultSet = databaseOperation.invokeReadOperation();
+
             while (resultSet.next()){
                 DrugManufacturer drugManufacturer = new DrugManufacturer();
                 drugManufacturer.setName(resultSet.getString(TableColumn.DRUG_MANUFACTURE_NAME));
                 drugManufacturer.setCountry(resultSet.getString(TableColumn.DRUG_MANUFACTURE_COUNTRY));
                 result.add(drugManufacturer);
             }
+
             return result;
         } catch (SQLException | ConnectionPoolException e) {
             throw new DaoException("Can not load drug manufactures from database", e);
+
         }
     }
 }

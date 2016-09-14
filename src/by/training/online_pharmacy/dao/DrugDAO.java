@@ -17,6 +17,8 @@ import java.util.List;
 public interface DrugDAO {
     void reduceDrugCountByReestablishedOrder(User user, int orderId) throws DaoException;
 
+    void reduceDrugCountByNewOrder(int drugCount, int drugId) throws DaoException;
+
     InputStream getDrugImage(int drugId) throws DaoException, FileNotFoundException;
 
     Drug getDrugById(int drugId) throws DaoException;
@@ -31,10 +33,15 @@ public interface DrugDAO {
     List<Drug> searchDrugs(String query, int limit, int startFrom) throws DaoException;
 
     List<Drug> getAllDrugs(int limit, int startFrom) throws DaoException;
-    List<Drug> getDrugsByName(String name, int limit, int startFrom) throws DaoException;
+
+
     List<Drug> getDrugsByClass(String drugClass, int limit, int startFrom) throws DaoException;
-    List<Drug> getDrugsByActiveSubstance(String activeSubstance, int limit, int startFrom) throws DaoException;
+
     void insertDrug(Drug drug) throws DaoException;
+
     void updateDrug(Drug drug) throws DaoException;
+
     void deleteDrug(int drugId) throws DaoException;
+
+    int getDrugCountInStock(int drugId) throws DaoException;
 }

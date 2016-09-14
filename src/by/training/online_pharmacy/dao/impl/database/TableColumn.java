@@ -90,5 +90,13 @@ public class TableColumn {
     public static final String REQUEST_CLIENT_LOGIN_VIA = "re_user_login_via";
     public static final String REQUEST_CLIENT_FIRST_NAME = "cli_first_name";
     public static final String REQUEST_CLIENT_SECOND_NAME = "cli_second_name";
-
+    public static final String REQUEST_COUNT = "re_count";
+    public static final String DOC_FIRST_NAME = "doc_first_name";
+    public static final String DOC_SECOND_NAME = "doc_second_name";
+    public static final String DOC_LOGIN = "doc_login";
+    public static final String DOC_LOGIN_VIA = "doc_login_via";
+    public static final String CLIENT_LOGIN = "cli_login";
+    public static final String CLIENT_LOGIN_VIA = "cli_login_via";
+    public static final String CLIENT_FIRST_NAME = "cli_first_name";
+    public static final String CLIENT_SECOND_NAME = "cli_second_name";
 }

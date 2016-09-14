@@ -8,6 +8,7 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@include file="header.jsp"%>
+<jsp:useBean id="user" scope="session" class="by.training.online_pharmacy.domain.user.User"/>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -28,38 +29,57 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
     <![endif]-->
     <script src="js/bootstrap.js"></script>
+    <style>
+        #notifies {
+            position:fixed;
+            width:400px;
+            height:auto;
+            top:100px;
+            right:20px;
+        }
+    </style>
     <script>
         $(document).ready(function(){
-            var date_input=$('input[class=date]'); //our date input has the name "date"
+            var date_input=$('input[data-type=date]'); //our date input has the name "date"
             var container=$('.bootstrap-iso form').length>0 ? $('.bootstrap-iso form').parent() : "body";
             date_input.datepicker({
-                format: 'mm/dd/yyyy',
+                maxDate: 'now',
+                format: 'yyyy-mm-dd',
                 container: container,
                 todayHighlight: true,
                 autoclose: true,
-                disableEntry: true,
+                disableEntry: true
             }).on('changeDate', function () {
-                if($(this).attr("id")=='from_date'){
-                    if($("#to_date").val()!=""){
-                        if(new Date($(this).val())>new Date($('#to_date').val())){
-                            $(this).val("");
+                if($(this).attr('id')!='exp_date') {
+                    if ($(this).attr("id") == 'from_date') {
+                        if ($("#to_date").val() != "") {
+                            if (new Date($(this).val()) > new Date($('#to_date').val())) {
+                                $(this).val("");
+                            }
+                        }
+                    }
+                    else {
+                        if ($("#from_date").val() != "") {
+                            if (new Date($(this).val()) < new Date($("#from_date").val())) {
+                                $(this).val("");
+                            }
                         }
                     }
                 }
                 else {
-                    if($("#from_date").val()!=""){
-                        if(new Date($(this).val())<new Date($("#from_date").val())){
-                            $(this).val("");
-                        }
+                    if(new Date()>new Date($(this).val())){
+                        $(this).val("");
                     }
                 }
-            })
+
+            });
         });
     </script>
     <jsp:useBean id="requests" scope="request" class="java.util.ArrayList"/>
 </head>
 <body>
     <div class="container content">
+        <div id="notifies"></div>
         <h1 class="display_1">Запросы</h1>
         <form id="req_form">
             <nobr>
@@ -67,9 +87,9 @@
             <input id="drug_name" type="text" name="drug_name">
 
                 <label for="from_date">Заказано с:</label>
-                <input class="date" id="from_date" type="text" name="date_from">
+                <input class="date" id="from_date" type="text" name="date_from" data-type="date">
                 <label for="to_date">Заказано до:</label>
-                <input class="date" id="to_date" type="text" name="date_to">
+                <input class="date" id="to_date" type="text" name="date_to" data-type="date">
             </nobr>
                 <label for="pr_status">Статус запроса</label>
                 <select id="pr_status" name="status">
@@ -145,6 +165,143 @@
             </div>
         </div>
     </div>
+    <c:if test="${user.userRole eq 'DOCTOR'}">
+        <div class="modal fade" id="confirm-request" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header" align="center">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"/>
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                    </div>
+                    <form id="confirm_request" class="form-horizontal" method="post" action="/controller">
+                    <div class="modal-body">
+                            <input type="hidden" name="command" value="ANSWER_FOR_REQUEST">
+                            <input type="hidden" name="status" value="CONFIRMED">
+                            <input id="re_id" type="hidden" name="request_id" >
+                        <div class="form-group">
+                            <label for="drug_count">Количество:</label>
+                            <input placeholder="Количество" class="form-control" id="drug_count" type="number" min="1" max="15" step="1" name="drug_count" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="drug_dosage">Дозировка:</label>
+                            <select id="drug_dosage" name="drug_dosage" class="form-control" required>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="exp_date">Дата окончания:</label>
+                            <input placeholder="Дата" id="exp_date" type="text" class="form-control" data-type="date" name="exp_date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="doc_comment">Комментарий</label>
+                            <textarea id="doc_comment" class="form-control" name="doc_comment" placeholder="Комментарий"></textarea>
+                        </div>
+                    </div>
+                        <div class="modal-footer">
+                            <input class="btn btn-block btn-primary btn-default" type="submit" value="Отправить">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="denied-request" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header" align="center">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"/>
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                    </div>
+                    <form id="denied_request">
+                        <input type="hidden" name="command" value="ANSWER_FOR_REQUEST">
+                        <input type="hidden" name="status" value="DENIED">
+                        <input id="req_id" type="hidden" name="request_id" >
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="resp_comment">Комментарий</label>
+                               <textarea id="resp_comment" name="doc_comment" class="form-control" placeholder="Комментарий"></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <input class="btn btn-block btn-primary btn-default" type="submit" value="Отправить">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script>
+            var parent;
+            $('#requests').on('click', '.submit-request', function () {
+                if($(this).attr('data-type')=='confirmed') {
+                    var dosages = $(this).attr('data-dosages');
+                    var array = dosages.split(' ');
+                    var select = "";
+                    for (var i = 0; i < array.length; i++) {
+                        if (array[i] != "") {
+                            select += "<option value=\"" + array[i] + "\"" + ">" + array[i] + "</option>";
+                        }
+                    }
+                    $('#exp_date').val($(this).attr('data-exp'));
+                    $('#drug_dosage').html(select);
+                    $('#re_id').val($(this).attr('data-id'));
+                    $('#doc_comment').val("");
+                    $('#drug_count').val("");
+                }
+                else {
+                    $('#req_id').val($(this).attr('data-id'));
+                    $('#resp_comment').val("");
+                }
+                parent = $(this).parent();
+            });
+
+            $('#denied_request').submit(function () {
+                var data = $(this).serialize();
+                $.ajax({
+                    url:'controller',
+                    type:'POST',
+                    dataType:'json',
+                    data:data,
+                    success:function (data) {
+                        $('#denied-request').modal('toggle');
+                        if(data.result==true){
+                            Notify.generate('Ответ успешно отправлен', 'Готово', 1);
+                            parent.html("<span style='color: red'>Запрос отклонен!</span>");
+                        }
+                        else {
+                            Notify.generate('Ошибка при отправке ответа', 'Ошибка', 2);
+                        }
+                    },
+                    error:function () {
+                        $('#confirm-request').modal('toggle');
+                        Notify.generate('Критическая ошибка сервера', 'Ошибка', 3);
+                    }
+                });
+                return false;
+            });
+            $('#confirm_request').submit(function () {
+                var data = $(this).serialize();
+                $.ajax({
+                    url:'controller',
+                    type:'POST',
+                    dataType:'json',
+                    data:data,
+                    success:function (data) {
+                        $('#confirm-request').modal('toggle');
+                        if(data.result==true){
+                            Notify.generate('Ответ успешно отправлен', 'Готово', 1);
+                            parent.html("<span style='color: green'>Запрос одобрен!</span>");
+                        }
+                        else {
+                            Notify.generate('Ошибка при отправке ответа', 'Ошибка', 2);
+                        }
+                    },
+                    error:function () {
+                        $('#confirm-request').modal('toggle');
+                        Notify.generate('Критическая ошибка сервера', 'Ошибка', 3);
+                    }
+                });
+                return false;
+            });
+        </script>
+    </c:if>
     <div class="modal fade" id="contacts-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -179,4 +336,42 @@
         </div>
     </footer>
 </body>
+<c:if test="${user.userRole eq 'DOCTOR'}">
+<script>
+    Notify = {
+        TYPE_INFO: 0,
+        TYPE_SUCCESS: 1,
+        TYPE_WARNING: 2,
+        TYPE_DANGER: 3,
+
+        generate: function (aText, aOptHeader, aOptType_int) {
+            var lTypeIndexes = [this.TYPE_INFO, this.TYPE_SUCCESS, this.TYPE_WARNING, this.TYPE_DANGER];
+            var ltypes = ['alert-info', 'alert-success', 'alert-warning', 'alert-danger'];
+
+            var ltype = ltypes[this.TYPE_INFO];
+            if (aOptType_int !== undefined && lTypeIndexes.indexOf(aOptType_int) !== -1) {
+                ltype = ltypes[aOptType_int];
+            }
+
+            var lText = '';
+            if (aOptHeader) {
+                lText += "<h4>"+aOptHeader+"</h4>";
+            }
+            lText += "<p>"+aText+"</p>";
+
+            var lNotify_e = $("<div class='alert "+ltype+"'><button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>×</span></button>"+lText+"</div>");
+            setTimeout(function () {
+                lNotify_e.alert('close');
+            }, 3000);
+            lNotify_e.appendTo($("#notifies"));
+        }
+    };
+</script>
+</c:if>
+<c:if test="${user.userRole eq 'CLIENT' or user.userRole eq 'DOCTOR'}">
+    <script src="js/sendRequest.js"></script>
+</c:if>
+<c:if test="${user.userRole eq 'DOCTOR'}">
+    <script src="js/requestsForPrescription.js"></script>
+</c:if>
 </html>

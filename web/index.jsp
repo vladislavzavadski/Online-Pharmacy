@@ -187,20 +187,20 @@
                      </div>
                      <div class="form_group">    
                         <label for="register_username">Логин: </label>
-                        <input id="register_username" class="form-control" type="text" placeholder="Логин" required name="login" autofocus>
+                        <input id="register_username" class="form-control" type="text" placeholder="Логин" required name="login" maxlength="30" autofocus>
                         <span id="login_message"></span>
                      </div>
                      <div class="form_group">    
                         <label for="register_first_name">Имя: </label>
-                        <input id="register_first_name" class="form-control" type="text" placeholder="Имя" required name="first_name">
+                        <input id="register_first_name" class="form-control" type="text" placeholder="Имя" maxlength="30" required name="first_name">
                      </div>
                      <div class="form_group">    
                         <label for="register_second_name">Фамилия: </label>
-                        <input id="register_second_name" class="form-control" type="text" placeholder="Фамилия" required name="second_name">
+                        <input id="register_second_name" class="form-control" type="text" placeholder="Фамилия" required maxlength="30" name="second_name">
                      </div>
                      <div class="form_group">
                         <label for="register_email">E-mail: </label>     
-                        <input id="register_email" class="form-control" type="email" placeholder="E-Mail" required name="email">
+                        <input id="register_email" class="form-control" type="email" placeholder="E-Mail" maxlength="45" required name="email">
                      </div>
                   </div>
                   <div class="modal-footer">

@@ -63,7 +63,7 @@
         width: 250px;
     }
 
-    #toggler_call{display: none};
+    #toggler_call{display: none}
 </style>
 </c:if>
 <nav class="navbar navbar-default navbar-fixed-top" style="background:#507ecf">
@@ -89,7 +89,8 @@
         <input type="checkbox" id="toggler_call" />
         <div id="feedback">
             <label for="toggler_call"><div>Расширенный поиск</div></label>
-            <form action="/controller">
+            <form action="/controller" id="ext_search_form">
+                <input type="hidden" name="command" value="EXTENDED_DRUG_SEARCH">
                 <ul>
                     <div class="form-group">
                         <label for="drug_name">Название лекарства</label>
@@ -147,15 +148,25 @@
             </c:if>
 
             <div class="btn-group" style="padding-top:20px;" role="group">
-                <a href="/main.jsp" class="btn btn-lg btn-primary">${myCabinet}</a>
-                <a href="/controller?command=GET_ALL_ORDERS&page=1&overload=true" class="btn btn-lg btn-primary">${myOrders}</a>
-                <a href="/controller?command=GET_PRESCRIPTIONS&page=1&overload=true" class="btn btn-lg btn-primary">${myPrescriptions}</a>
-                <a href="/controller?command=GET_REQUESTS&page=1&overload=true" class="btn btn-lg btn-primary">My requests</a>
-                <a href="/controller?command=OPEN_SETTINGS" class="btn btn-lg btn-primary">${mySettings}</a>
-                <a href="/controller?command=GET_ALL_DRUGS&overload=true&page=1" class="btn btn-lg btn-primary">${drugs}</a>
-                <a href="/controller?command=GET_ALL_DOCTORS&overload=true&page=1" class="btn btn-lg btn-primary">${doctors}</a>
-                <a href="/controller?command=GET_ALL_MESSAGES&page=1&overload=true" class="btn btn-lg btn-primary">Messages</a>
-                <a href="/controller?command=LOG_OUT" class="btn btn-lg btn-primary">${logOut}</a>
+                <a href="/main.jsp" class="btn btn-default btn-primary">${myCabinet}</a>
+                <c:if test="${user.userRole eq 'CLIENT'}">
+                    <a href="/controller?command=GET_ALL_ORDERS&page=1&overload=true" class="btn btn-default btn-primary">${myOrders}</a>
+                </c:if>
+                <c:if test="${user.userRole eq 'CLIENT' or user.userRole eq 'DOCTOR'}">
+                    <a href="/controller?command=GET_PRESCRIPTIONS&page=1&overload=true" class="btn btn-default btn-primary">${myPrescriptions}</a>
+                    <a href="/controller?command=GET_REQUESTS&page=1&overload=true" class="btn btn-default btn-primary">My requests
+                        <c:if test="${user.userRole eq 'DOCTOR'}">
+                            <jsp:useBean id="request_count" scope="session" type="java.lang.Integer"/>
+                            <span id="req_count" class="badge">${request_count}</span>
+                        </c:if>
+                    </a>
+                    <jsp:useBean id="count" scope="session" type="java.lang.Integer"/>
+                    <a href="/controller?command=GET_ALL_MESSAGES&page=1&overload=true" class="btn btn-default btn-primary">Messages <span id="mes_count" class="badge">${count}</span></a>
+                </c:if>
+                <a href="/controller?command=OPEN_SETTINGS" class="btn btn-default btn-primary">${mySettings}</a>
+                <a href="/controller?command=GET_ALL_DRUGS&overload=true&page=1" class="btn btn-default btn-primary">${drugs}</a>
+                <a href="/controller?command=GET_ALL_DOCTORS&overload=true&page=1" class="btn btn-default btn-primary">${doctors}</a>
+                <a href="/controller?command=LOG_OUT" class="btn btn-default btn-primary">${logOut}</a>
             </div>
 
             <a href="controller?command=SWITCH_LOCALE&language=en"><img src="images/united-kingdom-flag_9815.png" alt="english"></a>

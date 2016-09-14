@@ -46,9 +46,12 @@ public class DatabaseDrugDAO implements DrugDAO {
     private static final String INSERT_DRUG_QUERY = "insert into drugs (dr_name, dr_price, dr_image, dr_prescription_enable, dr_description, dr_man_name, dr_man_country, dr_in_stock, dr_class, dr_type, dr_dosage, dr_active_substance, doctor_specialization) values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
     private static final String UPDATE_DRUG_QUERY = "update drugs set dr_name=?, dr_price=?,  dr_prescription_enable=?, dr_description=?, dr_in_stock=?, dr_class=?, dr_type=?, dr_dosage=?, dr_active_substance=?, doctor_specialization=?, dr_man_name=?, dr_man_country=?  where dr_id=?;";
     private static final String DELETE_DRUG_QUERY = "delete from drugs where dr_id=?;";
+    private static final String REDUCE_DRUG_COUNT_BY_NEW_ORDER = "update drugs set dr_in_stock=dr_in_stock-? where dr_id=?;";
+    private static final String GET_DRUG_COUNT_IN_STOCK_QUERY = "select dr_in_stock from drugs where dr_id=?;";
 
     @Override
     public void reduceDrugCountByReestablishedOrder(User user, int orderId) throws DaoException {
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(REDUCE_DRUG_COUNT_BY_ORDER_QUERY)){
             databaseOperation.setParameter(1, orderId);
             databaseOperation.setParameter(2, orderId);
@@ -56,132 +59,185 @@ public class DatabaseDrugDAO implements DrugDAO {
             databaseOperation.setParameter(4, user.getRegistrationType().toString().toLowerCase());
             databaseOperation.invokeWriteOperation();
             databaseOperation.endTransaction();
+
         } catch (SQLException | ConnectionPoolException e) {
             throw new DaoException("Can not update drug count by canceled query with id="+orderId, e);
+
+        }
+    }
+
+    @Override
+    public void reduceDrugCountByNewOrder(int drugCount, int drugId) throws DaoException {
+
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(REDUCE_DRUG_COUNT_BY_NEW_ORDER)){
+            databaseOperation.setParameter(1, drugCount);
+            databaseOperation.setParameter(2, drugId);
+            databaseOperation.invokeWriteOperation();
+
+            databaseOperation.endTransaction();
+
+        } catch (SQLException | ConnectionPoolException e) {
+            throw new DaoException("Can not reduce drug count", e);
+
         }
     }
 
     @Override
     public InputStream getDrugImage(int drugId) throws DaoException, FileNotFoundException {
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_DRUG_IMAGE_QUERY)){
             databaseOperation.setParameter(TableColumn.DRUG_ID, drugId);
             ResultSet resultSet = databaseOperation.invokeReadOperation();
+
             if(resultSet.next()){
                 String pathToImage = resultSet.getString(TableColumn.DRUG_IMAGE);
+
                 if(pathToImage!=null){
                     return new FileInputStream(pathToImage);
                 }
+
             }
+
             return null;
         } catch (SQLException | ConnectionPoolException | ParameterNotFoundException e) {
             throw new DaoException("Can not load image from database for drug="+drugId, e);
+
         }
     }
 
     @Override
     public Drug getDrugById(int drugId) throws DaoException {
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_DRUGS_BY_ID_QUERY);){
 
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_DRUGS_BY_ID_QUERY);){
             databaseOperation.setParameter(TableColumn.DRUG_ID, drugId);
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             List<Drug> result = resultSetToDrug(resultSet);
+
             if(!result.isEmpty()){
                 return result.get(0);
             }
+
             return null;
         } catch (SQLException | ParameterNotFoundException | ConnectionPoolException e) {
             throw new DaoException("Something went wrong when trying to get drug by id", e);
+
         }
     }
 
     @Override
     public List<Drug> extendedSearching(SearchDrugsCriteria searchDrugsCriteria, int startFrom, int limit) throws DaoException {
         List<String> criteria = new ArrayList<>();
+
         if(searchDrugsCriteria.getName()!=null&&!searchDrugsCriteria.getName().isEmpty()){
             criteria.add(DRUG_NAME);
         }
+
         if(searchDrugsCriteria.getActiveSubstance()!=null&&!searchDrugsCriteria.getActiveSubstance().isEmpty()){
             criteria.add(ACTIVE_SUBSTANCE);
         }
+
         if(searchDrugsCriteria.getDrugMaxPrice()!=null&&!searchDrugsCriteria.getDrugMaxPrice().isEmpty()){
             criteria.add(DRUG_PRICE);
         }
+
         if(searchDrugsCriteria.getDrugClass()!=null&&!searchDrugsCriteria.getDrugClass().isEmpty()){
             criteria.add(DRUG_CLASS);
         }
+
         if(searchDrugsCriteria.getDrugManufacture()!=null&&!searchDrugsCriteria.getDrugManufacture().isEmpty()){
             criteria.add(DRUG_MANUFACTURER);
         }
+
         if(searchDrugsCriteria.getOnlyInStock()!=null&&!searchDrugsCriteria.getOnlyInStock().isEmpty()&&Boolean.parseBoolean(searchDrugsCriteria.getOnlyInStock())){
             criteria.add(IN_STOCK);
         }
+
         if(searchDrugsCriteria.getPrescriptionEnable()!=null&&!searchDrugsCriteria.getPrescriptionEnable().isEmpty()){
             criteria.add(PRESCRIPTION_ENABLE);
         }
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(EXTENDED_DRUGS_SEARCH_QUERY_PREFIX+String.join(Param.AND, criteria)+EXTENDED_DRUG_SEARCH_TAIL)){
             int paramNumber = 1;
+
             if(searchDrugsCriteria.getName()!=null&&!searchDrugsCriteria.getName().isEmpty()){
                 databaseOperation.setParameter(paramNumber++, Param.PER_CENT+searchDrugsCriteria.getName()+Param.PER_CENT);
             }
+
             if(searchDrugsCriteria.getActiveSubstance()!=null&&!searchDrugsCriteria.getActiveSubstance().isEmpty()){
                 databaseOperation.setParameter(paramNumber++, Param.PER_CENT+searchDrugsCriteria.getActiveSubstance()+Param.PER_CENT);
             }
+
             if(searchDrugsCriteria.getDrugMaxPrice()!=null&&!searchDrugsCriteria.getDrugMaxPrice().isEmpty()){
                 databaseOperation.setParameter(paramNumber++, Double.parseDouble(searchDrugsCriteria.getDrugMaxPrice()));
             }
+
             if(searchDrugsCriteria.getDrugClass()!=null&&!searchDrugsCriteria.getDrugClass().isEmpty()){
                 databaseOperation.setParameter(paramNumber++, searchDrugsCriteria.getDrugClass());
             }
+
             if(searchDrugsCriteria.getDrugManufacture()!=null&&!searchDrugsCriteria.getDrugManufacture().isEmpty()){
                 String[] manufacture = searchDrugsCriteria.getDrugManufacture().split(Param.COMMA);
                 databaseOperation.setParameter(paramNumber++, manufacture[0]);
                 databaseOperation.setParameter(paramNumber++, manufacture[1]);
             }
+
             if(searchDrugsCriteria.getPrescriptionEnable()!=null&&!searchDrugsCriteria.getPrescriptionEnable().isEmpty()){
                 databaseOperation.setParameter(paramNumber++, Boolean.parseBoolean(searchDrugsCriteria.getPrescriptionEnable()));
             }
+
             databaseOperation.setParameter(paramNumber++, startFrom);
             databaseOperation.setParameter(paramNumber, limit);
             ResultSet resultSet = databaseOperation.invokeReadOperation();
+
             return resultSetToDomainOnSearch(resultSet);
         } catch (SQLException | ConnectionPoolException e) {
             throw new DaoException("Can not load drugs with extended searching form database", e);
+
         }
     }
 
     @Override
     public boolean isPrescriptionEnable(int drugId) throws DaoException {
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(IS_PRESCRIPTION_ENABLE_QUERY)){
             databaseOperation.beginTransaction();
             databaseOperation.setParameter(TableColumn.DRUG_ID, drugId);
             ResultSet resultSet = databaseOperation.invokeReadOperation();
+
             if(resultSet.next()){
                 return resultSet.getBoolean(TableColumn.DRUG_PRESCRIPTION_ENABLE);
             }
+
             throw new EntityDeletedException("Drug with id="+drugId+" was not found", false);
         } catch (ConnectionPoolException | ParameterNotFoundException | SQLException e) {
             throw new DaoException("Can not select prescription enable from database", e);
+
         }
     }
 
     @Override
     public boolean isPrescriptionEnableByOrder(int orderId) throws DaoException {
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(IS_PRESCRIPTION_ENABLE_BY_ORDER);){
 
             databaseOperation.setParameter(1, orderId);
             ResultSet resultSet = databaseOperation.invokeReadOperation();
+
             if (resultSet.next()) {
                 return resultSet.getBoolean(TableColumn.DRUG_PRESCRIPTION_ENABLE);
             }
+
             throw new EntityDeletedException("Order with id=" + orderId + " was not found", false);
         } catch (ConnectionPoolException | SQLException e) {
             throw new DaoException("Can not select prescription enable from database", e);
+
         }
     }
 
 
     @Override
     public void updateDrugCountByCanceledOrder(User user, int orderId) throws DaoException {
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(INCREASE_DRUG_COUNT_BY_ORDER_QUERY)){
             databaseOperation.setParameter(1, orderId);
             databaseOperation.setParameter(2, orderId);
@@ -189,13 +245,16 @@ public class DatabaseDrugDAO implements DrugDAO {
             databaseOperation.setParameter(4, user.getRegistrationType().toString().toLowerCase());
             databaseOperation.invokeWriteOperation();
             databaseOperation.endTransaction();
+
         } catch (SQLException | ConnectionPoolException e) {
             throw new DaoException("Can not update drug count by canceled query with id="+orderId, e);
+
         }
     }
 
     @Override
     public List<Drug> searchDrugs(String query, int limit, int startFrom) throws DaoException {
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(SEARCH_DRUGS_QUERY)){
             databaseOperation.setParameter(TableColumn.DRUG_NAME, Param.PER_CENT+query+Param.PER_CENT);
             databaseOperation.setParameter(TableColumn.DRUG_ACTIVE_SUBSTANCE, Param.PER_CENT+query+Param.PER_CENT);
@@ -203,34 +262,37 @@ public class DatabaseDrugDAO implements DrugDAO {
             databaseOperation.setParameter(TableColumn.LIMIT, 1, startFrom);
             databaseOperation.setParameter(TableColumn.LIMIT, 2, limit);
             ResultSet resultSet = databaseOperation.invokeReadOperation();
+
             return resultSetToDomainOnSearch(resultSet);
+
         } catch (ConnectionPoolException | SQLException | ParameterNotFoundException e) {
             throw new DaoException("Can not find drugs with params "+query);
+
         }
     }
 
     @Override
     public List<Drug> getAllDrugs(int limit, int startFrom) throws DaoException {
         List<Drug> result;
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_ALL_DRUGS_QUERY)){
             databaseOperation.setParameter(TableColumn.LIMIT, 1, startFrom);
             databaseOperation.setParameter(TableColumn.LIMIT, 2, limit);
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             result = resultSetToDomainOnSearch(resultSet);
+
             return result;
+
         } catch (SQLException | ParameterNotFoundException | ConnectionPoolException e) {
             throw new DaoException("Can not get drugs with limit = "+limit+" and startFrom = "+startFrom, e);
-        }
-    }
 
-    @Override
-    public List<Drug> getDrugsByName(String name, int limit, int startFrom) throws DaoException {
-        return null;
+        }
     }
 
     @Override
     public List<Drug> getDrugsByClass(String drugClass, int limit, int startFrom) throws DaoException {
         List<Drug> result;
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_DRUGS_BY_CLASS_QUERY)){
             databaseOperation.setParameter(TableColumn.DR_CLASS_COLUMN, drugClass);
             databaseOperation.setParameter(TableColumn.LIMIT, 1, startFrom);
@@ -238,18 +300,15 @@ public class DatabaseDrugDAO implements DrugDAO {
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             result = resultSetToDomainOnSearch(resultSet);
             return result;
+
         } catch (SQLException | ParameterNotFoundException | ConnectionPoolException e) {
             throw new DaoException("Can not load drugs with class "+drugClass, e);
         }
     }
 
     @Override
-    public List<Drug> getDrugsByActiveSubstance(String activeSubstance, int limit, int startFrom) throws DaoException {
-        return null;
-    }
-
-    @Override
     public void insertDrug(Drug drug) throws DaoException {
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_DRUG_QUERY)){
             databaseOperation.setParameter(1, drug.getName());
             databaseOperation.setParameter(2, drug.getPrice());
@@ -264,17 +323,12 @@ public class DatabaseDrugDAO implements DrugDAO {
             databaseOperation.setParameter(11, String.join(Param.COMMA, ListConverter.toStringList(drug.getDosages())));
             databaseOperation.setParameter(12, drug.getActiveSubstance());
             databaseOperation.setParameter(13, drug.getDoctorSpecialization());
-            databaseOperation.invokeWriteOperation();
-        } catch (SQLException e) {
-            if(e.getErrorCode()==ErrorCode.ERROR_CODE_1452&&e.getMessage().contains(Param.FK_DRUGS_CLASS)){
-                throw new EntityDeletedException("Drug class with name="+drug.getDrugClass().getName()+" was not found", false, e);
-            }
-            else if(e.getErrorCode()==ErrorCode.ERROR_CODE_1452&&e.getMessage().contains(Param.FK_DUGS_MANUFACTURER)){
-                throw new EntityDeletedException("Manufacturer with name="+drug.getDrugManufacturer().getName()+" was not found", false, e);
-            }
 
-        } catch (ConnectionPoolException e){
+            databaseOperation.invokeWriteOperation();
+
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DaoException("Can not insert new drug in database", e);
+
         }
     }
 
@@ -282,6 +336,7 @@ public class DatabaseDrugDAO implements DrugDAO {
 
     @Override
     public void updateDrug(Drug drug) throws DaoException {
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(UPDATE_DRUG_QUERY);){
 
             databaseOperation.setParameter(1, drug.getName());
@@ -297,33 +352,54 @@ public class DatabaseDrugDAO implements DrugDAO {
             databaseOperation.setParameter(11, drug.getDrugManufacturer().getName());
             databaseOperation.setParameter(12, drug.getDrugManufacturer().getCountry());
             databaseOperation.setParameter(13, drug.getId());
+
             if(databaseOperation.invokeWriteOperation()==0){
                 throw new EntityNotFoundException("Drug with id="+drug.getId()+" was not found");
             }
-        } catch (SQLException e) {
-            if(e.getErrorCode()==ErrorCode.ERROR_CODE_1452&&e.getMessage().contains(Param.FK_DRUGS_CLASS)){
-                throw new EntityDeletedException("Drug class with name="+drug.getDrugClass().getName()+" was not found", false, e);
-            }
-            else if(e.getErrorCode()==ErrorCode.ERROR_CODE_1452&&e.getMessage().contains(Param.FK_DUGS_MANUFACTURER)){
-                throw new EntityDeletedException("Manufacturer with name="+drug.getDrugManufacturer().getName()+" was not found", false, e);
-            }
-        } catch (ConnectionPoolException e) {
+
+        } catch (ConnectionPoolException|SQLException e) {
             throw new DaoException("Can not update drug", e);
+
         }
     }
 
     @Override
     public void deleteDrug(int drugId) throws DaoException {
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(DELETE_DRUG_QUERY);){
             databaseOperation.setParameter(1, drugId);
             databaseOperation.invokeWriteOperation();
+
         } catch (ConnectionPoolException | SQLException e) {
             throw new DaoException("Can not delete drug with id="+drugId, e);
+
+        }
+    }
+
+    @Override
+    public int getDrugCountInStock(int drugId) throws DaoException {
+
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_DRUG_COUNT_IN_STOCK_QUERY)){
+
+            databaseOperation.beginTransaction();
+            databaseOperation.setParameter(1, drugId);
+            ResultSet resultSet = databaseOperation.invokeReadOperation();
+
+            if(resultSet.next()){
+                return resultSet.getInt(TableColumn.DRUG_IN_STOCK);
+            }
+
+            throw new EntityNotFoundException("Drug with id="+drugId+" was not found");
+
+        } catch (SQLException | ConnectionPoolException e) {
+            throw new DaoException("Can not get drug count in stock", e);
+
         }
     }
 
     private List<Drug> resultSetToDomainOnSearch(ResultSet resultSet) throws SQLException {
         List<Drug> result = new ArrayList<>();
+
         while (resultSet.next()) {
             Drug drug = new Drug();
             DrugClass drugClass = new DrugClass();
@@ -337,15 +413,19 @@ public class DatabaseDrugDAO implements DrugDAO {
             drug.setPrice(resultSet.getFloat(TableColumn.DRUG_PRICE));
             result.add(drug);
         }
+
         return result;
     }
 
+
     private List<Drug> resultSetToDrug(ResultSet resultSet) throws SQLException {
         List<Drug> result = new ArrayList<>();
+
         while (resultSet.next()) {
             Drug drug = new Drug();
             DrugManufacturer drugManufacturer = new DrugManufacturer();
             DrugClass drugClass = new DrugClass();
+
             drug.setDrugManufacturer(drugManufacturer);
             drug.setDrugClass(drugClass);
             drug.setId(resultSet.getInt(TableColumn.DRUG_ID));
@@ -358,17 +438,22 @@ public class DatabaseDrugDAO implements DrugDAO {
             drug.setDrugsInStock(resultSet.getInt(TableColumn.DRUG_IN_STOCK));
             drug.setInStock(drug.getDrugsInStock()>0);
             drug.setType(DrugType.valueOf(resultSet.getString(TableColumn.DRUG_TYPE).toUpperCase()));
-            String[] dosages = resultSet.getString(TableColumn.DRUG_DOSAGE).split(",");
-            for (String dosage : dosages) {
-                drug.getDosages().add(Integer.parseInt(dosage));
-            }
+
             drugManufacturer.setName(resultSet.getString(TableColumn.DRUG_MANUFACTURE_NAME));
             drugManufacturer.setDescription(resultSet.getString(TableColumn.DRUG_MANUFACTURE_DESCRIPTION));
             drugManufacturer.setCountry(resultSet.getString(TableColumn.DRUG_MANUFACTURE_COUNTRY));
             drugClass.setName(resultSet.getString(TableColumn.DRUG_CLASS_NAME));
             drugClass.setDescription(resultSet.getString(TableColumn.DRUG_CLASS_DESCRIPTION));
+
+            String[] dosages = resultSet.getString(TableColumn.DRUG_DOSAGE).split(Param.COMMA);
+
+            for (String dosage : dosages) {
+                drug.getDosages().add(Integer.parseInt(dosage));
+            }
+
             result.add(drug);
         }
+
         return result;
 
     }

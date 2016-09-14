@@ -13,47 +13,60 @@ import org.apache.logging.log4j.Logger;
  */
 public class ConnectionServiceImpl implements InitConnectionService {
     private static final Logger logger = LogManager.getRootLogger();
+
     @Override
     public void initConnection() {
         ConnectionPool connectionPool = ConnectionPool.getInstance();
+
         try {
             connectionPool.initConnectionPool();
+
         } catch (ConnectionPoolException e) {
             logger.error("Something went wrong when trying to init connection", e);
             throw new InternalServerException(e);
+
         }
     }
 
     @Override
     public void destroyConnection() {
         ConnectionPool connectionPool = ConnectionPool.getInstance();
+
         try {
             connectionPool.dispose();
+
         } catch (ConnectionPoolException e) {
             logger.error("Something went wrong when trying to destroy connection", e);
             throw new InternalServerException(e);
+
         }
     }
 
     @Override
     public void reserveConnection(){
         ConnectionPool connectionPool = ConnectionPool.getInstance();
+
         try {
             connectionPool.reserveConnection();
+
         } catch (ConnectionPoolException e) {
             logger.error("Something went wrong when trying to reserve connection", e);
             throw new InternalServerException(e);
+
         }
     }
 
     @Override
     public void freeConnection(){
         ConnectionPool connectionPool = ConnectionPool.getInstance();
+
         try {
             connectionPool.freeConnection();
+
         } catch (ConnectionPoolException e) {
             logger.error("Something went wrong when trying to free connection", e);
             throw new InternalServerException(e);
+
         }
     }
 }

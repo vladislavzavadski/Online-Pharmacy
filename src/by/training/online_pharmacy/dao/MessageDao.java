@@ -2,6 +2,7 @@ package by.training.online_pharmacy.dao;
 
 import by.training.online_pharmacy.dao.exception.DaoException;
 import by.training.online_pharmacy.domain.message.Message;
+import by.training.online_pharmacy.domain.message.MessageStatus;
 import by.training.online_pharmacy.domain.message.SearchMessageCriteria;
 import by.training.online_pharmacy.domain.user.User;
 
@@ -17,5 +18,9 @@ public interface MessageDao {
 
     void markMessageAsReaded(User user, int messageId) throws DaoException;
 
-    int getNewMessagesCount(User user) throws DaoException;
+    void updateMessage(Message message) throws DaoException;
+
+    int getSenderMessageCount(User user, MessageStatus messageStatus) throws DaoException;
+
+    int getReceiverMessageCount(User user, MessageStatus messageStatus) throws DaoException;
 }

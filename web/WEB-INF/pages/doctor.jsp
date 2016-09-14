@@ -19,6 +19,9 @@
         <span>${doctor.userDescription.specialization}</span>
     </div>
 </c:forEach>
+<c:if test="${doctorList.size() eq 0 and param.page eq 1}">
+    <h2>По вашему запросу ничего не найдено</h2>
+</c:if>
 <c:choose>
     <c:when test="${doctorList.size() ne 6}">
         <div id="stop" data-stop="${doctorList.size()<6}"></div>
@@ -28,4 +31,3 @@
     </c:otherwise>
 </c:choose>
 
-</>

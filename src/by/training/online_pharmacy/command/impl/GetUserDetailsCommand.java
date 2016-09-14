@@ -3,6 +3,7 @@ package by.training.online_pharmacy.command.impl;
 import by.training.online_pharmacy.command.Command;
 import by.training.online_pharmacy.domain.user.RegistrationType;
 import by.training.online_pharmacy.domain.user.User;
+import by.training.online_pharmacy.service.InitConnectionService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.UserService;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
@@ -22,25 +23,42 @@ public class GetUserDetailsCommand implements Command {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);
-        if(httpSession==null||httpSession.getAttribute(Parameter.USER)==null){
+        User user;
+
+        if(httpSession==null||(user = (User)httpSession.getAttribute(Parameter.USER))==null){
             response.sendRedirect(Page.INDEX);
             return;
         }
+
         String userLogin = request.getParameter(Parameter.LOGIN);
         RegistrationType registrationType = RegistrationType.valueOf(request.getParameter(Parameter.REGISTRATION_TYPE));
+
+        if(user.getLogin().equals(userLogin) && user.getRegistrationType()==registrationType){
+            request.getRequestDispatcher(Page.MAIN).forward(request, response);
+            return;
+        }
+
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         UserService userService = serviceFactory.getUserService();
+
         try {
-            User user = userService.getUserDetails(userLogin, registrationType);
-            request.setAttribute(Parameter.USER, user);
+            User userDetails = userService.getUserDetails(userLogin, registrationType);
+            request.setAttribute(Parameter.DOCTOR, userDetails);
             request.getRequestDispatcher(Page.DOCTOR_DESCRIPTION).forward(request, response);
+
         } catch (InvalidParameterException e) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put(Parameter.RESULT, false);
-            jsonObject.put(Parameter.MESSAGE, e.getMessage());
+            jsonObject.put(Parameter.MESSAGE, "One of passed parameters is invalid");
+
             response.setContentType(Content.JSON);
             ServletOutputStream servletOutputStream = response.getOutputStream();
             servletOutputStream.write(jsonObject.toString().getBytes());
+        }
+        finally {
+            InitConnectionService initConnectionService = serviceFactory.getInitConnectionService();
+            initConnectionService.freeConnection();
+
         }
     }
 }

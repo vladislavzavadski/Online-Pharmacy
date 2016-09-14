@@ -43,8 +43,14 @@
                 <a href="/controller?command=GET_USER_DETAILS&login=${presc.doctor.login}&register_type=${presc.doctor.registrationType}">
                     <span>${presc.doctor.firstName} ${presc.doctor.secondName}</span>
                 </a>
+                <br/>
+                <b>Клиент: </b>&nbsp;
+                <span>${presc.client.firstName} ${presc.client.secondName}</span>
             </div>
         </div>
     </div>
 </c:forEach>
+<c:if test="${prescriptions.size() eq 0 and param.page eq 1}">
+    <h2>По вашему запросу ничего не найдено</h2>
+</c:if>
 <div id="LoadedContent"></div>

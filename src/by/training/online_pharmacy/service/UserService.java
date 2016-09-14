@@ -16,13 +16,20 @@ import java.util.List;
  */
 public interface UserService {
     User userLogin(String login, String password) throws InternalServerException, UserNotFoundException, InvalidParameterException;
+
     void userRegistration(User user) throws InvalidParameterException;
+
     boolean isUserExist(String login) throws InvalidParameterException;
+
     void updatePersonalInformation(User user) throws InvalidParameterException, NotFoundException;
+
     void updatePassword(User user, String newPassword, String oldPassword) throws InvalidPasswordException, InvalidParameterException, NotFoundException;
+
     void updateContacts(User user) throws InvalidParameterException, NotFoundException;
+
     void uploadProfileImage(User user, Part part) throws InvalidContentException, IOException, InvalidParameterException, NotFoundException;
-    void deleteUser(User user) throws InvalidPasswordException;
+
+    void deleteUser(User user, String password) throws InvalidPasswordException, InvalidParameterException, InvalidUserStatusException;
 
     List<User> getAllDoctors(int limit, int startFrom, boolean pageOverload) throws InvalidParameterException;
 
@@ -43,4 +50,6 @@ public interface UserService {
     void createSecretWord(SecretWord secretWord) throws InvalidParameterException, InvalidUserStatusException, NotFoundException;
 
     void reestablishAccount(SecretWord secretWord) throws InvalidParameterException, NotFoundException;
+
+    void updateUserDescription(User user, UserDescription userDescription) throws InvalidParameterException, InvalidUserStatusException;
 }

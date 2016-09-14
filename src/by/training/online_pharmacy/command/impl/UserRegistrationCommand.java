@@ -6,6 +6,7 @@ import by.training.online_pharmacy.domain.user.RegistrationType;
 import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.domain.user.UserRole;
 import by.training.online_pharmacy.service.Encoding;
+import by.training.online_pharmacy.service.InitConnectionService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.UserService;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
@@ -25,13 +26,14 @@ import java.io.IOException;
 public class UserRegistrationCommand implements Command {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        ServiceFactory serviceFactory = ServiceFactory.getInstance();
-        UserService userService = serviceFactory.getUserService();
-        request.setCharacterEncoding(Encoding.UTF8);
-        response.setCharacterEncoding(Encoding.UTF8);
+
+        /*request.setCharacterEncoding(Encoding.UTF8);
+        response.setCharacterEncoding(Encoding.UTF8);*/
+
         User user = new User();
 
         String email = request.getParameter(Parameter.MAIL);
+
         user.setFirstName(request.getParameter(Parameter.FIRST_NAME));
         user.setSecondName(request.getParameter(Parameter.SECOND_NAME));
         user.setLogin(request.getParameter(Parameter.LOGIN));
@@ -39,16 +41,29 @@ public class UserRegistrationCommand implements Command {
         user.setGender(Gender.UNKNOWN);
         user.setRegistrationType(RegistrationType.NATIVE);
         user.setUserRole(UserRole.CLIENT);
+
         JSONObject jsonObject = new JSONObject();
         ServletOutputStream servletOutputStream = response.getOutputStream();
         response.setContentType(Content.JSON);
+
+        ServiceFactory serviceFactory = ServiceFactory.getInstance();
+        UserService userService = serviceFactory.getUserService();
+
         try {
             userService.userRegistration(user);
             jsonObject.put(Parameter.RESULT, true);
+
         } catch (InvalidParameterException e) {
             jsonObject.put(Parameter.RESULT, false);
-            jsonObject.put(Parameter.MESSAGE, e.getMessage());
+            jsonObject.put(Parameter.MESSAGE, "One of passed is invalid");
+
         }
+        finally {
+            InitConnectionService initConnectionService = serviceFactory.getInitConnectionService();
+            initConnectionService.freeConnection();
+
+        }
+
         servletOutputStream.write(jsonObject.toString().getBytes());
 
     }

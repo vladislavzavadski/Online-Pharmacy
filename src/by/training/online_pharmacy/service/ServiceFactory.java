@@ -17,12 +17,20 @@ public class ServiceFactory {
     public UserService getUserService(){
         return new UserServiceImpl();
     }
+
     public SocialNetworkService getSocialNetworkService(){return new SocialNetworkServiceImpl();}
+
     public InitConnectionService getInitConnectionService(){return new ConnectionServiceImpl();}
+
     public DrugService getDrugService(){return new DrugServiceImpl();}
+
     public OrderService getOrderService(){return new OrderServiceImpl();}
+
     public RequestService getRequestService(){return new RequestServiceImpl();}
+
     public MessageService getMessageService(){return new MessageServiceImpl();}
+
     public PrescriptionService getPrescriptionService(){return new PrescriptionServiceImpl();}
+
     public SecretQuestionService getSecretQuestionService(){return new SecretQuestionServiceImpl();}
 }

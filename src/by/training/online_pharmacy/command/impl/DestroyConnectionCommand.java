@@ -17,6 +17,7 @@ public class DestroyConnectionCommand implements Command {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         InitConnectionService initConnectionService = serviceFactory.getInitConnectionService();
+
         initConnectionService.destroyConnection();
     }
 }

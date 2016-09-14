@@ -17,10 +17,12 @@ import java.util.List;
 public interface DrugService {
     List<Drug> getAllDrugs(int limit, int startFrom) throws InvalidParameterException;
 
-    void createDrug(User user, Drug drug, Part part) throws InvalidParameterException, InvalidUserStatusException, SpecializationNotFoundException, NotFoundException, InvalidContentException;
+    void createDrug(User user, Drug drug, Part part) throws InvalidParameterException, InvalidUserStatusException, SpecializationNotFoundException,  InvalidContentException;
 
     List<DrugClass> getAllDrugClasses();
+
     List<Drug> getDrugsByClass(String className, int limit, int startFrom) throws InvalidParameterException;
+
     Drug getDrugDetails(int drugId) throws InvalidParameterException;
 
     List<Drug> searchDrugs(String query, int limit, int startFrom) throws InvalidParameterException;
@@ -39,7 +41,7 @@ public interface DrugService {
 
     void createDrugManufacturer(User user, DrugManufacturer drugManufacturer) throws InvalidUserStatusException, InvalidParameterException;
 
-    void updateDrug(User user, Drug drug, Part part) throws InvalidParameterException, InvalidUserStatusException, DrugNotFoundException, NotFoundException, InvalidContentException, SpecializationNotFoundException;
+    void updateDrug(User user, Drug drug, Part part) throws InvalidParameterException, InvalidUserStatusException, DrugNotFoundException, InvalidContentException, SpecializationNotFoundException;
 
     void deleteDrug(User user, int drugId) throws InvalidParameterException, InvalidUserStatusException;
 }

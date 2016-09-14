@@ -75,7 +75,7 @@ public class Parameter {
     public static final String DRUG_LIST = "drugList";
     public static final String DOCTOR_LIST = "doctorList";
     public static final String SPECIALIZATIONS = "specializations";
-    public static final String DRUG_MANUFACTURES = "drugManufactures";
+    public static final String DRUG_MANUFACTURES = "drugManufacturers";
     public static final String DRUG_CLASSES = "drugClasses";
     public static final String MESSAGE_LIST = "messageList";
     public static final String ORDER_LIST = "orderList";
@@ -84,4 +84,12 @@ public class Parameter {
     public static final String DRUG = "drug";
     public static final String REQUESTS = "requests";
     public static final String SECRET_QUESTIONS = "secretQuestions";
+    public static final String REQUEST_ID = "request_id";
+    public static final String EXPIRATION_DATE = "exp_date";
+    public static final String DATE_PATTERN = "yyyy-MM-dd";
+    public static final String RECEIVER_MESSAGE = "rec_message";
+    public static final String PRESCRIPTION = "prescription";
+    public static final String DOCTOR_COMMENT = "doc_comment";
+    public static final String REQUEST_COUNT = "request_count";
+    public static final String DOCTOR = "doctor";
 }

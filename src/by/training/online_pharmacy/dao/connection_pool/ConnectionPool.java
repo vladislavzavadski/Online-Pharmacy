@@ -35,55 +35,74 @@ public class ConnectionPool {
         username = dbResourceManager.getProperty(DBParameter.DB_USERNAME);
         password = dbResourceManager.getProperty(DBParameter.DB_PASSWORD);
         driver = dbResourceManager.getProperty(DBParameter.DB_DRIVER);
+
         try {
             poolSize = Integer.parseInt(dbResourceManager.getProperty(DBParameter.DB_POOL_SIZE));
         }
+
         catch (NumberFormatException ex){
             poolSize = 5;
         }
+
     }
 
     public void initConnectionPool() throws ConnectionPoolException{
+
         try {
             Class.forName(driver);
+
             for(int i=0; i<poolSize; i++) {
                 Connection connection = DriverManager.getConnection(databaseURL, username, password);
                 PooledConnection pooledConnection = new PooledConnection(connection);
                 freeConnections.add(pooledConnection);
             }
 
+
         } catch (ClassNotFoundException e) {
             throw new ConnectionPoolException("Database driver was not found.", e);
+
         } catch (SQLException e) {
             throw new ConnectionPoolException("Can't create database connection", e);
+
         }
 
     }
 
     public Connection reserveConnection() throws ConnectionPoolException {
         Connection connection;
+
         synchronized (freeConnections){
+
             try {
+
                 while (freeConnections.isEmpty()) {
                     freeConnections.wait();
                 }
+
             } catch (InterruptedException e) {
                 throw new ConnectionPoolException("Exception while trying to take new Connection");
             }
+
             connection = freeConnections.remove(0);
         }
+
         long threadId = Thread.currentThread().getId();
         reservedConnections.put(threadId, connection);
+
         return connection;
     }
 
     public void freeConnection() throws ConnectionPoolException {
+
         long threadId = Thread.currentThread().getId();
         Connection connection = reservedConnections.get(threadId);
+
         try {
+
             if(connection!=null) {
                 connection.close();
             }
+
         } catch (SQLException e) {
             throw new ConnectionPoolException("Exception while trying to free connection");
         }
@@ -95,10 +114,12 @@ public class ConnectionPool {
     }
 
     public void dispose() throws ConnectionPoolException {
+
         try {
             clearConnectionList();
         } catch (SQLException e) {
             throw new ConnectionPoolException("Can not destroy connection pool", e);
+
         }
     }
 
@@ -113,24 +134,32 @@ public class ConnectionPool {
     }
 
     private void closeConnectionList(List<Connection> connectionList) throws SQLException {
+
         for(int i=0; i<connectionList.size(); i++){
             Connection connection = connectionList.remove(0);
+
             if(!connection.getAutoCommit()){
                 connection.commit();
             }
+
             ((PooledConnection)connection).reallyClose();
         }
     }
 
     private void closeConnectionsMap(Map<Long, Connection> map) throws SQLException {
+
         for(Map.Entry<Long, Connection> entry:map.entrySet()){
+
             long key = entry.getKey();
             Connection connection = entry.getValue();
+
             if(!connection.getAutoCommit()){
                 connection.commit();
             }
+
             ((PooledConnection)connection).reallyClose();
         }
+
         map.clear();
     }
 
@@ -156,10 +185,12 @@ public class ConnectionPool {
             if(connection.isReadOnly()) {
                 connection.setReadOnly(false);
             }
+
             if(!connection.getAutoCommit()){
                 connection.rollback();
                 connection.setAutoCommit(true);
             }
+
             long threadId = Thread.currentThread().getId();
 
             if (!reservedConnections.remove(threadId, this)) {
@@ -167,9 +198,11 @@ public class ConnectionPool {
             }
 
             synchronized (freeConnections) {
+
                 if (!freeConnections.add(this)) {
                     throw new SQLException("Error adding connection to free connections pool");
                 }
+
                 freeConnections.notify();
             }
         }

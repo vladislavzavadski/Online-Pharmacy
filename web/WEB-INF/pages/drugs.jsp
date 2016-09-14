@@ -55,9 +55,7 @@
             <script>
                 var thisPageNum = 2;
                 $('#drug_classes').on('click', '.Class',function () {
-                    //alert($(this).attr("href"));
                     var toLoad = $(this).attr("href");
-                    //$("#drugs").load(toLoad);
                     $.get(toLoad, function (data) {
                         $("#drugs").html(data);
                     });
@@ -102,9 +100,6 @@
             </c:if>
             <div id="drugs" class="row" align="justify" style="background:white;">
                     <jsp:include page="/drug"/>
-                <c:if test="${drugList.size()eq 0}">
-                    <h2>По запросу "${param.dr_class}" ничего не найдено</h2>
-                </c:if>
                 <c:choose>
                     <c:when test="${drugList.size() ne 6}">
                         <div id="stop" data-stop="${drugList.size()<6}"></div>
@@ -146,19 +141,9 @@
                         });
                     });
 
-                    $("#ext_search").click(function () {
-                        var url = "/controller?command=EXTENDED_DRUG_SEARCH";
-                        url+="&name="+$("#drug_name").val();
-                        url+="&active_substance="+$("#active_substance").val();
-                        url+="&max_price="+$("#dr_price").val();
-                        url+="&dr_class="+$("#dr_class").val();
-                        url+="&dr_manufacturer="+$("#dr_man").val();
-                        if($("#in_stock_only").attr("checked")=='checked') {
-                            url += "&only_in_stock=" + $("#in_stock_only").val();
-                        }
-                        if($("#without_prescription").attr("checked")=='checked') {
-                            url += "&only_free=" + $("#without_prescription").val();
-                        }
+                    $("#ext_search_form").submit(function () {
+                        var data = $(this).serialize();
+                        var url = "/controller?"+data;
                         url+="&page=";
                         $.get(url+1, function (data) {
                             $("#drugs").html(data);
@@ -238,7 +223,8 @@
                                 </div>
                                 <div class="form_group">
                                     <label for="drug_image">Фото: </label>
-                                    <input class="form-control" type="file" id="drug_image" name="drug_image"/>
+                                    <input class="form-control" type="file" id="drug_image" name="drug_image" accept="image/*"/>
+                                    <span id="mes_img"></span>
                                 </div>
                                 <div class="form_group">
                                     <label for="manufacturer_name">Производитель: </label>
@@ -327,6 +313,14 @@
                 $("#create-drug-form").submit(function (event) {
                     event.preventDefault();
                     var formData = new FormData($(this)[0]);
+                    if($('#drug_image').val()!=""&&!$('#drug_image')[0].files[0].type.contains('image')){
+                        $('#mes_img').html("Файл не является картинкой");
+                        return false;
+                    }
+                    if($('#drug_image').val()!=""&&$('#drug_image')[0].files[0].size>1.342e+9){
+                        $('#mes_img').html("Размер файла слишком велик");
+                        return false;
+                    }
                     $.ajax({
                         url:'controller',
                         type:'POST',
@@ -592,4 +586,10 @@
             }
         };
     </script>
+    <c:if test="${user.userRole eq 'CLIENT' or user.userRole eq 'DOCTOR'}">
+        <script src="js/sendRequest.js"></script>
+    </c:if>
+    <c:if test="${user.userRole eq 'DOCTOR'}">
+        <script src="js/requestsForPrescription.js"></script>
+    </c:if>
 </html>

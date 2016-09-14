@@ -25,6 +25,9 @@
         <p>${drug.description}</p>
     </div>
 </c:forEach>
+<c:if test="${drugList.size() eq 0 and param.page eq 1}">
+    <h2>По вашему запросу ничего не найдено</h2>
+</c:if>
 <c:if test="${drugList.size() >0}">
     <div id="LoadedContent" data-stop="${drugList.size()<6}"></div>
 </c:if>

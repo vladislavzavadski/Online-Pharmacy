@@ -21,32 +21,42 @@ public class SecretQuestionServiceImpl implements SecretQuestionService {
     private static final Logger logger = LogManager.getLogger();
 
     @Override
-    public List<SecretQuestion> getAllSecretQuestions(){
+    public List<SecretQuestion> getAllSecretQuestions()throws InternalServerException{
+
         DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
         SecretQuestionDao secretQuestionDao = daoFactory.getSecretQuestionDao();
+
         try {
             return secretQuestionDao.getAllQuestions();
+
         } catch (DaoException e) {
             logger.error("Something went wrong when trying to get all secret questions", e);
             throw new InternalServerException(e);
+
         }
     }
 
     @Override
-    public SecretQuestion getUsersSecretQuestion(User user) throws InvalidParameterException {
+    public SecretQuestion getUsersSecretQuestion(User user) throws InternalServerException, InvalidParameterException {
+
         if(user==null){
             throw new InvalidParameterException("Parameter user is invalid");
         }
+
         if(user.getLogin()==null||user.getLogin().isEmpty()){
             throw new InvalidParameterException("Parameter user login is invalid");
         }
+
         DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
         SecretQuestionDao secretQuestionDao = daoFactory.getSecretQuestionDao();
+
         try {
             return secretQuestionDao.getUsersSecretQuestion(user);
+
         } catch (DaoException e) {
             logger.error("Something went wrong when trying to get users secret question");
             throw new InternalServerException(e);
+
         }
     }
 }

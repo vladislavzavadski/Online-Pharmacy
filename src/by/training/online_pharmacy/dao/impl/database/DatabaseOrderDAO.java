@@ -39,13 +39,15 @@ public class DatabaseOrderDAO implements OrderDAO {
     private static final String GET_ORDERS_POSTFIX = " order by or_date desc limit ?,?;";
     private static final String FK_OR_DRUGS = "fk_or_drugs";
     private static final String FK_OR_USERS = "fk_or_users";
-    private static final String GET_ORDER_SUM_QUERY = "select or_sum from orders where or_id=?;";
+    private static final String GET_ORDER_SUM_QUERY = "select or_sum from orders where or_id=? and or_client_login=? and or_login_via=?;";
 
     @Override
-    public float getOrderSum(int orderId) throws DaoException {
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_ORDER_SUM_QUERY);){
+    public float getOrderSum(User user, int orderId) throws DaoException {
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_ORDER_SUM_QUERY)){
 
             databaseOperation.setParameter(1, orderId);
+            databaseOperation.setParameter(2, user.getLogin());
+            databaseOperation.setParameter(3, user.getRegistrationType().toString().toLowerCase());
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             if(resultSet.next()){
                 return resultSet.getFloat(TableColumn.ORDER_SUM);
@@ -149,32 +151,22 @@ public class DatabaseOrderDAO implements OrderDAO {
 
     @Override
     public void insertOrder(Order order) throws DaoException {
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_ORDER_QUERY)){
-            databaseOperation.setParameter(TableColumn.ORDER_US_LOGIN, order.getClient().getLogin());
-            databaseOperation.setParameter(TableColumn.ORDER_LOGIN_VIA, order.getClient().getRegistrationType().toString().toLowerCase());
-            databaseOperation.setParameter(TableColumn.ORDER_DRUG_ID, order.getDrug().getId());
-            databaseOperation.setParameter(TableColumn.ORDER_DRUG_COUNT, order.getDrugCount());
-            databaseOperation.setParameter(TableColumn.ORDER_DRUG_DOSAGE, order.getDrugDosage());
-            databaseOperation.setParameter(TableColumn.ORDER_STATUS, order.getOrderStatus().toString().toLowerCase());
+            databaseOperation.setParameter(1, order.getClient().getLogin());
+            databaseOperation.setParameter(2, order.getClient().getRegistrationType().toString().toLowerCase());
+            databaseOperation.setParameter(3, order.getDrug().getId());
+            databaseOperation.setParameter(4, order.getDrugCount());
+            databaseOperation.setParameter(5, order.getDrugDosage());
+            databaseOperation.setParameter(6, order.getOrderStatus().toString().toLowerCase());
             databaseOperation.setParameter(7, order.getDrugCount());
             databaseOperation.setParameter(8, order.getDrug().getId());
             databaseOperation.invokeWriteOperation();
-            DrugCountUpdater drugCountUpdater = new DrugCountUpdater(databaseOperation);
-            drugCountUpdater.changeDrugCount(-order.getDrugCount(), order.getDrug().getId());
-            databaseOperation.endTransaction();
-        } catch (ParameterNotFoundException | ConnectionPoolException e) {
+
+            //databaseOperation.endTransaction();
+
+        } catch (ConnectionPoolException | SQLException e) {
             throw new DaoException("Can not insert new order "+ order +" to database", e);
-        } catch (SQLException ex) {
-            if(ex.getErrorCode()==ErrorCode.ERROR_CODE_1452&&ex.getMessage().contains(FK_OR_DRUGS)){
-                throw new EntityDeletedException("Can not insert new order "+ order +" to database", false, ex);
-            }else if(ex.getErrorCode()==ErrorCode.ERROR_CODE_1690){
-                throw new OutOfRangeException("Can not insert new order "+ order +" to database", ex);
-            } else if(ex.getErrorCode()==ErrorCode.ERROR_CODE_1452&&ex.getMessage().contains(FK_OR_USERS)){
-                throw new EntityDeletedException("Can not insert new order "+ order +" to database", true, ex);
-            }
-            else {
-                throw new DaoException("Can not insert new order "+ order +" to database", ex);
-            }
         }
     }
 

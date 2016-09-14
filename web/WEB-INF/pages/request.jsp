@@ -8,6 +8,7 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <jsp:useBean id="requests" scope="request" class="java.util.ArrayList"/>
+<jsp:useBean id="user" scope="session" class="by.training.online_pharmacy.domain.user.User"/>
 <c:forEach items="${requests}" var="req">
     <div class="col-lg-4">
         <a href="/controller?command=GET_DRUG_DETAILS&dr_id=${req.drug.id}"><h2>${req.drug.name}</h2>
@@ -31,6 +32,9 @@
             </c:otherwise>
         </c:choose>
         <br/>
+        <b>Клиент:</b>&nbsp;
+        <span>${req.client.firstName} ${req.client.secondName}</span>
+        <br/>
         <b>Доктор:</b>&nbsp;
         <span><a href="/controller?command=GET_USER_DETAILS&login=${req.doctor.login}&register_type=${req.doctor.registrationType}"><label>${req.doctor.firstName} ${req.doctor.secondName}</label></a></span>
         <br/>
@@ -46,18 +50,31 @@
         </c:if>
     </div>
     <div class="col-lg-4" align="justify">
-        <h3>Ваш комментарий:</h3>
+        <h3>Комментарий клиента:</h3>
         <p style="height:150px; overflow:auto">
                 ${req.clientComment}
         </p>
     </div>
-    <c:if test="${req.requestStatus ne 'IN_PROGRESS'}">
-        <div class="col-lg-4" align="justify">
-            <h3>Комментарий врача:</h3>
-            <p style="height:150px; overflow:auto">
-                    ${req.doctorComment}
-            </p>
-        </div>
-    </c:if>
+    <c:choose>
+        <c:when test="${req.requestStatus ne 'IN_PROGRESS'}">
+            <div class="col-lg-4" align="justify">
+                <h3>Комментарий врача:</h3>
+                <p style="height:150px; overflow:auto">
+                        ${req.doctorComment}
+                </p>
+            </div>
+        </c:when>
+        <c:otherwise>
+            <c:if test="${user.userRole eq 'DOCTOR'}">
+                <div class="col-lg-4" style="top: 50px">
+                    <button data-id="${req.id}" data-type="confirmed" data-exp="${req.prolongDate}" data-toggle="modal" data-target="#confirm-request" data-dosages="<c:forEach items="${req.drug.dosages}" var="dos">${dos} </c:forEach>" class="submit-request btn btn-primary btn-success">Одобрить</button>
+                    <button data-type="denied" data-id="${req.id}"  data-toggle="modal" data-target="#denied-request" class="submit-request btn btn-primary btn-danger">Отклонить</button>
+                </div>
+            </c:if>
+        </c:otherwise>
+    </c:choose>
 </c:forEach>
+<c:if test="${requests.size() eq 0 and param.page eq 1}">
+    <h2>По вашему запросу ничего не найдено</h2>
+</c:if>
 <div id="LoadedContent"></div>

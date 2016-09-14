@@ -7,20 +7,19 @@ import by.training.online_pharmacy.dao.exception.DaoException;
 import by.training.online_pharmacy.dao.exception.EntityDeletedException;
 import by.training.online_pharmacy.dao.exception.EntityNotFoundException;
 import by.training.online_pharmacy.dao.impl.database.util.DatabaseOperation;
-import by.training.online_pharmacy.domain.Period;
 import by.training.online_pharmacy.domain.drug.Drug;
 import by.training.online_pharmacy.domain.prescription.RequestForPrescription;
 import by.training.online_pharmacy.domain.prescription.RequestForPrescriptionCriteria;
 import by.training.online_pharmacy.domain.prescription.RequestStatus;
 import by.training.online_pharmacy.domain.user.RegistrationType;
 import by.training.online_pharmacy.domain.user.User;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import sun.java2d.pipe.SpanShapeRenderer;
 
-import javax.xml.crypto.Data;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -28,11 +27,11 @@ import java.util.List;
  * Created by vladislav on 19.06.16.
  */
 public class DatabaseRequestForPrescriptionDAO implements RequestForPrescriptionDAO {
- private static final String SEARCH_REQESTS_QUERY_PREFIX = "select re_drug_id, dr_name, re_prolong_to, re_status, re_clients_comment, re_doctors_comment, re_request_date, re_response_date, re_client_login, re_user_login_via, clients.us_first_name as cli_first_name, clients.us_second_name as cli_second_name, re_doctor, re_doctor_login_via, doctors.us_first_name as doc_first_name, doctors.us_second_name as doc_second_name" +
+ private static final String SEARCH_REQESTS_QUERY_PREFIX = "select re_id, re_drug_id, dr_dosage, dr_name, re_prolong_to, re_status, re_clients_comment, re_doctors_comment, re_request_date, re_response_date, re_client_login, re_user_login_via, clients.us_first_name as cli_first_name, clients.us_second_name as cli_second_name, re_doctor, re_doctor_login_via, doctors.us_first_name as doc_first_name, doctors.us_second_name as doc_second_name" +
             " from requests_for_prescriptions inner join users as clients on re_client_login=clients.us_login and re_user_login_via=clients.login_via" +
             " inner join users as doctors on doctors.us_login=re_doctor and doctors.login_via=re_doctor_login_via inner join drugs on dr_id=re_drug_id where clients.us_login=? and clients.login_via=? ";
 
-    private static final String SEARCH_DOCTORS_REQUESTS_PREFIX = "select re_drug_id, dr_name, re_prolong_to, re_status, re_clients_comment, re_doctors_comment, re_request_date, re_response_date, re_client_login, re_user_login_via, clients.us_first_name as cli_first_name, clients.us_second_name as cli_second_name, re_doctor, re_doctor_login_via, doctors.us_first_name as doc_first_name, doctors.us_second_name as doc_second_name" +
+    private static final String SEARCH_DOCTORS_REQUESTS_PREFIX = "select re_id, re_drug_id, dr_dosage, dr_name, re_prolong_to, re_status, re_clients_comment, re_doctors_comment, re_request_date, re_response_date, re_client_login, re_user_login_via, clients.us_first_name as cli_first_name, clients.us_second_name as cli_second_name, re_doctor, re_doctor_login_via, doctors.us_first_name as doc_first_name, doctors.us_second_name as doc_second_name" +
             " from requests_for_prescriptions inner join users as clients on re_client_login=clients.us_login and re_user_login_via=clients.login_via" +
             " inner join users as doctors on doctors.us_login=re_doctor and doctors.login_via=re_doctor_login_via inner join drugs on dr_id=re_drug_id where doctors.us_login=? and doctors.login_via=? ";
     private static final String DRUG_NAME = " and dr_name like ? ";
@@ -52,9 +51,30 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
             "re_doctor_login_via  order by count limit 1) as doc where not exists (select re_client_login, re_drug_id, re_user_login_via" +
             " from requests_for_prescriptions\n" +
             "where re_status='in_progress' and re_client_login=? and re_drug_id=? and re_user_login_via=?));";
-    private static final String SET_REQUEST_FOR_PRESCRIPTION_STATUS = "update requests_for_prescriptions set re_status=? where ";
+    private static final String SET_REQUEST_FOR_PRESCRIPTION_STATUS = "update requests_for_prescriptions set re_status=?, re_doctors_comment=?, re_response_date=curdate() where re_id=? and re_status='in_progress' and re_doctor=? and re_doctor_login_via=?;";
+    private static final String GET_DOCTORS_NEW_REQUESTS_QUERY = "select count(re_id) as re_count from requests_for_prescriptions where re_doctor=? and re_doctor_login_via=? and re_status='in_progress';";
+
     private static final String FK_DRUG = "fk_drug";
     private static final String FK_CLIENT = "fk_client";
+
+    @Override
+    public int getInProgressRequestsCount(User user) throws DaoException {
+        try(DatabaseOperation databaseOperation = new DatabaseOperation(GET_DOCTORS_NEW_REQUESTS_QUERY)){
+            databaseOperation.setParameter(1, user.getLogin());
+            databaseOperation.setParameter(2, user.getRegistrationType().toString().toLowerCase());
+            ResultSet resultSet = databaseOperation.invokeReadOperation();
+
+            if(resultSet.next()){
+                return resultSet.getInt(TableColumn.REQUEST_COUNT);
+            }
+            else {
+                return 0;
+            }
+
+        } catch (SQLException | ConnectionPoolException e) {
+            throw new DaoException("Can not load request count from database", e);
+        }
+    }
 
     @Override
     public void insertRequest(RequestForPrescription requestForPrescription) throws DaoException {
@@ -85,8 +105,23 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
         }
     }
 
-    public void setRequestForPrescriptionStatus(User user, RequestStatus requestStatus){
-
+    @Override
+    public void updateRequestForPrescription(RequestForPrescription requestForPrescription) throws DaoException {
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(SET_REQUEST_FOR_PRESCRIPTION_STATUS)){
+            if(requestForPrescription.getRequestStatus()==RequestStatus.CONFIRMED){
+                databaseOperation.beginTransaction();
+            }
+            databaseOperation.setParameter(1, requestForPrescription.getRequestStatus().toString().toLowerCase());
+            databaseOperation.setParameter(2, requestForPrescription.getDoctorComment());
+            databaseOperation.setParameter(3, requestForPrescription.getId());
+            databaseOperation.setParameter(4, requestForPrescription.getDoctor().getLogin());
+            databaseOperation.setParameter(5, requestForPrescription.getDoctor().getRegistrationType().toString().toLowerCase());
+            if(databaseOperation.invokeWriteOperation()==0){
+                throw new EntityNotFoundException("Request for prescription="+requestForPrescription+" was not found");
+            }
+        } catch (SQLException | ConnectionPoolException e) {
+            throw new DaoException("Can not change status for request with id="+requestForPrescription.getId(), e);
+        }
     }
 
     @Override
@@ -125,10 +160,10 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
                 databaseOperation.setParameter(paramNumber++, criteria.getRequestStatus());
             }
             if(criteria.getRequestDateFrom()!=null&&!criteria.getRequestDateFrom().isEmpty()){
-                databaseOperation.setParameter(paramNumber++, new Date(criteria.getRequestDateFrom()));
+                databaseOperation.setParameter(paramNumber++, criteria.getRequestDateFrom());
             }
             if(criteria.getRequestDateTo()!=null&&!criteria.getRequestDateTo().isEmpty()){
-                databaseOperation.setParameter(paramNumber++, new Date(criteria.getRequestDateTo()));
+                databaseOperation.setParameter(paramNumber++, criteria.getRequestDateTo());
             }
             databaseOperation.setParameter(paramNumber++, startFrom);
             databaseOperation.setParameter(paramNumber, limit);
@@ -149,23 +184,36 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
             User client = new User();
             requestForPrescription.setDrug(drug);
             requestForPrescription.setDoctor(doctor);
+
             drug.setName(resultSet.getString(TableColumn.DRUG_NAME));
             drug.setId(resultSet.getInt(TableColumn.REQUEST_DRUG_ID));
             doctor.setLogin(resultSet.getString(TableColumn.REQUEST_DOCTOR_LOGIN));
             doctor.setRegistrationType(RegistrationType.valueOf(resultSet.getString(TableColumn.REQUEST_DOCTOR_LOGIN_VIA).toUpperCase()));
             doctor.setFirstName(resultSet.getString(TableColumn.REQUEST_DOCTOR_FIRST_NAME));
             doctor.setSecondName(resultSet.getString(TableColumn.REQUEST_DOCTOR_SECOND_NAME));
+
             requestForPrescription.setProlongDate(resultSet.getDate(TableColumn.REQUEST_PROLONG_TO));
             requestForPrescription.setRequestStatus(RequestStatus.valueOf(resultSet.getString(TableColumn.REQUEST_STATUS).toUpperCase()));
             requestForPrescription.setClientComment(resultSet.getString(TableColumn.REQUEST_CLIENT_COMMENT));
             requestForPrescription.setDoctorComment(resultSet.getString(TableColumn.REQUEST_DOCTOR_COMMENT));
             requestForPrescription.setRequestDate(resultSet.getDate(TableColumn.REQUEST_DATE));
             requestForPrescription.setResponseDate(resultSet.getDate(TableColumn.RESPONSE_DATE));
+            requestForPrescription.setId(resultSet.getInt(TableColumn.REQUEST_ID));
+
             client.setLogin(resultSet.getString(TableColumn.REQUEST_CLIENT_LOGIN));
             client.setRegistrationType(RegistrationType.valueOf(resultSet.getString(TableColumn.REQUEST_CLIENT_LOGIN_VIA).toUpperCase()));
             client.setFirstName(resultSet.getString(TableColumn.REQUEST_CLIENT_FIRST_NAME));
             client.setSecondName(resultSet.getString(TableColumn.REQUEST_CLIENT_SECOND_NAME));
             requestForPrescription.setClient(client);
+
+            String[] dosages = resultSet.getString(TableColumn.DRUG_DOSAGE).split(Param.COMMA);
+            List<Integer> dosageList = new ArrayList<>();
+
+            for(String item:dosages){
+                dosageList.add(Integer.parseInt(item));
+            }
+
+            drug.setDosages(dosageList);
             result.add(requestForPrescription);
         }
         return result;

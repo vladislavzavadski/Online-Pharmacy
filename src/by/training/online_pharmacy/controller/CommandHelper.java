@@ -57,7 +57,6 @@ public class CommandHelper {
         commands.put(CommandName.CHECK_MANUFACTURER, new CheckIsManufacturerExistCommand());
         commands.put(CommandName.CREATE_MANUFACTURER, new CreateDrugManufacturerCommand());
         commands.put(CommandName.RESERVE_CONNECTION, new ReserveConnectionCommand());
-        commands.put(CommandName.FREE_CONNECTION, new FreeConnectionCommand());
         commands.put(CommandName.UPDATE_DRUG, new UpdateDrugCommand());
         commands.put(CommandName.DELETE_DRUG, new DeleteDrugCommand());
         commands.put(CommandName.DOCTOR_REGISTRATION, new DoctorRegistrationCommand());
@@ -66,6 +65,10 @@ public class CommandHelper {
         commands.put(CommandName.OPEN_SETTINGS, new OpenSettingsCommand());
         commands.put(CommandName.GET_SECRET, new GetUsersSecretQuestionCommand());
         commands.put(CommandName.REESTABLISH_ACCOUNT, new ReestablishAccountCommand());
+        commands.put(CommandName.ANSWER_FOR_REQUEST, new AnswerToRequestForPrescriptionCommand());
+        commands.put(CommandName.ANSWER_MESSAGE, new AnswerToMessageCommand());
+        commands.put(CommandName.REQUEST_COUNT, new GetRequestCountCommand());
+        commands.put(CommandName.UPDATE_DESCRIPTION, new UpdateUserDescriptionCommand());
     }
     public static Command getCommand(CommandName commandName){
         return commands.get(commandName);

@@ -4,6 +4,7 @@ import by.training.online_pharmacy.command.Command;
 import by.training.online_pharmacy.domain.user.RegistrationType;
 import by.training.online_pharmacy.domain.user.SecretQuestion;
 import by.training.online_pharmacy.domain.user.User;
+import by.training.online_pharmacy.service.InitConnectionService;
 import by.training.online_pharmacy.service.SecretQuestionService;
 import by.training.online_pharmacy.service.ServiceFactory;
 
@@ -22,16 +23,28 @@ public class OpenSettingsCommand implements Command {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);
         User user;
+
         if(httpSession==null||(user=(User)httpSession.getAttribute(Parameter.USER))==null){
             response.sendRedirect(Page.INDEX);
             return;
         }
+
         if(user.getRegistrationType()== RegistrationType.NATIVE){
             ServiceFactory serviceFactory = ServiceFactory.getInstance();
             SecretQuestionService secretQuestionService = serviceFactory.getSecretQuestionService();
-            List<SecretQuestion> secretQuestions = secretQuestionService.getAllSecretQuestions();
-            request.setAttribute(Parameter.SECRET_QUESTIONS, secretQuestions);
+
+            try {
+                List<SecretQuestion> secretQuestions = secretQuestionService.getAllSecretQuestions();
+                request.setAttribute(Parameter.SECRET_QUESTIONS, secretQuestions);
+
+            }
+            finally {
+                InitConnectionService initConnectionService = serviceFactory.getInitConnectionService();
+                initConnectionService.freeConnection();
+
+            }
         }
+
         request.getRequestDispatcher(Page.SETTINGS).forward(request, response);
     }
 }

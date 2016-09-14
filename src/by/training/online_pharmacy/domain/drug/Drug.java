@@ -1,7 +1,6 @@
 package by.training.online_pharmacy.domain.drug;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**

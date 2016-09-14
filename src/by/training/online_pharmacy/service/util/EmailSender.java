@@ -23,7 +23,9 @@ public class EmailSender {
     private static final String MAIL_SMTP_STARTTLS_ENABLE_VAL = "true";
     private static final String MAIL_SMTP_HOST_VAL = "smtp.gmail.com";
     private static final String MAIL_SMTP_PORT_VAL = "587";
+
     private static final Logger logger = LogManager.getRootLogger();
+
     public EmailSender(String username, String password) {
         this.username = username;
         this.password = password;
@@ -36,6 +38,7 @@ public class EmailSender {
     }
 
     public void send(String subject, String text, String toEmail){
+
         Session session = Session.getInstance(props, new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(username, password);
@@ -48,6 +51,7 @@ public class EmailSender {
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
             message.setSubject(subject);
             message.setText(text);
+
             Runnable transferMailThread = () -> {
                 try {
                     Transport.send(message);
@@ -55,9 +59,11 @@ public class EmailSender {
                     logger.error("Something went wrong when trying to send email");
                 }
             };
+
             new Thread(transferMailThread).start();
         } catch (MessagingException e) {
             throw new RuntimeException(e);
+
         }
     }
 }

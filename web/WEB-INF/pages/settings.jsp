@@ -220,6 +220,54 @@
                     </script>
 
                 </c:if>
+                <c:if test="${user.userRole eq 'DOCTOR'}">
+                    <form class="form-horizontal" id="staff_description">
+                        <input type="hidden" name="command" value="UPDATE_DESCRIPTION">
+                        <legeng>Описание персонала</legeng>
+                        <div class="form-group">
+                            <label for="specialization" class="col-md-4 control-label">Специализация</label>
+                            <div class="col-md-4">
+                                <input type="text" value="${user.userDescription.specialization}" class="form-control input-md span3" name="specialization" id="specialization" placeholder="Специализация" required maxlength="40">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="description" class="col-md-4 control-label">Описание:</label>
+                            <div class="col-md-4">
+                                <textarea id="description" name="description" maxlength="300" placeholder="Описание" required>${user.userDescription.description}</textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-4 control-label"></label>
+                            <div class="col-md-4">
+                                <button type="submit"  class="btn btn-primary">Сохранить</button>
+                            </div>
+                        </div>
+                    </form>
+                    <script>
+                        $('#staff_description').submit(function () {
+                            var data = $(this).serialize();
+                            $.ajax({
+                                url:'controller',
+                                type:'POST',
+                                dataType:'json',
+                                data:data,
+                                success:function (data) {
+                                    if(data.result==true){
+                                        Notify.generate('Информация успешно обновлена', 'Готово', 1);
+                                    }
+                                    else {
+                                        Notify.generate("Произошла ошибка при попытке обновления информации", "Ошибка", 3);
+                                    }
+                                },
+                                error:function () {
+                                    Notify.generate("Произошла ошибка при попытке обновления информации", "Ошибка", 3);
+                                }
+                            });
+                            return false;
+                        });
+                    </script>
+                </c:if>
+                <c:if test="${user.registrationType eq 'NATIVE'}">
                 <div class="form-horizontal">
                     <fieldset>
                         <legend>Удаление аккаунта</legend>
@@ -238,11 +286,10 @@
                         </div>
                     </fieldset>
                 </div>
-               <!-- </form>-->
+                </c:if>
+
                 <script>
-                    /**
-                     * Created by vladislav on 03.08.16.
-                     */
+
                     $("#save_personal_info").click(function () {
                         var firstName = $("#first_name").val();
                         var secondName = $("#second_name").val();
@@ -353,6 +400,15 @@
                         var formData = new FormData();
                         formData.append("command", "UPLOAD_PROFILE_IMAGE");
                         formData.append("profile_image", $("#profile_image1")[0].files[0]);
+                        alert($("#profile_image1")[0].files[0].size+" "+$("#profile_image1")[0].files[0].type);
+                        if($('#profile_image1')[0].files[0].size>1.342e+9){
+                            Notify.generate("Размер файла слишком велик");
+                            return;
+                        }
+                        if(!$('#profile_image1')[0].files[0].type.contains('image')){
+                            Notify.generate("Данный файл не является картинкой");
+                            return;
+                        }
                         $("#loading").show();
                         $.ajax({
                             type: 'POST',
@@ -434,4 +490,10 @@
             }
         };
     </script>
+    <c:if test="${user.userRole eq 'CLIENT' or user.userRole eq 'DOCTOR'}">
+        <script src="js/sendRequest.js"></script>
+    </c:if>
+    <c:if test="${user.userRole eq 'DOCTOR'}">
+        <script src="js/requestsForPrescription.js"></script>
+    </c:if>
 </html>

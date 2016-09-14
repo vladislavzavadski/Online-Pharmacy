@@ -10,6 +10,8 @@ import by.training.online_pharmacy.service.exception.InvalidParameterException;
  */
 public interface SocialNetworkService {
     User userLoginVk(String code) throws CanceledAuthorizationException, InternalServerException, InvalidParameterException;
+
     User userLoginFb(String code) throws CanceledAuthorizationException, InternalServerException, InvalidParameterException;
+
     User userLoginLi(String code) throws CanceledAuthorizationException, InternalServerException, InvalidParameterException;
 }

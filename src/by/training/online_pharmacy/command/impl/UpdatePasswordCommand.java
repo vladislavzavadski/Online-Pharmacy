@@ -2,6 +2,7 @@ package by.training.online_pharmacy.command.impl;
 
 import by.training.online_pharmacy.command.Command;
 import by.training.online_pharmacy.domain.user.User;
+import by.training.online_pharmacy.service.InitConnectionService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.UserService;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
@@ -24,29 +25,46 @@ public class UpdatePasswordCommand implements Command {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);
         User user;
+
         if(httpSession==null||(user = (User)httpSession.getAttribute(Parameter.USER))==null){
             response.sendRedirect(Page.INDEX);
             return;
         }
 
-        ServiceFactory serviceFactory = ServiceFactory.getInstance();
-        UserService userService = serviceFactory.getUserService();
         response.setContentType(Content.JSON);
         ServletOutputStream servletOutputStream = response.getOutputStream();
         JSONObject jsonObject = new JSONObject();
+
+        ServiceFactory serviceFactory = ServiceFactory.getInstance();
+        UserService userService = serviceFactory.getUserService();
+
         try {
             userService.updatePassword(user, request.getParameter(Parameter.NEW_PASSWORD), request.getParameter(Parameter.OLD_PASSWORD));
             jsonObject.put(Parameter.RESULT, true);
-        } catch (InvalidPasswordException|InvalidParameterException e) {
+
+        } catch (InvalidPasswordException e) {
             jsonObject.put(Parameter.RESULT, false);
             jsonObject.put(Parameter.MESSAGE, e.getMessage());
             jsonObject.put(Parameter.IS_CRITICAL, false);
-        }catch (NotFoundException e) {
+
+        } catch (InvalidParameterException e) {
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.MESSAGE, "One of passed parameters is invalid");
+            jsonObject.put(Parameter.IS_CRITICAL, false);
+
+        } catch (NotFoundException e) {
             httpSession.invalidate();
             jsonObject.put(Parameter.RESULT, false);
             jsonObject.put(Parameter.IS_CRITICAL, true);
-            jsonObject.put(Parameter.MESSAGE, e.getMessage());
+            jsonObject.put(Parameter.MESSAGE, "User was not found. Or he was deleted");
+
         }
+        finally {
+            InitConnectionService initConnectionService = serviceFactory.getInitConnectionService();
+            initConnectionService.freeConnection();
+
+        }
+
         servletOutputStream.write(jsonObject.toString().getBytes());
     }
 }

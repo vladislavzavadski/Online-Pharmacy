@@ -11,7 +11,7 @@ import java.util.List;
  * Created by vladislav on 10.08.16.
  */
 public interface OrderService {
-    void createOrder(Order order) throws InvalidParameterException, NotFoundException, AmbiguousValueException, PrescriptionNotFoundException;
+    void createOrder(Order order) throws InvalidParameterException, NotFoundException, PrescriptionNotFoundException, AmbiguousValueException;
 
     List<Order> getAllUsersOrders(User user, SearchOrderCriteria searchOrderCriteria, int startFrom, int limit) throws InvalidParameterException;
 

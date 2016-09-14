@@ -4,6 +4,7 @@ import by.training.online_pharmacy.command.Command;
 import by.training.online_pharmacy.domain.drug.DrugManufacturer;
 import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.service.DrugService;
+import by.training.online_pharmacy.service.InitConnectionService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
 import by.training.online_pharmacy.service.exception.InvalidUserStatusException;
@@ -24,10 +25,12 @@ public class CreateDrugManufacturerCommand implements Command {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);
         User user;
+
         if(httpSession==null||(user=(User)httpSession.getAttribute(Parameter.USER))==null){
             response.sendRedirect(Page.INDEX);
             return;
         }
+
         JSONObject jsonObject = new JSONObject();
         ServletOutputStream servletOutputStream = response.getOutputStream();
         response.setContentType(Content.JSON);
@@ -37,13 +40,24 @@ public class CreateDrugManufacturerCommand implements Command {
         drugManufacturer.setDescription(request.getParameter(Parameter.MANUFACTURER_DESCRIPTION));
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         DrugService drugService = serviceFactory.getDrugService();
+
         try {
             drugService.createDrugManufacturer(user, drugManufacturer);
             jsonObject.put(Parameter.RESULT, true);
-        } catch (InvalidUserStatusException | InvalidParameterException e) {
+
+        } catch (InvalidUserStatusException e) {
             jsonObject.put(Parameter.RESULT, false);
-            jsonObject.put(Parameter.MESSAGE, e.getMessage());
+            jsonObject.put(Parameter.MESSAGE, "Only pharmacist can create new drug manufacture");
+
+        } catch (InvalidParameterException e) {
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.MESSAGE, "One of passed parameters is invalid");
+
+        } finally {
+            InitConnectionService initConnectionService = serviceFactory.getInitConnectionService();
+            initConnectionService.freeConnection();
         }
+
         servletOutputStream.write(jsonObject.toString().getBytes());
     }
 }

@@ -6,10 +6,13 @@ import by.training.online_pharmacy.domain.drug.DrugClass;
 import by.training.online_pharmacy.domain.drug.DrugManufacturer;
 import by.training.online_pharmacy.domain.drug.SearchDrugsCriteria;
 import by.training.online_pharmacy.service.DrugService;
+import by.training.online_pharmacy.service.InitConnectionService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
+import org.json.JSONObject;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -20,17 +23,21 @@ import java.util.List;
  * Created by vladislav on 09.08.16.
  */
 public class ExtendedSearchCommand implements Command {
+    private static final int LIMIT = 6;
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);
+
         if(httpSession==null||httpSession.getAttribute(Parameter.USER)==null){
             response.sendRedirect(Page.INDEX);
             return;
         }
+
         int pageNumber = Integer.parseInt(request.getParameter(Parameter.PAGE));
-        ServiceFactory serviceFactory = ServiceFactory.getInstance();
-        DrugService drugService = serviceFactory.getDrugService();
+
         SearchDrugsCriteria searchDrugsCriteria = new SearchDrugsCriteria();
+
         searchDrugsCriteria.setName(request.getParameter(Parameter.NAME));
         searchDrugsCriteria.setActiveSubstance(request.getParameter(Parameter.ACTIVE_SUBSTANCE));
         searchDrugsCriteria.setDrugMaxPrice(request.getParameter(Parameter.MAX_PRICE));
@@ -39,12 +46,28 @@ public class ExtendedSearchCommand implements Command {
         searchDrugsCriteria.setOnlyInStock(request.getParameter(Parameter.ONLY_IN_STOCK));
         searchDrugsCriteria.setPrescriptionEnable(request.getParameter(Parameter.ONLY_FREE));
 
+        ServiceFactory serviceFactory = ServiceFactory.getInstance();
+        DrugService drugService = serviceFactory.getDrugService();
+
         try {
-            List<Drug> drugs = drugService.extendedDrugSearch(searchDrugsCriteria,  6, (pageNumber-1)*6);
+            List<Drug> drugs = drugService.extendedDrugSearch(searchDrugsCriteria,  LIMIT, (pageNumber-1)*LIMIT);
             request.setAttribute(Parameter.DRUG_LIST, drugs);
             request.getRequestDispatcher(Page.DRUG).forward(request, response);
+
         } catch (InvalidParameterException e) {
-            e.printStackTrace();
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.MESSAGE, "One of passed parameters is invalid");
+
+            ServletOutputStream servletOutputStream = response.getOutputStream();
+            response.setContentType(Content.JSON);
+
+            servletOutputStream.write(jsonObject.toString().getBytes());
+        }
+
+        finally {
+            InitConnectionService initConnectionService = serviceFactory.getInitConnectionService();
+            initConnectionService.freeConnection();
         }
     }
 }

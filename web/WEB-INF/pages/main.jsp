@@ -164,5 +164,11 @@
             };
         </script>
     </c:if>
+    <c:if test="${user.userRole eq 'CLIENT' or user.userRole eq 'DOCTOR'}">
+        <script src="js/sendRequest.js"></script>
+    </c:if>
+    <c:if test="${user.userRole eq 'DOCTOR'}">
+        <script src="js/requestsForPrescription.js"></script>
+    </c:if>
 </body>
 </html>

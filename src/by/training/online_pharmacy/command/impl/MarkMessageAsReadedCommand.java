@@ -2,6 +2,7 @@ package by.training.online_pharmacy.command.impl;
 
 import by.training.online_pharmacy.command.Command;
 import by.training.online_pharmacy.domain.user.User;
+import by.training.online_pharmacy.service.InitConnectionService;
 import by.training.online_pharmacy.service.MessageService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
@@ -23,22 +24,37 @@ public class MarkMessageAsReadedCommand implements Command {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);
         User user;
+
         if(httpSession==null||(user=(User)httpSession.getAttribute(Parameter.USER))==null){
             response.sendRedirect(Page.INDEX);
             return;
         }
+
         int messageId = Integer.parseInt(request.getParameter(Parameter.MESSAGE_ID));
         JSONObject jsonObject = new JSONObject();
+
         ServletOutputStream servletOutputStream = response.getOutputStream();
         response.setContentType(Content.JSON);
+
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         MessageService messageService = serviceFactory.getMessageService();
+
         try {
             messageService.markMessageAsReaded(user, messageId);
             jsonObject.put(Parameter.RESULT, true);
-        } catch (InvalidParameterException|MessageNotFoundException e) {
+
+        } catch (InvalidParameterException e) {
             jsonObject.put(Parameter.RESULT, false);
-            jsonObject.put(Parameter.MESSAGE, e.getMessage());
+            jsonObject.put(Parameter.MESSAGE, "One of passed parameters is invalid");
+
+        } catch (MessageNotFoundException e) {
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.MESSAGE, "Message with id="+messageId+" was not found, or you not message owner");
+
+        } finally {
+            InitConnectionService initConnectionService = serviceFactory.getInitConnectionService();
+            initConnectionService.freeConnection();
+
         }
         servletOutputStream.write(jsonObject.toString().getBytes());
     }

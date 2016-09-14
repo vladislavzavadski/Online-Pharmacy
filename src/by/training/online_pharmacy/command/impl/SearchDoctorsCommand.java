@@ -2,6 +2,7 @@ package by.training.online_pharmacy.command.impl;
 
 import by.training.online_pharmacy.command.Command;
 import by.training.online_pharmacy.domain.user.User;
+import by.training.online_pharmacy.service.InitConnectionService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.UserService;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
@@ -23,25 +24,37 @@ public class SearchDoctorsCommand implements Command {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);
+
         if(httpSession==null||httpSession.getAttribute(Parameter.USER)==null){
             response.sendRedirect(Page.INDEX);
             return;
         }
+
         String query = request.getParameter(Parameter.QUERY);
         int page = Integer.parseInt(request.getParameter(Parameter.PAGE));
+
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         UserService userService = serviceFactory.getUserService();
+
         try {
             List<User> doctors = userService.searchDoctors(query, LIMIT, (page-1)*LIMIT);
             request.setAttribute(Parameter.DOCTOR_LIST, doctors);
             request.getRequestDispatcher(Page.DOCTOR).forward(request, response);
+
         } catch (InvalidParameterException e) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put(Parameter.RESULT, false);
-            jsonObject.put(Parameter.MESSAGE, e.getMessage());
+            jsonObject.put(Parameter.MESSAGE, "One of passed paraders is invalid");
+
             ServletOutputStream servletOutputStream = response.getOutputStream();
             response.setContentType(Content.JSON);
             servletOutputStream.write(jsonObject.toString().getBytes());
+
+        }
+        finally {
+            InitConnectionService initConnectionService = serviceFactory.getInitConnectionService();
+            initConnectionService.freeConnection();
+
         }
     }
 }

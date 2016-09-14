@@ -24,21 +24,24 @@ public interface UserDAO {
     User userAuthentication(String login, RegistrationType registrationType) throws DaoException;
 
     User userAuthentication(String login, String password, RegistrationType registrationType) throws DaoException;
-    User getUserByLogin(String login, RegistrationType registrationType) throws DaoException;
-    List<User> searchUsersByRole(UserRole userRole, int startFrom, int limit) throws DaoException;
 
     List<User> getDoctorsBySpecialization(UserDescription userDescription, int limit, int startFrom) throws DaoException;
 
-    List<User> searchUsersByName(String firstName, String secondName, int limit, int startFrom) throws DaoException;
     void insertUser(User user) throws DaoException;
+
     int deleteUser(User user) throws DaoException;
+
     boolean isLoginUsed(String login) throws DaoException;
+
     void updatePersonalInformation(User user) throws DaoException;
+
     void updateUsersPassword (User user, String newPassword) throws DaoException;
+
     void updateUsersContacts(User user) throws DaoException;
+
     void uploadProfileImage(User user) throws DaoException;
 
     List<User> getAllDoctors(int limit, int startFrom) throws DaoException;
 
-    void withdrawMoneyFromBalance(User user, int orderId) throws DaoException;
+    void withdrawMoneyFromBalance(User user, float orderSum) throws DaoException;
 }

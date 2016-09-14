@@ -36,19 +36,24 @@ public class VkApi implements Api {
         params.put(Property.REDIRECT_URI, REDIRECT_URI);
         params.put(Property.CODE, code);
         String response = RequestSender.sendRequest(params, Property.GET, API_URL);
+
         JSONObject jsonObject = new JSONObject(response);
         try {
             email = jsonObject.getString(Property.EMAIL);
+
         }catch (JSONException ignored){
 
         }
+
         userId = String.valueOf(jsonObject.getLong(Property.USER_ID));
+
         String accessToken = jsonObject.getString(Property.ACCESS_TOKEN);
         params.clear();
         params.put(Property.USER_IDS, userId);
         params.put(Property.FIELDS, PHOTO_PROPERTY+","+CONTACTS+","+SEX);
         params.put(Property.NAME_CASE, NAME_CASE);
         params.put(Property.ACCESS_TOKEN, accessToken);
+
         result = new JSONObject(RequestSender.sendRequest(params, Property.GET, BASE_URL));
     }
 
@@ -77,7 +82,9 @@ public class VkApi implements Api {
 
     @Override
     public Gender getGender() {
+
         int gender = result.getJSONArray(RESPONSE).getJSONObject(0).getInt(SEX);
+
         switch (gender){
             case 1:{
                 return Gender.FEMALE;
@@ -89,6 +96,7 @@ public class VkApi implements Api {
                 return Gender.UNKNOWN;
             }
         }
+
     }
 
     @Override

@@ -47,7 +47,7 @@ public class DatabaseUserDAO implements UserDAO {
     private static final String GET_IMAGE_QUERY = "select us_image from users where us_login=? and login_via=?;";
     private static final String TEMPLATE = " (us_first_name like ? and us_second_name like ?) ";
     private static final String QUERY_TAIL = ") order by us_first_name limit ?, ?";
-    private static final String WITHDRAW_MONEY_QUERY = "update users set us_balance=us_balance-(select or_sum from orders where or_id=? and or_client_login=? and or_login_via=?) where us_login=? and login_via=?;";
+    private static final String WITHDRAW_MONEY_QUERY = "update users set us_balance=us_balance-? where us_login=? and login_via=?;";
     private static final String ADD_MONEY_TO_BALANCE_QUERY = "update users set us_balance=us_balance+? where us_login=? and login_via=?";
     private static final String GET_USER_MAIL_BY_SECRET_WORD = "select us_mail from users inner join secret_word on us_login=sw_user_login and login_via=sw_login_via where us_login=? and login_via='native' and sw_response=md5(?);";
 
@@ -206,8 +206,6 @@ public class DatabaseUserDAO implements UserDAO {
             return user;
         } catch (SQLException | ConnectionPoolException | ParameterNotFoundException e) {
             throw new DaoException("Can not get user with login = \'"+login+"\'", e);
-        }  catch (Exception e) {
-            throw new DaoException("Can not get user with login = \'"+login+"\'", e);
         }
 
     }
@@ -358,9 +356,11 @@ public class DatabaseUserDAO implements UserDAO {
             databaseOperation.setParameter(TableColumn.REGISTRATION_TYPE, user.getRegistrationType().toString().toLowerCase());
             databaseOperation.setParameter(TableColumn.USER_MAIL, user.getMail());
             databaseOperation.setParameter(TableColumn.USER_PHONE, user.getPhone());
+
             if(databaseOperation.invokeWriteOperation()==0){
                 throw new EntityDeletedException("User "+user+" was not found in database", true);
             }
+
         } catch (SQLException | ParameterNotFoundException | ConnectionPoolException e) {
             throw new DaoException("Can not update users contacts", e);
         }
@@ -395,15 +395,13 @@ public class DatabaseUserDAO implements UserDAO {
     }
 
     @Override
-    public void withdrawMoneyFromBalance(User user, int orderId) throws DaoException {
+    public void withdrawMoneyFromBalance(User user, float orderSum) throws DaoException {
         try (DatabaseOperation databaseOperation = new DatabaseOperation(WITHDRAW_MONEY_QUERY)){
-            databaseOperation.setParameter(1, orderId);
+            databaseOperation.setParameter(1, orderSum);
             databaseOperation.setParameter(2, user.getLogin());
             databaseOperation.setParameter(3, user.getRegistrationType().toString().toLowerCase());
-            databaseOperation.setParameter(4, user.getLogin());
-            databaseOperation.setParameter(5, user.getRegistrationType().toString().toLowerCase());
             if(databaseOperation.invokeWriteOperation()==0){
-                throw new EntityNotFoundException("User="+user+" was not found or order with id="+orderId+" does't exist");
+                throw new EntityNotFoundException("User="+user+" was not found or order with id="+ orderSum +" does't exist");
             }
             databaseOperation.endTransaction();
         } catch (SQLException e) {

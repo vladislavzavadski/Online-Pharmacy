@@ -14,9 +14,7 @@ public interface UserDescriptionDAO {
 
     boolean isSpecializationExist(String specialization) throws DaoException;
 
-    UserDescription getUserDescriptionByLogin(String userLogin) throws DaoException;
     void updateUserDescription(UserDescription userDescription) throws DaoException;
-    void deleteUserDescription(String userLogin) throws DaoException;
 
     List<UserDescription> getAllSpecializations() throws DaoException;
 }

@@ -1,6 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="utf-8" %>
 <jsp:useBean id="messageList" scope="request" class="java.util.ArrayList"/>
+<jsp:useBean id="user" scope="session" class="by.training.online_pharmacy.domain.user.User"/>
 <c:forEach items="${messageList}" var="message">
     <div class="col-lg-6" style="background: white; margin-bottom: 70px">
         <div class="testimonial testimonial-primary">
@@ -24,7 +25,14 @@
                         ${message.receiverMessage}
                     </c:when>
                     <c:otherwise>
-                        <span style="color: red">Ваш собеседник еще не ответил</span>
+                        <c:choose>
+                            <c:when test="${user.userRole eq 'DOCTOR'}">
+                                <button data-receiver="${message.sender.firstName} ${message.sender.secondName}" data-toggle="modal" data-message="${message.id}" data-target="#response-modal" class="response-button btn btn-primary btn-primary">Ответить</button>
+                            </c:when>
+                            <c:otherwise>
+                                <span style="color: red">Ваш собеседник еще не ответил</span>
+                            </c:otherwise>
+                        </c:choose>
                     </c:otherwise>
                 </c:choose>
 
@@ -32,11 +40,18 @@
             <div class="testimonial-desc">
                 <img src="/controller?command=GET_USER_IMAGE&login=${message.receiver.login}&register_type=${message.receiver.registrationType}" alt="" />
                 <div class="testimonial-writer">
-                    <a href="/controller?command=GET_USER_DETAILS&login=${message.receiver.login}&register_type=${message.receiver.registrationType}">
-                        <div class="testimonial-writer-name">${message.receiver.firstName} ${message.receiver.secondName}</div>
-                    </a>
+                    <c:choose>
+                        <c:when test="${user.userRole eq 'CLIENT'}">
+                            <a href="/controller?command=GET_USER_DETAILS&login=${message.receiver.login}&register_type=${message.receiver.registrationType}">
+                                <div class="testimonial-writer-name">${message.receiver.firstName} ${message.receiver.secondName}</div>
+                            </a>
+                        </c:when>
+                        <c:otherwise>
+                            <div class="testimonial-writer-name">${message.receiver.firstName} ${message.receiver.secondName}</div>
+                        </c:otherwise>
+                    </c:choose>
                     <div class="testimonial-writer-designation">${message.responseDate}</div>
-                    <c:if test="${message.messageStatus eq 'NEW'}">
+                    <c:if test="${message.messageStatus eq 'NEW' and user.userRole eq 'CLIENT'}">
                         <div>
                             <a class="change_status" href="/controller?command=MARK_MESSAGE&me_id=${message.id} " data-id="${message.id}">Пометить сообщение как прочитанное</a>
                         </div>
@@ -46,8 +61,8 @@
             </div>
         </div>
     </div>
-
-
-
 </c:forEach>
+<c:if test="${messageList.size() eq 0 and param.page eq 1}">
+    <h2>По вашему запросу ничего не найдено</h2>
+</c:if>
 <div id="LoadedContent"></div>

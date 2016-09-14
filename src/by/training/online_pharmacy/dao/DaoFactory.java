@@ -11,10 +11,13 @@ public abstract class DaoFactory {
     private static final DaoFactory databaseDaoFactory = new DatabaseDAOFactory();
 
     public static DaoFactory takeFactory(int whichFactory){
+
         switch (whichFactory){
+
             case DATABASE_DAO_IMPL:{
                 return databaseDaoFactory;
             }
+
             default:{
                 return null;
             }
