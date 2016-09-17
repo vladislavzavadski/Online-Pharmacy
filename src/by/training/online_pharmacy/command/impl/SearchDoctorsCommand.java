@@ -2,6 +2,7 @@ package by.training.online_pharmacy.command.impl;
 
 import by.training.online_pharmacy.command.Command;
 import by.training.online_pharmacy.domain.user.User;
+import by.training.online_pharmacy.domain.user.UserDescription;
 import by.training.online_pharmacy.service.InitConnectionService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.UserService;
@@ -32,6 +33,7 @@ public class SearchDoctorsCommand implements Command {
 
         String query = request.getParameter(Parameter.QUERY);
         int page = Integer.parseInt(request.getParameter(Parameter.PAGE));
+        boolean overloadPage = Boolean.parseBoolean(request.getParameter(Parameter.OVERLOAD));
 
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         UserService userService = serviceFactory.getUserService();
@@ -39,7 +41,16 @@ public class SearchDoctorsCommand implements Command {
         try {
             List<User> doctors = userService.searchDoctors(query, LIMIT, (page-1)*LIMIT);
             request.setAttribute(Parameter.DOCTOR_LIST, doctors);
-            request.getRequestDispatcher(Page.DOCTOR).forward(request, response);
+
+            if(overloadPage){
+                List<UserDescription> userDescriptions = userService.getAllSpecializations();
+
+                request.setAttribute(Parameter.SPECIALIZATIONS, userDescriptions);
+                request.getRequestDispatcher(Page.DOCTORS).forward(request, response);
+            }
+            else {
+                request.getRequestDispatcher(Page.DOCTOR).forward(request, response);
+            }
 
         } catch (InvalidParameterException e) {
             JSONObject jsonObject = new JSONObject();

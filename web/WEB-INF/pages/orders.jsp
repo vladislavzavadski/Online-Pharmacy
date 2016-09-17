@@ -3,7 +3,9 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="utf-8" %>
 <%@include file="header.jsp"%>
+<%@include file="footer.jsp"%>
 <jsp:useBean id="orderList" scope="request" class="java.util.ArrayList"/>
+<jsp:useBean id="user" scope="session" class="by.training.online_pharmacy.domain.user.User"/>
 <!DOCTYPE html>
 <html lang="ru">
     <head>
@@ -29,10 +31,11 @@
                 height:auto;
                 top:100px;
                 right:20px;
+                z-index: 1;
             }
         </style>
         <script>
-            var loadUrl = "/controller?command=GET_ALL_ORDERS&overload=false";
+            var loadUrl = "/controller?command=GET_ALL_ORDERS";
             var status = "&or_status=";
             var currentStatus = "";
             var dateFrom = "&date_from=";
@@ -44,7 +47,7 @@
                 var date_input=$('input[class=date]'); //our date input has the name "date"
                 var container=$('.bootstrap-iso form').length>0 ? $('.bootstrap-iso form').parent() : "body";
                 date_input.datepicker({
-                    format: 'mm/dd/yyyy',
+                    format: 'yyyy-mm-dd',
                     container: container,
                     todayHighlight: true,
                     autoclose: true,
@@ -91,6 +94,9 @@
                         <a class="status" data-status="PAID" href="#">Оплачено</a>
                     </li>
                     <li>
+                        <a class="status" data-status="COMPLETED" href="#">Завершено</a>
+                    </li>
+                    <li>
                         <a id="all_orders" href="#">Все заказы</a>
                     </li>
                 </ul>
@@ -108,6 +114,16 @@
                     <button id="search_by_date" class="btn btn-primary btn-primary">Найти</button>
                 </nobr>
             </form>
+            <br/>
+            <c:if test="${user.userRole eq 'PHARMACIST'}">
+                <form id="search_by_id">
+                    <input type="hidden" name="command" value="GET_ORDER_BY_ID">
+                    <label for="order_number">Номер заказа:</label>
+                    <input type="number" min="0" step="1" max="2147483647" name="order_id" id="order_number" required>
+                    <button class="btn btn-primary btn-primary">Найти</button>
+                </form>
+            </c:if>
+
             <div class="container" style="background:white">
                 <div id="orders" class="row">
                     <jsp:include page="/order"/>
@@ -128,11 +144,16 @@
                     url+=drugName+name;
                     url+="&page=";
                     paginationUrl=url;
+
                     $.get(url+1, function (data) {
                         $("#orders").html(data);
                     });
+
+                    var pushedPage = {foo:"page"};
+                    window.history.pushState(pushedPage, "page", url+1+"&overload=true");
                     thisPageNum = 2;
                 });
+
                 $("#search_by_date").click(function () {
                     var url=loadUrl+status+currentStatus;
                     var name;
@@ -149,8 +170,12 @@
                         $("#orders").html(data);
                     });
                     thisPageNum = 2;
+                    var pushedPage = {foo:"page"};
+
+                    window.history.pushState(pushedPage, "page", url+1+"&overload=true");
                     return false;
                 });
+
                 $("#all_orders").click(function () {
                     currentStatus = "";
                     $("#from_date").val("");
@@ -159,17 +184,24 @@
                     var url=loadUrl+status+currentStatus;
                     url+="&page=";
                     paginationUrl=url;
+
                     $.get(url+1, function (data) {
                         $("#orders").html(data);
                     })
+                    var pushedPage = {foo:"page"};
+
+                    window.history.pushState(pushedPage, "page", url+1+"&overload=true");
                     thisPageNum = 2;
                 });
 
                 var thisPageNum = 2;
-                var paginationUrl = "/controller?command=GET_ALL_ORDERS&overload=false&page=";
+                var paginationUrl = "/controller?command=${param.command}&or_status=${param.or_status}&date_from=${param.date_from}&date_to=${param.date_to}&drug_name=${param.drug_name}&page=";
+                <c:if test="${param.command eq 'GET_ORDER_BY_ID'}">
+                    paginationUrl=null;
+                </c:if>
                 var thisWork = true;
                 function downloadContent(){
-                    if(thisWork) {
+                    if(thisWork && paginationUrl!=null) {
                         thisWork = false;
                         $.get(paginationUrl + thisPageNum, function (data) {
                             $("#LoadedContent").html($("#LoadedContent").html() + " " + data);
@@ -233,50 +265,15 @@
                     return false;
                 });
                 var currentParent;
+
                 $("#orders").on('click', '.pay_order', function () {
                     currentParent = $(this).parent();
                     var parent = $(this).attr("data-sum");
                     $('#price').html(parent);
                     $('#buy_drug').attr("data-order", $(this).attr("data-order"));
                 });
+
             </script>
-        <div class="modal fade" id="about-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header" align="center">
-                        <img class="image-circle img-responsive" src="images/descr.jpg" alt="О проекте"/>  
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"/>
-                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                    </div>
-                    <div class="modal-body" style="height:200; overflow:auto;">
-                    <p align="justify">
-                    Представляем вашему вниманию онлайн-аптеку.
-                    Здесь вы можете заказывать и покупать лекарста. Так же возможно получение рецепта на то или иное лекарство.
-                    </p>    
-                    </div>
-                </div>
-            </div>
-        </div>
-            <div class="modal fade" id="contacts-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header" align="center">
-                            <img class="img-circle img-responsive" src="images/contacts.jpg" alt="Контакты"/>    
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"/>
-                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                        </div>
-                        <div class="modal-body">
-                            <div class="form_group">
-                                <b>Адрес:</b>&nbsp;<span>Минск, ул. Купревича 1/2</span>
-                                <br/>
-                                <b>Телефон:</b>&nbsp;<span>+375447350720</span>
-                                <br/>
-                                <b>email:</b>&nbsp;<span><a href="mailto:vladislav.zavadski@gmail.com">vladislav.zavadski@gmail.com</a></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <div class="modal fade" id="confirm-pay" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -290,7 +287,6 @@
                             <p>Вы действительно хотите оплатить заказ? Сумма заказа $<span id="price"></span></p>
                             <p class="debug-url"></p>
                         </div>
-
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
                             <button id="buy_drug" class="btn btn-danger btn-ok" data-dismiss="modal" data-order="">Оплатить</button>
@@ -322,17 +318,6 @@
                     });
                 });
             </script>
-            <footer class="footer">
-                <div class="container">
-                    <p class="navbar-text pull-left"> 
-                        Site Built By <a href="mailto:vladislav.zavadski@gmail.com">Vladislav Zavadski</a>, EPAM Systems, 2016
-                    </p>
-                    <div class="nav navbar-nav navbar-left" style="line-height:50px">
-                        <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#about-modal">О проекте</button>
-                        <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#contacts-modal">Контакты</button>
-                    </div>
-                </div>
-            </footer>
             <script>
                 $("#menu-toggle").click(function(e) {
                     e.preventDefault();
@@ -375,5 +360,9 @@
     </c:if>
     <c:if test="${user.userRole eq 'DOCTOR'}">
         <script src="js/requestsForPrescription.js"></script>
+    </c:if>
+    <script src="js/switchLocale.js"></script>
+    <c:if test="${user.userRole eq 'PHARMACIST'}">
+        <script src="js/completeOrder.js"></script>
     </c:if>
 </html>

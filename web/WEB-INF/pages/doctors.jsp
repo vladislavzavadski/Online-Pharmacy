@@ -1,8 +1,8 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="utf-8" %>
 <%@include file="header.jsp"%>
+<%@include file="footer.jsp"%>
 <jsp:useBean id="specializations" scope="request" class="java.util.ArrayList"/>
 <jsp:useBean id="doctorList" scope="request" class="java.util.ArrayList"/>
 <jsp:useBean id="user" scope="session" class="by.training.online_pharmacy.domain.user.User"/>
@@ -12,7 +12,7 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Врачи</title>
+        <title>${doctors}</title>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <link href="css/bootstrap.css" rel="stylesheet">
         <link href="css/style.css" rel="stylesheet">
@@ -28,6 +28,7 @@
                 height:auto;
                 top:100px;
                 right:20px;
+                z-index: 1;
             }
         </style>
     </head>
@@ -39,17 +40,15 @@
             <div id="sidebar-wrapper">
                 <ul class="sidebar-nav">
                     <li class="sidebar-brand">
-
-                        Классификация врачей:
-
+                        ${docSpec}:
                     </li>
                     <c:forEach items="${specializations}" var="spec">
                         <li>
-                            <a class="spec" href="/controller?command=GET_DOCTORS_BY_SPECIALIZATION&specialization=${spec.specialization}">${spec.specialization}</a>
+                            <a class="spec" href="/controller?command=GET_DOCTORS&specialization=${spec.specialization}">${spec.specialization}</a>
                         </li>
                     </c:forEach>
                     <li>
-                        <a id="all_doctors" href="#">Все врачи</a>
+                        <a id="all_doctors" href="#">${all} ${doctors}</a>
                     </li>
                 </ul>
             </div>
@@ -61,17 +60,26 @@
                         $("#doctors").html(data);
                     });
                     load = true;
+
+                    var pushedPage = {foo: "bar"};
+                    window.history.pushState(pushedPage, "page2", loadUrl+1+"&overload=true");
+
                     return false;
                 });
+
                 $("#all_doctors").click(function () {
                     thisPageNum = 2;
-                    loadUrl = "/controller?command=GET_ALL_DOCTORS&page=";
+                    loadUrl = "/controller?command=GET_DOCTORS&page=";
                     $.get(loadUrl+1, function (data) {
                        $("#doctors").html(data);
                     });
+
+                    var pushedPage = {foo: "bar"};
+                    window.history.pushState(pushedPage, "page2", loadUrl+1+"&overload=true");
                     load = true;
                     return false;
                 });
+
                 $("#search_button").click(function () {
                     thisPageNum = 2;
                     var query;
@@ -84,13 +92,15 @@
                     $.get(loadUrl+1, function (data) {
                         $("#doctors").html(data);
                     });
+                    var pushedPage = {foo:"bar"};
+                    window.history.pushState(pushedPage, "page", loadUrl+1+"&overload=true");
                     load = true;
                     return false;
                 });
             </script>
-            <h1 class="display_1">Врачи</h1>
+            <h1 class="display_1">${doctors}</h1>
             <c:if test="${user.userRole eq 'PHARMACIST'}">
-                <button data-toggle="modal" data-target="#registration-modal" class="btn btn-default btn-success">Зарегистрировать врача</button>
+                <button data-toggle="modal" data-target="#registration-modal" class="btn btn-default btn-success">${newDoctor}</button>
             </c:if>
             <div class="container content" style="background:white">
                 <div id="doctors" class="row">
@@ -99,55 +109,6 @@
                 </div>
             </div>
         </div>
-
-        <div class="modal fade" id="about-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header" align="center">
-                        <img class="image-circle img-responsive" src="images/descr.jpg" alt="О проекте"/>  
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"/>
-                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                    </div>
-                    <div class="modal-body" style="height:200; overflow:auto;">
-                    <p align="justify">
-                    Представляем вашему вниманию онлайн-аптеку.
-                    Здесь вы можете заказывать и покупать лекарста. Так же возможно получение рецепта на то или иное лекарство.
-                    </p>    
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal fade" id="contacts-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header" align="center">
-                        <img class="img-circle img-responsive" src="images/contacts.jpg" alt="Контакты"/>    
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"/>
-                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                    </div> 
-                    <div class="modal-body">
-                        <div class="form_group">
-                            <b>Адрес:</b>&nbsp;<span>Минск, ул. Купревича 1/2</span>
-                            <br/>
-                            <b>Телефон:</b>&nbsp;<span>+375447350720</span>
-                            <br/>
-                            <b>email:</b>&nbsp;<span><a href="mailto:vladislav.zavadski@gmail.com">vladislav.zavadski@gmail.com</a></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>      
-            <footer class="footer">
-                <div class="container">
-                    <p class="navbar-text pull-left"> 
-                        Site Built By <a href="mailto:vladislav.zavadski@gmail.com">Vladislav Zavadski</a>, EPAM Systems, 2016
-                    </p>
-                    <div class="nav navbar-nav navbar-left" style="line-height:50px">
-                        <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#about-modal">О проекте</button>
-                        <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#contacts-modal">Контакты</button>
-                    </div>
-                </div>
-            </footer>
             <script>
                 $("#menu-toggle").click(function(e) {
                     e.preventDefault();
@@ -156,7 +117,7 @@
                 var thisPageNum = 2;
                 var load = true;
                 var thisWork=1;
-                var loadUrl = "/controller?command=GET_ALL_DOCTORS&page=";
+                var loadUrl = "/controller?command=${param.command}&specialization=${param.specialization}&query=${param.query}&page=";
                 function downloadContent(){
                     if(thisWork == 1){
                         thisWork = 0;
@@ -164,6 +125,12 @@
                             $("#LoadedContent").html($("#LoadedContent").html()+" "+data);
                             thisPageNum = thisPageNum + 1;
                             thisWork = 1;
+                            if(data.toString().contains('<div')){
+                                console.log("not empty");
+                            }
+                            else {
+                                console.log("empty");
+                            }
                         });
                     }
                 }
@@ -191,44 +158,44 @@
                             <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">
                                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                             </button>
-                            <img class="img-circle img-responsive" id="img_logo" src="images/reg.png" alt="Регистрация">
+                            <img class="img-circle img-responsive" id="img_logo" src="images/reg.png" alt="${registration}">
                         </div>
                         <form id="register-form" method="post" action="/controller">
                             <input name="command" type="hidden" value="DOCTOR_REGISTRATION">
                             <div class="modal-body">
                                 <div id="div-register-msg">
                                     <div id="icon-register-msg" class="glyphicon glyphicon-chevron-right"></div>
-                                    <span id="text-register-msg">Регистрация аккаунта</span>
+                                    <span id="text-register-msg">${registration}</span>
                                 </div>
                                 <div class="form_group">
-                                    <label for="register_username">Логин: </label>
-                                    <input max="30" id="register_username" class="form-control" type="text" placeholder="Логин" required name="login" autofocus>
+                                    <label for="register_username">${login}: </label>
+                                    <input max="30" id="register_username" class="form-control" type="text" placeholder="${login}" required name="login" autofocus>
                                     <span id="login_message"></span>
                                 </div>
                                 <div class="form_group">
-                                    <label for="register_first_name">Имя: </label>
-                                    <input max="30" id="register_first_name" class="form-control" type="text" placeholder="Имя" required name="first_name">
+                                    <label for="register_first_name">${firstName}: </label>
+                                    <input max="30" id="register_first_name" class="form-control" type="text" placeholder="${firstName}" required name="first_name">
                                 </div>
                                 <div class="form_group">
-                                    <label for="register_second_name">Фамилия: </label>
-                                    <input max="30" id="register_second_name" class="form-control" type="text" placeholder="Фамилия" required name="second_name">
+                                    <label for="register_second_name">${lastName}: </label>
+                                    <input max="30" id="register_second_name" class="form-control" type="text" placeholder="${lastName}" required name="second_name">
                                 </div>
                                 <div class="form_group">
                                     <label for="register_email">E-mail: </label>
                                     <input max="45" id="register_email" class="form-control" type="email" placeholder="E-Mail" required name="email">
                                 </div>
                                 <div class="form_group">
-                                    <label for="specialization">Специализация:</label>
-                                    <input max="20" id="specialization" class="form-control" type="text" placeholder="Специализация" required name="specialization">
+                                    <label for="specialization">${specialization}:</label>
+                                    <input max="20" id="specialization" class="form-control" type="text" placeholder="${specialization}" required name="specialization">
                                 </div>
                                 <div class="form_group">
-                                    <label for="description">Описание врача:</label>
-                                    <textarea maxlength="100" required id="description" class="form-control" name="description" placeholder="Описание"></textarea>
+                                    <label for="description">${description}:</label>
+                                    <textarea maxlength="100" required id="description" class="form-control" name="description" placeholder="${description}"></textarea>
                                 </div>
                             </div>
                             <div class="modal-footer">
                                 <div>
-                                    <button type="submit" id="reg_button" class="btn btn-primary btn-lg btn-block" disabled>Зарегистрироваться</button>
+                                    <button type="submit" id="reg_button" class="btn btn-primary btn-lg btn-block" disabled>${register}</button>
                                 </div>
                             </div>
                         </form>
@@ -266,11 +233,11 @@
                             $('#registration-modal').modal('toggle');
                             $(this).trigger('reset');
                             if(data.result==true){
-                                Notify.generate('Новый врач успешно зарегестрирован', 'Готово', 1);
+                                Notify.generate('Новый врач успешно зарегестрирован', '${completed}', 1);
 
                             }
                             else {
-                                Notify.generate('Ответ сервера '+data.message, 'Ошибка', 3);
+                                Notify.generate('Ответ сервера '+data.message, '${error}', 3);
                             }
                         }
                     });
@@ -314,4 +281,5 @@
     <c:if test="${user.userRole eq 'DOCTOR'}">
         <script src="js/requestsForPrescription.js"></script>
     </c:if>
+    <script src="js/switchLocale.js"></script>
 </html>

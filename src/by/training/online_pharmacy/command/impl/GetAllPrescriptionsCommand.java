@@ -44,6 +44,7 @@ public class GetAllPrescriptionsCommand implements Command {
 
         try {
             List<Prescription> prescriptions = prescriptionService.searchPrescriptions(user, drugName, prescriptionStatus, LIMIT, (page-1)*LIMIT);
+
             request.setAttribute(Parameter.PRESCRIPTIONS, prescriptions);
 
             if(pageOverload) {

@@ -8,7 +8,6 @@
 <%@include file="header.jsp"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@include file="footer.jsp"%>
-<c:set var="prevRequest" value="<%=request.getRequestURL().toString()%>" scope="session"/>
 <!DOCTYPE html>
 <html>
 <head>
@@ -30,6 +29,7 @@
             height:auto;
             top:100px;
             right:20px;
+            z-index: 1;
         }
     </style>
 </head>
@@ -54,7 +54,7 @@
                     <c:if test="${user.userRole eq 'CLIENT'}">
                         <b>${balance}:</b>
                         <span id="us_balance">${user.balance}</span>
-                        <button data-toggle="modal" data-target="#replish-modal" class="btn btn-primary">Пополнить</button>
+                        <button data-toggle="modal" data-target="#replish-modal" class="btn btn-primary">${refill}</button>
                         <br/>
                     </c:if>
                     <b>${gender}: </b>&nbsp
@@ -91,21 +91,21 @@
                     <div class="modal-body">
                         <div id="div-login-msg">
                             <div id="icon-login-msg" class="glyphicon glyphicon-chevron-right"></div>
-                            <span id="text-login-msg">Введите код карты и сумму</span>
+                            <span id="text-login-msg">${entCard}</span>
                         </div>
                         <div class="form-group">
-                            <label for="replenish-sum">Сумма $: </label>
-                            <input id="replenish-sum" class="form-control" type="number" min="1" step="0.1" placeholder="Сумма" name="payment" required>
+                            <label for="replenish-sum">${sum} $: </label>
+                            <input id="replenish-sum" class="form-control" max="${999.99-user.balance}" type="number" min="1" step="0.1" placeholder="${sum}" name="payment" required>
                         </div>
                         <div class="form-group">
-                            <label for="replenish-card">Номер карты:</label>
-                            <input id="replenish-card" class="form-control" type="text" placeholder="Номер карты" name="card_number" required>
+                            <label for="replenish-card">${cardNumber}:</label>
+                            <input id="replenish-card" class="form-control" type="text" placeholder="${cardNumber}" name="card_number" required>
                         </div>
 
                     </div>
                     <div class="modal-footer">
                         <div>
-                            <button id="submitButton" type="submit" class="btn btn-primary btn-lg btn-block">Пополнить</button>
+                            <button id="submitButton" type="submit" class="btn btn-primary btn-lg btn-block">${refill}</button>
                         </div>
                     </div>
                 </form>
@@ -126,7 +126,7 @@
                         $('#replish-modal').modal('toggle');
                         $(this).trigger('reset');
                         if(data.result==true){
-                            Notify.generate('Ваш баланс пополнен', 'Готово', 1);
+                            Notify.generate('${balanceRefilled}', '${completed}', 1);
                             $('#us_balance').html(currentBalance+addSum+"");
                         }
                     }
@@ -170,5 +170,6 @@
     <c:if test="${user.userRole eq 'DOCTOR'}">
         <script src="js/requestsForPrescription.js"></script>
     </c:if>
+<script src="js/switchLocale.js"></script>
 </body>
 </html>

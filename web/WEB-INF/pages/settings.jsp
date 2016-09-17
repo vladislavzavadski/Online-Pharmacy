@@ -7,7 +7,6 @@
     <c:redirect url="http://localhost:8080"/>
 </c:if>
 <jsp:useBean id="user" scope="session" class="by.training.online_pharmacy.domain.user.User"/>
-<c:set var="prevRequest" value="<%=request.getRequestURL().toString()%>" scope="session"/>
 <!DOCTYPE html>
 <html lang="ru">
     <head>
@@ -36,6 +35,7 @@
                 height:auto;
                 top:100px;
                 right:20px;
+                z-index: 1;
             }
         </style>
     </head>
@@ -52,13 +52,13 @@
                         <div class="form-group">
                             <label class="col-md-4 control-label" for="first_name">Имя:</label>  
                             <div class="col-md-4">
-                                <input id="first_name"  name="first_name" type="text" value="${user.firstName}" class="form-control input-md span3" required="">
+                                <input id="first_name"  name="first_name" maxlength="30" type="text" value="${user.firstName}" class="form-control input-md span3" required="">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-4 control-label" for="second_name">Фамилия:</label>  
                             <div class="col-md-4">
-                                <input id="second_name"  name="second_name" type="text" value="${user.secondName}" class="form-control input-md span3" required="">
+                                <input id="second_name" maxlength="30"  name="second_name" type="text" value="${user.secondName}" class="form-control input-md span3" required="">
                             </div>
                         </div>
                         <div class="form-group">
@@ -89,19 +89,19 @@
                         <div class="form-group">
                             <label class="col-md-4 control-label" for="old_password">Старый пароль:</label>  
                             <div class="col-md-4">
-                                <input id="old_password"  name="old_password" type="password" class="form-control input-md span3" required>
+                                <input id="old_password" maxlength="60"  name="old_password" type="password" class="form-control input-md span3" required>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-4 control-label" for="new_password">Новый пароль:</label>  
                             <div class="col-md-4">
-                                <input id="new_password"  name="new_password" type="password" class="form-control input-md span3" required>
+                                <input id="new_password" maxlength="60"  name="new_password" type="password" class="form-control input-md span3" required>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-4 control-label" for="confirm_password">Подтверждение пароля:</label>  
                             <div class="col-md-4">
-                                <input id="confirm_password"  name="confirm_password" type="password" class="form-control input-md span3" required>
+                                <input id="confirm_password" maxlength="60"  name="confirm_password" type="password" class="form-control input-md span3" required>
                             </div>
                         </div>
                         <div class="form-group">
@@ -121,13 +121,13 @@
                         <div class="form-group">
                             <label class="col-md-4 control-label" for="e-mail">E-mail:</label>  
                             <div class="col-md-4">
-                                <input id="e-mail"  name="e-mail" type="email" value="${user.mail}" class="form-control input-md span3" required="">
+                                <input id="e-mail" maxlength="45"  name="e-mail" type="email" value="${user.mail}" class="form-control input-md span3" required="">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-4 control-label" for="phone_number">Номер телефона:</label>
                             <div class="col-md-4">
-                                <input id="phone_number"  name="phone_number" type="text" value="${user.phone}" class="form-control input-md span3" required="">
+                                <input id="phone_number" maxlength="15"  name="phone_number" type="text" value="${user.phone}" class="form-control input-md span3" required="">
                             </div>
                         </div>
                         <div class="form-group">
@@ -178,7 +178,7 @@
                             <div class="form-group">
                                 <label class="col-md-4 control-label" for="secret_word">Ответ:</label>
                                 <div class="col-md-4">
-                                    <input type="text" class="form-control input-md span3" name="secret_word" id="secret_word" required>
+                                    <input type="text" maxlength="50" class="form-control input-md span3" name="secret_word" id="secret_word" required>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -496,4 +496,5 @@
     <c:if test="${user.userRole eq 'DOCTOR'}">
         <script src="js/requestsForPrescription.js"></script>
     </c:if>
+    <script src="js/switchLocale.js"></script>
 </html>

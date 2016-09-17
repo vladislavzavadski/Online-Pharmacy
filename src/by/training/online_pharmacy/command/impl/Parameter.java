@@ -92,4 +92,5 @@ public class Parameter {
     public static final String DOCTOR_COMMENT = "doc_comment";
     public static final String REQUEST_COUNT = "request_count";
     public static final String DOCTOR = "doctor";
+    public static final String REDIRECT_URL="redirect_url";
 }

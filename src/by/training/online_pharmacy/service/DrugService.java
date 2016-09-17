@@ -15,7 +15,6 @@ import java.util.List;
  * Created by vladislav on 06.08.16.
  */
 public interface DrugService {
-    List<Drug> getAllDrugs(int limit, int startFrom) throws InvalidParameterException;
 
     void createDrug(User user, Drug drug, Part part) throws InvalidParameterException, InvalidUserStatusException, SpecializationNotFoundException,  InvalidContentException;
 

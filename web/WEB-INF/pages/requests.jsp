@@ -8,6 +8,7 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@include file="header.jsp"%>
+<%@include file="footer.jsp"%>
 <jsp:useBean id="user" scope="session" class="by.training.online_pharmacy.domain.user.User"/>
 <!DOCTYPE html>
 <html lang="ru">
@@ -36,6 +37,7 @@
             height:auto;
             top:100px;
             right:20px;
+            z-index: 1;
         }
     </style>
     <script>
@@ -102,17 +104,23 @@
 
         </form>
         <script>
-            var url = "/controller?command=GET_REQUESTS&overload=false&";
-            var loadUrl = url+"&page=";
+            var url = "/controller?command=GET_REQUESTS&";
+            var loadUrl = "/controller?command=${param.command}&drug_name=${param.drug_name}&date_from=${param.date_from}&date_to=${param.date_to}&status=${param.status}&page=";
             var thisPageNum = 2;
+
             $('#req_form').submit(function () {
                 currentUrl=url+$(this).serialize()+"&page=";
                 $.get(currentUrl+1, function (data) {
                     $('#requests').html(data);
                 });
+
+                var page = {foo:"page"};
+
+                window.history.pushState(page, "page", currentUrl+1+"&overload=true");
                 thisPageNum = 2;
                 return false;
             });
+
         </script>
         <div class="container" style="background:white">
             <div class="row border-between" id="requests">
@@ -148,23 +156,6 @@
             });
         </script>
     </div>
-    <div class="modal fade" id="about-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header" align="center">
-                    <img class="image-circle img-responsive" src="images/descr.jpg" alt="О проекте"/>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"/>
-                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                </div>
-                <div class="modal-body" style="height:200; overflow:auto;">
-                    <p align="justify">
-                        Представляем вашему вниманию онлайн-аптеку.
-                        Здесь вы можете заказывать и покупать лекарста. Так же возможно получение рецепта на то или иное лекарство.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
     <c:if test="${user.userRole eq 'DOCTOR'}">
         <div class="modal fade" id="confirm-request" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
             <div class="modal-dialog">
@@ -193,7 +184,7 @@
                         </div>
                         <div class="form-group">
                             <label for="doc_comment">Комментарий</label>
-                            <textarea id="doc_comment" class="form-control" name="doc_comment" placeholder="Комментарий"></textarea>
+                            <textarea id="doc_comment" maxlength="400" class="form-control" name="doc_comment" placeholder="Комментарий"></textarea>
                         </div>
                     </div>
                         <div class="modal-footer">
@@ -276,6 +267,7 @@
                 });
                 return false;
             });
+
             $('#confirm_request').submit(function () {
                 var data = $(this).serialize();
                 $.ajax({
@@ -302,39 +294,6 @@
             });
         </script>
     </c:if>
-    <div class="modal fade" id="contacts-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header" align="center">
-                    <img class="img-circle img-responsive" src="images/contacts.jpg" alt="Контакты"/>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"/>
-                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                </div>
-                <div class="modal-body">
-                    <div class="modal-body">
-                        <div class="form_group">
-                            <b>Адрес:</b>&nbsp;<span>Минск, ул. Купревича 1/2</span>
-                            <br/>
-                            <b>Телефон:</b>&nbsp;<span>+375447350720</span>
-                            <br/>
-                            <b>email:</b>&nbsp;<span><a href="mailto:vladislav.zavadski@gmail.com">vladislav.zavadski@gmail.com</a></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <footer class="footer">
-        <div class="container">
-            <p class="navbar-text pull-left">
-                Site Built By <a href="mailto:vladislav.zavadski@gmail.com">Vladislav Zavadski</a>, EPAM Systems, 2016
-            </p>
-            <div class="nav navbar-nav navbar-left" style="line-height:50px">
-                <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#about-modal">О проекте</button>
-                <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#contacts-modal">Контакты</button>
-            </div>
-        </div>
-    </footer>
 </body>
 <c:if test="${user.userRole eq 'DOCTOR'}">
 <script>
@@ -374,4 +333,5 @@
 <c:if test="${user.userRole eq 'DOCTOR'}">
     <script src="js/requestsForPrescription.js"></script>
 </c:if>
+<script src="js/switchLocale.js"></script>
 </html>

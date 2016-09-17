@@ -1,12 +1,13 @@
 package by.training.online_pharmacy.command.impl;
 
 import by.training.online_pharmacy.command.Command;
-import by.training.online_pharmacy.domain.message.MessageStatus;
 import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.service.InitConnectionService;
-import by.training.online_pharmacy.service.MessageService;
+import by.training.online_pharmacy.service.OrderService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
+import by.training.online_pharmacy.service.exception.InvalidUserStatusException;
+import by.training.online_pharmacy.service.exception.OrderNotFoundException;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
@@ -17,9 +18,10 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 /**
- * Created by vladislav on 22.08.16.
+ * Created by vladislav on 17.09.16.
  */
-public class GetMessageCountCommand implements Command {
+public class CompleteOrderCommand implements Command {
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);
@@ -30,33 +32,38 @@ public class GetMessageCountCommand implements Command {
             return;
         }
 
-        MessageStatus messageStatus = MessageStatus.valueOf(request.getParameter(Parameter.MESSAGE_STATUS));
+        int orderId = Integer.parseInt(request.getParameter(Parameter.ORDER_ID));
 
         JSONObject jsonObject = new JSONObject();
         ServletOutputStream servletOutputStream = response.getOutputStream();
         response.setContentType(Content.JSON);
 
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
-        MessageService messageService = serviceFactory.getMessageService();
+        OrderService orderService = serviceFactory.getOrderService();
 
         try {
-            int number = messageService.getMessageCount(user, messageStatus);
+            orderService.completeOrder(user, orderId);
             jsonObject.put(Parameter.RESULT, true);
-            jsonObject.put(Parameter.MESSAGES_COUNT, number);
-
-            httpSession.setAttribute(Parameter.MESSAGES_COUNT, number);
 
         } catch (InvalidParameterException e) {
             jsonObject.put(Parameter.RESULT, false);
             jsonObject.put(Parameter.MESSAGE, "One of passed parameters is invalid");
 
-        }
-        finally {
+        } catch (InvalidUserStatusException e) {
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.MESSAGE, "Only pharmacist can complete order");
+
+        } catch (OrderNotFoundException e) {
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.MESSAGE, "Order was not found");
+
+        } finally {
             InitConnectionService initConnectionService = serviceFactory.getInitConnectionService();
             initConnectionService.freeConnection();
-
         }
 
         servletOutputStream.write(jsonObject.toString().getBytes());
+
+
     }
 }

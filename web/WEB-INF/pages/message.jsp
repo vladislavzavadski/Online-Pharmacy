@@ -3,61 +3,64 @@
 <jsp:useBean id="messageList" scope="request" class="java.util.ArrayList"/>
 <jsp:useBean id="user" scope="session" class="by.training.online_pharmacy.domain.user.User"/>
 <c:forEach items="${messageList}" var="message">
-    <div class="col-lg-6" style="background: white; margin-bottom: 70px">
-        <div class="testimonial testimonial-primary">
-            <div class="testimonial-section">
-                    ${message.senderMessage}
-            </div>
-            <div class="testimonial-desc">
-                <img src="/controller?command=GET_USER_IMAGE&login=${message.sender.login}&register_type=${message.sender.registrationType}" alt="" />
-                <div class="testimonial-writer">
-                    <div class="testimonial-writer-name">${message.sender.firstName} ${message.sender.secondName}</div>
-                    <div class="testimonial-writer-designation">${message.requestDate}</div>
+    <div class="row" style="background: white; margin-bottom: 70px">
+        <div class="col-lg-6">
+            <div class="testimonial testimonial-primary">
+                <div class="testimonial-section">
+                        ${message.senderMessage}
+                </div>
+                <div class="testimonial-desc">
+                    <img src="/controller?command=GET_USER_IMAGE&login=${message.sender.login}&register_type=${message.sender.registrationType}" alt="" />
+                    <div class="testimonial-writer">
+                        <div class="testimonial-writer-name">${message.sender.firstName} ${message.sender.secondName}</div>
+                        <div class="testimonial-writer-designation">${message.requestDate}</div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-lg-6" style="background: white; margin-bottom: 70px">
-        <div class="testimonial testimonial-success">
-            <div class="testimonial-section">
-                <c:choose>
-                    <c:when test="${message.messageStatus ne 'IN_PROGRESS'}">
-                        ${message.receiverMessage}
-                    </c:when>
-                    <c:otherwise>
-                        <c:choose>
-                            <c:when test="${user.userRole eq 'DOCTOR'}">
-                                <button data-receiver="${message.sender.firstName} ${message.sender.secondName}" data-toggle="modal" data-message="${message.id}" data-target="#response-modal" class="response-button btn btn-primary btn-primary">Ответить</button>
-                            </c:when>
-                            <c:otherwise>
-                                <span style="color: red">Ваш собеседник еще не ответил</span>
-                            </c:otherwise>
-                        </c:choose>
-                    </c:otherwise>
-                </c:choose>
 
-            </div>
-            <div class="testimonial-desc">
-                <img src="/controller?command=GET_USER_IMAGE&login=${message.receiver.login}&register_type=${message.receiver.registrationType}" alt="" />
-                <div class="testimonial-writer">
+        <div class="col-lg-6" >
+            <div class="testimonial testimonial-success">
+                <div class="testimonial-section">
                     <c:choose>
-                        <c:when test="${user.userRole eq 'CLIENT'}">
-                            <a href="/controller?command=GET_USER_DETAILS&login=${message.receiver.login}&register_type=${message.receiver.registrationType}">
-                                <div class="testimonial-writer-name">${message.receiver.firstName} ${message.receiver.secondName}</div>
-                            </a>
+                        <c:when test="${message.messageStatus ne 'IN_PROGRESS'}">
+                            ${message.receiverMessage}
                         </c:when>
                         <c:otherwise>
-                            <div class="testimonial-writer-name">${message.receiver.firstName} ${message.receiver.secondName}</div>
+                            <c:choose>
+                                <c:when test="${user.userRole eq 'DOCTOR'}">
+                                    <button data-receiver="${message.sender.firstName} ${message.sender.secondName}" data-toggle="modal" data-message="${message.id}" data-target="#response-modal" class="response-button btn btn-primary btn-primary">Ответить</button>
+                                </c:when>
+                                <c:otherwise>
+                                    <span style="color: red">Ваш собеседник еще не ответил</span>
+                                </c:otherwise>
+                            </c:choose>
                         </c:otherwise>
                     </c:choose>
-                    <div class="testimonial-writer-designation">${message.responseDate}</div>
-                    <c:if test="${message.messageStatus eq 'NEW' and user.userRole eq 'CLIENT'}">
-                        <div>
-                            <a class="change_status" href="/controller?command=MARK_MESSAGE&me_id=${message.id} " data-id="${message.id}">Пометить сообщение как прочитанное</a>
-                        </div>
-                    </c:if>
-                </div>
 
+                </div>
+                <div class="testimonial-desc">
+                    <img src="/controller?command=GET_USER_IMAGE&login=${message.receiver.login}&register_type=${message.receiver.registrationType}" alt="" />
+                    <div class="testimonial-writer">
+                        <c:choose>
+                            <c:when test="${user.userRole eq 'CLIENT'}">
+                                <a href="/controller?command=GET_USER_DETAILS&login=${message.receiver.login}&register_type=${message.receiver.registrationType}">
+                                    <div class="testimonial-writer-name">${message.receiver.firstName} ${message.receiver.secondName}</div>
+                                </a>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="testimonial-writer-name">${message.receiver.firstName} ${message.receiver.secondName}</div>
+                            </c:otherwise>
+                        </c:choose>
+                        <div class="testimonial-writer-designation">${message.responseDate}</div>
+                        <c:if test="${message.messageStatus eq 'NEW' and user.userRole eq 'CLIENT'}">
+                            <div>
+                                <a class="change_status" href="/controller?command=MARK_MESSAGE&me_id=${message.id} " data-id="${message.id}">Пометить сообщение как прочитанное</a>
+                            </div>
+                        </c:if>
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>

@@ -343,7 +343,7 @@ public class UserServiceImpl implements UserService {
         UserDAO userDAO = daoFactory.getUserDAO();
 
         try {
-            userDAO.deleteUser(user);
+            userDAO.deleteUser(user);//TODO:глянь
 
         } catch (DaoException e) {
             logger.error("Something went wrong when trying to delete user", e);
@@ -395,7 +395,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getDoctorsBySpecialization(UserDescription userDescription, int limit, int startFrom)
+    public List<User> getDoctors(UserDescription userDescription, int limit, int startFrom)
             throws InternalServerException, InvalidParameterException {
 
         if(limit<=0){
@@ -406,7 +406,7 @@ public class UserServiceImpl implements UserService {
             throw new InvalidParameterException("Invalid parameter startFrom startFrom can be >0");
         }
 
-        if(userDescription==null||userDescription.getSpecialization()==null||userDescription.getSpecialization().isEmpty()){
+        if(userDescription==null){
             throw new InvalidParameterException("Parameter user specialization is invalid");
         }
 
@@ -414,7 +414,7 @@ public class UserServiceImpl implements UserService {
         UserDAO userDAO = daoFactory.getUserDAO();
 
         try {
-            List<User> doctors = userDAO.getDoctorsBySpecialization(userDescription, limit, startFrom);
+            List<User> doctors = userDAO.searchDoctors(userDescription, limit, startFrom);
             doctors.stream().filter(user -> user.getPathToImage()==null).forEach(user -> user.setPathToImage(ImageConstant.PHARMACY_DEFAULT_IMAGE));
             return doctors;
 

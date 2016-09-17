@@ -7,7 +7,6 @@ import by.training.online_pharmacy.service.InitConnectionService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.UserService;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
-import by.training.online_pharmacy.service.exception.ServiceException;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
@@ -21,7 +20,7 @@ import java.util.List;
 /**
  * Created by vladislav on 13.08.16.
  */
-public class GetDoctorsBySpecializationCommand implements Command{
+public class GetDoctorsCommand implements Command{
     private static final int LIMIT = 6;
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -32,6 +31,8 @@ public class GetDoctorsBySpecializationCommand implements Command{
             return;
         }
 
+        boolean pageOverload = Boolean.parseBoolean(request.getParameter(Parameter.OVERLOAD));
+
         int page = Integer.parseInt(request.getParameter(Parameter.PAGE));
         UserDescription userDescription = new UserDescription();
         userDescription.setSpecialization(request.getParameter(Parameter.SPECIALIZATION));
@@ -40,10 +41,19 @@ public class GetDoctorsBySpecializationCommand implements Command{
         UserService userService = serviceFactory.getUserService();
 
         try {
-            List<User> doctors = userService.getDoctorsBySpecialization(userDescription, LIMIT, (page-1)*LIMIT);
+            List<User> doctors = userService.getDoctors(userDescription, LIMIT, (page-1)*LIMIT);
 
             request.setAttribute(Parameter.DOCTOR_LIST, doctors);
-            request.getRequestDispatcher(Page.DOCTOR).forward(request, response);
+
+            if(pageOverload){
+                List<UserDescription> userDescriptions = userService.getAllSpecializations();
+
+                request.setAttribute(Parameter.SPECIALIZATIONS, userDescriptions);
+                request.getRequestDispatcher(Page.DOCTORS).forward(request, response);
+            }
+            else {
+                request.getRequestDispatcher(Page.DOCTOR).forward(request, response);
+            }
 
         } catch (InvalidParameterException e) {
             JSONObject jsonObject = new JSONObject();

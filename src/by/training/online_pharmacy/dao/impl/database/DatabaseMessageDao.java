@@ -17,6 +17,8 @@ import by.training.online_pharmacy.domain.user.UserRole;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -97,15 +99,23 @@ public class DatabaseMessageDao implements MessageDao {
             }
 
             if(searchMessageCriteria.getDateTo()!=null&&!searchMessageCriteria.getDateTo().isEmpty()){
-                Date date = new Date(searchMessageCriteria.getDateTo());
+
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Param.DATE_PATTERN);
+
+                Date date = simpleDateFormat.parse(searchMessageCriteria.getDateTo());
                 date.setHours(23);
                 date.setMinutes(59);
                 date.setSeconds(59);//TODO:исправляшки
                 databaseOperation.setParameter(paramNumber++, date);
+
             }
 
             if(searchMessageCriteria.getDateFrom()!=null&&!searchMessageCriteria.getDateFrom().isEmpty()){
-                databaseOperation.setParameter(paramNumber++, new Date(searchMessageCriteria.getDateFrom()));
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Param.DATE_PATTERN);
+
+                Date date = simpleDateFormat.parse(searchMessageCriteria.getDateFrom());
+
+                databaseOperation.setParameter(paramNumber++, date);
             }
 
             databaseOperation.setParameter(paramNumber++, startFrom);
@@ -114,7 +124,7 @@ public class DatabaseMessageDao implements MessageDao {
 
             return resultSetToMessages(resultSet);
 
-        } catch (SQLException | ConnectionPoolException e) {
+        } catch (SQLException | ConnectionPoolException|ParseException e) {
             throw new DaoException("Can not load messages from database", e);
 
         }
@@ -124,6 +134,7 @@ public class DatabaseMessageDao implements MessageDao {
     public void markMessageAsReaded(User user, int messageId) throws DaoException {
 
         try (DatabaseOperation databaseOperation = new DatabaseOperation(MARK_MESSAGE_AS_READED_QUERY)){
+
             databaseOperation.setParameter(TableColumn.MESSAGE_SENDER_LOGIN, user.getLogin());
             databaseOperation.setParameter(TableColumn.MESSAGE_SENDER_LOGIN_VIA, user.getRegistrationType().toString().toLowerCase());
             databaseOperation.setParameter(TableColumn.MESSAGE_ID, messageId);
@@ -134,21 +145,26 @@ public class DatabaseMessageDao implements MessageDao {
 
         } catch (SQLException | ConnectionPoolException | ParameterNotFoundException e) {
             throw new DaoException("Can not mark message as readed with id="+messageId, e);
+
         }
     }
 
     @Override
     public void updateMessage(Message message) throws DaoException {
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(UPDATE_MESSAGE_QUERY)){
             databaseOperation.setParameter(1, message.getReceiverMessage());
             databaseOperation.setParameter(2, message.getId());
             databaseOperation.setParameter(3, message.getReceiver().getLogin());
             databaseOperation.setParameter(4, message.getReceiver().getRegistrationType().toString().toLowerCase());
+
             if(databaseOperation.invokeWriteOperation()==0){
                 throw new EntityNotFoundException("Message="+message+" was not found, or you not a message receiver");
             }
+
         } catch (SQLException | ConnectionPoolException e) {
             throw new DaoException("Can not update message in database", e);
+
         }
     }
 
@@ -163,46 +179,59 @@ public class DatabaseMessageDao implements MessageDao {
     }
 
     private int getMessagesCount(User user, MessageStatus messageStatus, String query) throws DaoException {
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(query)){
             databaseOperation.setParameter(1, user.getLogin());
             databaseOperation.setParameter(2, user.getRegistrationType().toString().toLowerCase());
             databaseOperation.setParameter(3, messageStatus.toString().toLowerCase());
             ResultSet resultSet = databaseOperation.invokeReadOperation();
+
             if(resultSet.next()) {
                 return resultSet.getInt(TableColumn.MESSAGE_COUNT);
             }
             else {
                 return 0;
             }
+
         } catch (SQLException | ConnectionPoolException e) {
             throw new DaoException("Can not load messages number from database", e);
         }
     }
 
     private List<Message> resultSetToMessages(ResultSet resultSet) throws SQLException {
+
         List<Message> result = new ArrayList<>();
+
         while (resultSet.next()){
             Message message = new Message();
             User sender = new User();
             User receiver = new User();
+
             message.setReceiver(receiver);
             message.setSender(sender);
+
             sender.setLogin(resultSet.getString(TableColumn.MESSAGE_SENDER_LOGIN));
             sender.setRegistrationType(RegistrationType.valueOf(resultSet.getString(TableColumn.MESSAGE_SENDER_LOGIN_VIA).toUpperCase()));
+
             receiver.setLogin(resultSet.getString(TableColumn.MESSAGE_RECEIVER_LOGIN));
             receiver.setRegistrationType(RegistrationType.valueOf(resultSet.getString(TableColumn.MESSAGE_RECEIVER_LOGIN_VIA).toUpperCase()));
+
             message.setSenderMessage(resultSet.getString(TableColumn.MESSAGE_SENDER_MESSAGE));
             message.setReceiverMessage(resultSet.getString(TableColumn.MESSAGE_RECEIVER_MESSAGE));
             message.setMessageStatus(MessageStatus.valueOf(resultSet.getString(TableColumn.MESSAGE_STATUS).toUpperCase()));
             message.setRequestDate(resultSet.getTimestamp(TableColumn.MESSAGE_REQUEST_DATE));
             message.setResponseDate(resultSet.getTimestamp(TableColumn.MESSAGE_RESPONSE_DATE));
             message.setId(resultSet.getInt(TableColumn.MESSAGE_ID));
+
             sender.setFirstName(resultSet.getString(TableColumn.SENDER_FIRST_NAME));
             sender.setSecondName(resultSet.getString(TableColumn.SENDER_SECOND_NAME));
+
             receiver.setFirstName(resultSet.getString(TableColumn.RECEIVER_FIRST_NAME));
             receiver.setSecondName(resultSet.getString(TableColumn.RECEIVER_SECOND_NAME));
+
             result.add(message);
         }
+
         return result;
     }
 }

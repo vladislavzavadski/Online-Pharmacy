@@ -2,6 +2,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="utf-8" %>
 <%@include file="header.jsp"%>
+<%@include file="footer.jsp"%>
 <!DOCTYPE html>
 <html lang="ru">
     <head>
@@ -23,6 +24,7 @@
                 height:auto;
                 top:100px;
                 right:20px;
+                z-index: 1;
             }
         </style>
     </head>
@@ -43,12 +45,12 @@
                     <div id="drug_classes">
                         <c:forEach items="${drugClasses}" var="drugClass">
                             <li>
-                                <a class="Class" href="/controller?command=GET_DRUGS_BY_CLASS&overload=false&dr_class=${drugClass.name}&page=1" title="${drugClass.description}">${drugClass.name}</a>
+                                <a class="Class" href="/controller?command=EXTENDED_DRUG_SEARCH&overload=false&dr_class=${drugClass.name}&page=1" title="${drugClass.description}">${drugClass.name}</a>
                             </li>
                         </c:forEach>
                     </div>
                     <li>
-                        <a id="all_dr" href="/controller?command=GET_ALL_DRUGS&overload=false&page=1">Все классы</a>
+                        <a id="all_dr" href="/controller?command=EXTENDED_DRUG_SEARCH&overload=false&page=1">Все классы</a>
                     </li>
                 </ul>
             </div>
@@ -56,14 +58,19 @@
                 var thisPageNum = 2;
                 $('#drug_classes').on('click', '.Class',function () {
                     var toLoad = $(this).attr("href");
+
                     $.get(toLoad, function (data) {
                         $("#drugs").html(data);
                     });
+
                     load = true;
                     thisPageNum = 2;
-                    loadUrl="/controller?command=GET_DRUGS_BY_CLASS&dr_class="+$(this).html()+"&page=";
+                    loadUrl="/controller?command=EXTENDED_DRUG_SEARCH&dr_class="+$(this).html()+"&page=";
+                    var pageState = {foo:"bar"};
+                    window.history.pushState(pageState, "page2", loadUrl+1+"&overload=true");
                     return false;
                 });
+
                 $("#all_dr").click(function () {
                     var toLoad = $(this).attr("href");
                     $.get(toLoad, function (data) {
@@ -71,9 +78,12 @@
                     });
                     thisPageNum = 2;
                     load = true;
-                    loadUrl="/controller?command=GET_ALL_DRUGS&overload=false&page=";
+                    loadUrl="/controller?command=EXTENDED_DRUG_SEARCH&overload=false&page=";
+                    var pushedPage = {foo:"bar"};
+                    window.history.pushState(pushedPage, "page", loadUrl+1+"&overload=true");
                     return false;
                 });
+
                 $('#search_button').click(function () {
                     var query;
                     $('#query_string').val(function (index, value) {
@@ -82,11 +92,13 @@
                     });
                     thisPageNum=2;
                     load = true;
-                    var toLoad = "/controller?command=SEARCH_DRUGS&query="+query+"&page=1";
-                    $.get(toLoad, function (data) {
+                    var toLoad = "/controller?command=SEARCH_DRUGS&query="+query+"&page=";
+                    $.get(toLoad+1, function (data) {
                         $('#drugs').html(data);
                     });
-                    loadUrl = "/controller?command=SEARCH_DRUGS&query="+query+"&page=";
+                    loadUrl = toLoad;
+                    var pageState = {foo:"bar"};
+                    window.history.pushState(pageState, "page2", loadUrl+1+"&overload=true");
                     return false;
                 });
             </script>
@@ -108,10 +120,11 @@
                         <div id="LoadedContent" data-stop="${drugList.size()<6}"></div>
                     </c:otherwise>
                 </c:choose>
+
                 <script>
                     var load = true;
                     var thisWork = true;
-                    var loadUrl = "/controller?command=GET_ALL_DRUGS&overload=false&page="
+                    var loadUrl = "/controller?query=${param.query}&command=${param.command}&name=${param.name}&active_substance=${param.active_substance}&max_price=${param.max_price}&dr_class=${param.dr_class}&dr_manufacture=${param.dr_manufacture}&only_in_stock=${param.only_in_stock}&only_free=${param.only_free}&overload=false&page="
                     function downloadContent(){
                         if(thisWork) {
                             thisWork = false;
@@ -119,6 +132,10 @@
                                     $("#LoadedContent").html($("#LoadedContent").html() + " " + data);
                                     thisWork = true;
                                     thisPageNum = thisPageNum + 1;
+                                    if(data)
+                                        console.log("empty");
+                                    else
+                                        console.log("not empty");
                                 });
 
 
@@ -141,7 +158,7 @@
                         });
                     });
 
-                    $("#ext_search_form").submit(function () {
+                    $('#ext_search_form').submit(function () {
                         var data = $(this).serialize();
                         var url = "/controller?"+data;
                         url+="&page=";
@@ -151,6 +168,9 @@
                         thisPageNum=2;
                         loadUrl=url;
                         $("#toggler_call").attr("checked", false);
+                        var pageState = {foo:"bar"};
+                        window.history.pushState(pageState, "page2", url+1+"&overload=true");
+
                         return false;
                     });
                 </script>
@@ -160,45 +180,6 @@
             <!--/row-->
 
         </div>
-        <div class="modal fade" id="about-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header" align="center">
-                        <img class="image-circle img-responsive" src="images/descr.jpg" alt="О проекте"/>  
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"/>
-                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                    </div>
-                    <div class="modal-body" style="height:200; overflow:auto;">
-                    <p align="justify">
-                    Представляем вашему вниманию онлайн-аптеку.
-                    Здесь вы можете заказывать и покупать лекарста. Так же возможно получение рецепта на то или иное лекарство.
-                    </p>    
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal fade" id="contacts-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header" align="center">
-                        <img class="img-circle img-responsive" src="images/contacts.jpg" alt="Контакты"/>    
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"/>
-                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                    </div>
-                    <div class="modal-body">
-                        <div class="modal-body">
-                            <div class="form_group">
-                                <b>Адрес:</b>&nbsp;<span>Минск, ул. Купревича 1/2</span>
-                                <br/>
-                                <b>Телефон:</b>&nbsp;<span>+375447350720</span>
-                                <br/>
-                                <b>email:</b>&nbsp;<span><a href="mailto:vladislav.zavadski@gmail.com">vladislav.zavadski@gmail.com</a></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            </div>
             <c:if test="${user.userRole eq 'PHARMACIST'}">
             <div class="modal fade" id="new-drug-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
                 <div class="modal-dialog">
@@ -211,7 +192,6 @@
                         </div>
                         <form id="create-drug-form" action="/controller" method="post" enctype='multipart/form-data' accept-charset="utf-8">
                             <input type="hidden" name="command" value="CREATE_DRUG">
-                            <input type="hidden" name="specialization" value="Терапевт">
                             <div class="modal-body">
                                 <div id="div-register-msg">
                                     <div id="icon-register-msg" class="glyphicon glyphicon-chevron-right"></div>
@@ -219,7 +199,7 @@
                                 </div>
                                 <div class="form_group">
                                     <label for="drug_name11">Название: </label>
-                                    <input type="text" class="form-control" id="drug_name11" name="drug_name" required/>
+                                    <input type="text" class="form-control" id="drug_name11" maxlength="20" name="drug_name" required/>
                                 </div>
                                 <div class="form_group">
                                     <label for="drug_image">Фото: </label>
@@ -251,7 +231,7 @@
                                 </div>
                                 <div class="form_group">
                                     <label id="in_stock">В наличии:</label>
-                                    <input type="number" class="form-control" step="1" min="0" name="drugs_in_stock" required>
+                                    <input type="number" class="form-control" step="1" min="0" max="1000" name="drugs_in_stock" required>
                                 </div>
                                 <div class="form_group">
                                     <label id="drug_type">Тип лекарста</label>
@@ -276,11 +256,11 @@
                                 </div>
                                 <div class="form_group">
                                     <label for="drug_active_substance">Активное вещество: </label>
-                                    <input class="form-control" type="text" id="drug_active_substance" name="active_substance" required/>
+                                    <input class="form-control" maxlength="45"  type="text" id="drug_active_substance" name="active_substance" required/>
                                 </div>
                                 <div class="form_group">
                                     <label for="drug_price">Цена: </label>
-                                    <input class="form-control" type="number" min="0" id="drug_price" step="0.1" name="drug_price" required/>
+                                    <input class="form-control" type="number" max="999.99" min="0" id="drug_price" step="0.1" name="drug_price" required/>
                                 </div>
                                 <div class="form_group">
                                     <label>Дозировка: </label>
@@ -370,12 +350,12 @@
                                 </div>
                                 <div class="form_group">
                                     <label for="drug_class_name">Название класса: </label>
-                                    <input type="text" class="form-control" id="drug_class_name" name="dr_class" required/>
+                                    <input type="text" class="form-control" maxlength="30" id="drug_class_name" name="dr_class" required/>
                                     <span id="create_class_message"></span>
                                 </div>
                                 <div class="form_group">
                                     <label for="drug_price">Описание класса: </label>
-                                    <textarea class="form-control" id="description" name="class_description" placeholder="Комментарий" maxlength="200" required></textarea>
+                                    <textarea class="form-control" id="description" name="class_description" placeholder="Комментарий" maxlength="300" required></textarea>
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -463,11 +443,11 @@
                                 </div>
                                 <div class="form_group">
                                     <label for="drug_manufacturer_name">Название производителя: </label>
-                                    <input max="50" type="text" class="form-control new_man" id="drug_manufacturer_name" name="man_name" required/>
+                                    <input max="50" type="text" class="form-control new_man" maxlength="50" id="drug_manufacturer_name" name="man_name" required/>
                                 </div>
                                 <div class="form_group">
                                     <label for="drug_manufacturer_country">Страна производителя: </label>
-                                    <input max="50" type="text" class="form-control new_man" id="drug_manufacturer_country" name="man_country" required/>
+                                    <input max="50" type="text" class="form-control new_man" maxlength="50" id="drug_manufacturer_country" name="man_country" required/>
                                 </div>
                                 <span id="create_man_message"></span>
                                 <div class="form_group">
@@ -538,17 +518,6 @@
                 });
             </script>
         </c:if>
-            <footer class="footer">
-                <div class="container">
-                    <p class="navbar-text pull-left"> 
-                        Site Built By <a href="mailto:vladislav.zavadski@gmail.com">Vladislav Zavadski</a>, EPAM Systems, 2016
-                    </p>
-                    <div class="nav navbar-nav navbar-left" style="line-height:50px">
-                        <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#about-modal">О проекте</button>
-                        <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#contacts-modal">Контакты</button>
-                    </div>
-                </div>
-            </footer>
             <script>
                 $("#menu-toggle").click(function(e) {
                     e.preventDefault();
@@ -592,4 +561,5 @@
     <c:if test="${user.userRole eq 'DOCTOR'}">
         <script src="js/requestsForPrescription.js"></script>
     </c:if>
+    <script src="js/switchLocale.js"></script>
 </html>

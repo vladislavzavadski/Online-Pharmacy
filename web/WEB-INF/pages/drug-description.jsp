@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@include file="header.jsp"%>
+<%@include file="footer.jsp"%>
 <jsp:useBean id="user" scope="session" class="by.training.online_pharmacy.domain.user.User"/>
 <jsp:useBean id="drug" scope="request" class="by.training.online_pharmacy.domain.drug.Drug"/>
 <jsp:useBean id="prescriptionExist" scope="request" type="java.lang.Boolean"/>
@@ -31,6 +32,7 @@
                 height:auto;
                 top:100px;
                 right:20px;
+                z-index: 1;
             }
         </style>
         <c:if test="${drug.prescriptionEnable}">
@@ -144,23 +146,6 @@
 
             </div>
         </div>
-        <div class="modal fade" id="about-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header" align="center">
-                        <img class="image-circle img-responsive" src="images/descr.jpg" alt="О проекте"/>  
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"/>
-                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                    </div>
-                    <div class="modal-body" style="height:200; overflow:auto;">
-                    <p align="justify">
-                    Представляем вашему вниманию онлайн-аптеку.
-                    Здесь вы можете заказывать и покупать лекарста. Так же возможно получение рецепта на то или иное лекарство.
-                    </p>    
-                    </div>
-                </div>
-            </div>
-        </div>
     <c:if test="${user.userRole eq 'CLIENT'}">
         <div class="modal fade" id="order-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
          <div class="modal-dialog">
@@ -229,7 +214,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label" for="comment">Описание проблемы</label>
-                                    <textarea class="form-control" id="comment" name="comment">Комментарий</textarea>
+                                    <textarea class="form-control" id="comment" name="comment" maxlength="400" placeholder="Комментарий"></textarea>
                                     <span id="comment_comment"></span>
                                 </div>
                                 <div class="form-group">
@@ -332,7 +317,7 @@
                                 </div>
                                 <div class="form_group">
                                     <label for="drug_name">Название: </label>
-                                    <input type="text" class="form-control" id="drug_name" value="${drug.name}" name="drug_name" required/>
+                                    <input type="text" maxlength="20" class="form-control" id="drug_name" value="${drug.name}" name="drug_name" required/>
                                 </div>
                                 <div class="form_group">
                                     <label for="drug_image">Фото: </label>
@@ -364,7 +349,7 @@
                                 </div>
                                 <div class="form_group">
                                     <label for="in_stock">В наличии:</label>
-                                    <input id="in_stock" type="number" class="form-control" step="1" min="0" name="drugs_in_stock" value="${drug.drugsInStock}" required>
+                                    <input id="in_stock" type="number" max="1000" class="form-control" step="1" min="0" name="drugs_in_stock" value="${drug.drugsInStock}" required>
                                 </div>
                                 <div class="form_group">
                                     <label for="drug_type">Тип лекарста</label>
@@ -389,11 +374,11 @@
                                 </div>
                                 <div class="form_group">
                                     <label for="drug_active_substance">Активное вещество: </label>
-                                    <input class="form-control" type="text" id="drug_active_substance" name="active_substance" value="${drug.activeSubstance}" required/>
+                                    <input class="form-control" maxlength="45" type="text" id="drug_active_substance" name="active_substance" value="${drug.activeSubstance}" required/>
                                 </div>
                                 <div class="form_group">
                                     <label for="drug_price">Цена: </label>
-                                    <input class="form-control" type="number" min="0" id="drug_price" step="0.1" name="drug_price" value="${drug.price}" required/>
+                                    <input class="form-control" max="999.99" type="number" min="0" id="drug_price" step="0.1" name="drug_price" value="${drug.price}" required/>
                                 </div>
                                 <div class="form_group">
                                     <label >Дозировка: </label>
@@ -410,7 +395,7 @@
                                 </div>
                                 <div class="form_group">
                                     <label for="drug_price">Описание: </label>
-                                    <textarea class="form-control" id="description" name="drug_description" placeholder="Комментарий">${drug.description}</textarea>
+                                    <textarea class="form-control" maxlength="300" id="description" name="drug_description" placeholder="Комментарий">${drug.description}</textarea>
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -500,37 +485,7 @@
                 </div>
             </div>
         </c:if>
-        <div class="modal fade" id="contacts-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header" align="center">
-                        <img class="img-circle img-responsive" src="images/contacts.jpg" alt="Контакты"/>    
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"/>
-                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form_group">
-                            <b>Адрес:</b>&nbsp;<span>Минск, ул. Купревича 1/2</span>
-                            <br/>
-                            <b>Телефон:</b>&nbsp;<span>+375447350720</span>
-                            <br/>
-                            <b>email:</b>&nbsp;<span><a href="mailto:vladislav.zavadski@gmail.com">vladislav.zavadski@gmail.com</a></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            </div>      
-            <footer class="footer">
-                <div class="container">
-                    <p class="navbar-text pull-left"> 
-                        Site Built By <a href="mailto:vladislav.zavadski@gmail.com">Vladislav Zavadski</a>, EPAM Systems, 2016
-                    </p>
-                    <div class="nav navbar-nav navbar-left" style="line-height:50px">
-                        <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#about-modal">О проекте</button>
-                        <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#contacts-modal">Контакты</button>
-                    </div>
-                </div>
-            </footer>
+
     </body>
     <script>
         Notify = {
@@ -568,4 +523,5 @@
     <c:if test="${user.userRole eq 'DOCTOR'}">
         <script src="js/requestsForPrescription.js"></script>
     </c:if>
+    <script src="js/switchLocale.js"></script>
 </html>

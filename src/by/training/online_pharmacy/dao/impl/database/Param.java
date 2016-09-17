@@ -13,4 +13,6 @@ public class Param {
     public static final String COMMA = ",";
     public static final String FK_DRUGS_CLASS = "fk_drugs_class";
     public static final String FK_DUGS_MANUFACTURER = "fk_drugs_manuf";
+    public static final String DATE_PATTERN = "yyyy-MM-dd";
+    public static final String WHERE = " where ";
 }

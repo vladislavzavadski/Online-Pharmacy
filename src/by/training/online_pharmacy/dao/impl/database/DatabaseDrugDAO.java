@@ -29,7 +29,8 @@ public class DatabaseDrugDAO implements DrugDAO {
     private static final String GET_DRUGS_BY_CLASS_QUERY = "select dr_price, dr_id, dr_image, dr_description, dr_name, dr_active_substance, dr_class from drugs WHERE dr_class=? order by dr_name LIMIT ?, ?;";
     private static final String GET_ALL_DRUGS_QUERY = "select dr_price, dr_id, dr_image, dr_description, dr_name, dr_active_substance, dr_class from drugs order by dr_name limit ?, ?;";
     private static final String SEARCH_DRUGS_QUERY = "select dr_price, dr_id, dr_image, dr_description, dr_name, dr_active_substance, dr_class from drugs where dr_name like ? or dr_description like ?  or dr_active_substance like ? order by dr_name limit ?, ?;";
-    private static final String EXTENDED_DRUGS_SEARCH_QUERY_PREFIX = "select dr_id, dr_image, dr_description, dr_price, dr_name, dr_active_substance, dr_class from drugs where ";
+    private static final String EXTENDED_DRUGS_SEARCH_QUERY_PREFIX = "select dr_id, dr_image, dr_description, dr_price, dr_name, dr_active_substance, dr_class from drugs ";
+
     private static final String IS_PRESCRIPTION_ENABLE_QUERY = "select dr_prescription_enable from drugs where dr_id=?;";
     private static final String GET_DRUG_IMAGE_QUERY = "select dr_image from drugs where dr_id=?";
     private static final String INCREASE_DRUG_COUNT_BY_ORDER_QUERY = "update drugs set dr_in_stock=dr_in_stock+(select or_drug_count from orders where or_id=?) where dr_id=(select or_drug_id from orders where or_id=? and or_client_login=? and or_login_via=?)";
@@ -40,7 +41,7 @@ public class DatabaseDrugDAO implements DrugDAO {
     private static final String DRUG_CLASS = " dr_class=? ";
     private static final String DRUG_MANUFACTURER = " dr_man_name=? and dr_man_country=? ";
     private static final String IN_STOCK = " dr_in_stock>0 ";
-    private static final String PRESCRIPTION_ENABLE = " dr_prescription_enable=? ";
+    private static final String PRESCRIPTION_ENABLE = " dr_prescription_enable=false ";
     private static final String EXTENDED_DRUG_SEARCH_TAIL = " order by dr_name limit ?, ?;";
     private static final String IS_PRESCRIPTION_ENABLE_BY_ORDER = "select dr_prescription_enable from drugs where dr_id=(select or_drug_id from orders where or_id=?)";
     private static final String INSERT_DRUG_QUERY = "insert into drugs (dr_name, dr_price, dr_image, dr_prescription_enable, dr_description, dr_man_name, dr_man_country, dr_in_stock, dr_class, dr_type, dr_dosage, dr_active_substance, doctor_specialization) values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -48,6 +49,130 @@ public class DatabaseDrugDAO implements DrugDAO {
     private static final String DELETE_DRUG_QUERY = "delete from drugs where dr_id=?;";
     private static final String REDUCE_DRUG_COUNT_BY_NEW_ORDER = "update drugs set dr_in_stock=dr_in_stock-? where dr_id=?;";
     private static final String GET_DRUG_COUNT_IN_STOCK_QUERY = "select dr_in_stock from drugs where dr_id=?;";
+
+    @Override
+    public List<Drug> extendedSearching(SearchDrugsCriteria searchDrugsCriteria, int startFrom, int limit)
+            throws DaoException {
+
+        boolean isCriteriaStarted = false;
+
+        StringBuilder query = new StringBuilder(EXTENDED_DRUGS_SEARCH_QUERY_PREFIX);
+
+        if(searchDrugsCriteria.getName()!=null && !searchDrugsCriteria.getName().isEmpty()){
+            isCriteriaStarted = true;
+            query.append(Param.WHERE).append(DRUG_NAME);
+        }
+
+        if(searchDrugsCriteria.getDrugMaxPrice()!=null && !searchDrugsCriteria.getDrugMaxPrice().isEmpty()){
+            if(isCriteriaStarted){
+                query.append(Param.AND).append(DRUG_PRICE);
+            }
+            else {
+                query.append(Param.WHERE).append(DRUG_PRICE);
+                isCriteriaStarted = true;
+            }
+        }
+
+        if(searchDrugsCriteria.getActiveSubstance()!=null && !searchDrugsCriteria.getActiveSubstance().isEmpty()){
+
+            if(isCriteriaStarted){
+                query.append(Param.AND).append(ACTIVE_SUBSTANCE);
+            }
+            else {
+                query.append(Param.WHERE).append(ACTIVE_SUBSTANCE);
+                isCriteriaStarted = true;
+            }
+
+        }
+
+        if(searchDrugsCriteria.getDrugClass()!=null && !searchDrugsCriteria.getDrugClass().isEmpty()){
+
+            if(isCriteriaStarted){
+                query.append(Param.AND).append(DRUG_CLASS);
+            }
+            else {
+                query.append(Param.WHERE).append(DRUG_CLASS);
+                isCriteriaStarted = true;
+            }
+
+        }
+
+        if(searchDrugsCriteria.getDrugManufacture()!=null && !searchDrugsCriteria.getDrugManufacture().isEmpty()){
+
+            if(isCriteriaStarted){
+                query.append(Param.AND).append(DRUG_MANUFACTURER);
+            }
+            else {
+                query.append(Param.WHERE).append(DRUG_MANUFACTURER);
+                isCriteriaStarted = true;
+            }
+
+        }
+
+        if(searchDrugsCriteria.getOnlyInStock()!=null && !searchDrugsCriteria.getOnlyInStock().isEmpty() && Boolean.parseBoolean(searchDrugsCriteria.getOnlyInStock())){
+
+            if(isCriteriaStarted){
+                query.append(Param.AND).append(IN_STOCK);
+            }
+            else {
+                query.append(Param.WHERE).append(IN_STOCK);
+                isCriteriaStarted = true;
+            }
+
+        }
+
+        if(searchDrugsCriteria.getPrescriptionEnable()!=null && !searchDrugsCriteria.getPrescriptionEnable().isEmpty()
+                && !Boolean.parseBoolean(searchDrugsCriteria.getPrescriptionEnable())){
+
+            if(isCriteriaStarted){
+                query.append(Param.AND).append(PRESCRIPTION_ENABLE);
+            }
+            else {
+                query.append(Param.WHERE).append(PRESCRIPTION_ENABLE);
+            }
+
+        }
+
+        query.append(EXTENDED_DRUG_SEARCH_TAIL);
+
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(query.toString())){
+            int paramNumber = 1;
+
+            if(searchDrugsCriteria.getName()!=null && !searchDrugsCriteria.getName().isEmpty()){
+                databaseOperation.setParameter(paramNumber++, Param.PER_CENT+searchDrugsCriteria.getName()+Param.PER_CENT);
+            }
+
+            if(searchDrugsCriteria.getDrugMaxPrice()!=null && !searchDrugsCriteria.getDrugMaxPrice().isEmpty()){
+                databaseOperation.setParameter(paramNumber++, searchDrugsCriteria.getDrugMaxPrice());
+            }
+
+            if(searchDrugsCriteria.getActiveSubstance()!=null && !searchDrugsCriteria.getActiveSubstance().isEmpty()){
+                databaseOperation.setParameter(paramNumber++, Param.PER_CENT+searchDrugsCriteria.getActiveSubstance()+Param.PER_CENT);
+            }
+
+            if(searchDrugsCriteria.getDrugClass()!=null && !searchDrugsCriteria.getDrugClass().isEmpty()){
+                databaseOperation.setParameter(paramNumber++, searchDrugsCriteria.getDrugClass());
+            }
+
+            if(searchDrugsCriteria.getDrugManufacture()!=null && !searchDrugsCriteria.getDrugManufacture().isEmpty()){
+                String[] nameCountry = searchDrugsCriteria.getDrugManufacture().split(Param.COMMA);
+
+                databaseOperation.setParameter(paramNumber++, nameCountry[0]);
+                databaseOperation.setParameter(paramNumber++, nameCountry[1]);
+            }
+
+            databaseOperation.setParameter(paramNumber++, startFrom);
+            databaseOperation.setParameter(paramNumber, limit);
+
+            ResultSet resultSet = databaseOperation.invokeReadOperation();
+
+            return resultSetToDomainOnSearch(resultSet);
+
+        } catch (SQLException | ConnectionPoolException e) {
+            throw new DaoException("Can not load drugs from database", e);
+        }
+
+    }
 
     @Override
     public void reduceDrugCountByReestablishedOrder(User user, int orderId) throws DaoException {
@@ -124,77 +249,79 @@ public class DatabaseDrugDAO implements DrugDAO {
         }
     }
 
-    @Override
-    public List<Drug> extendedSearching(SearchDrugsCriteria searchDrugsCriteria, int startFrom, int limit) throws DaoException {
-        List<String> criteria = new ArrayList<>();
 
-        if(searchDrugsCriteria.getName()!=null&&!searchDrugsCriteria.getName().isEmpty()){
-            criteria.add(DRUG_NAME);
-        }
 
-        if(searchDrugsCriteria.getActiveSubstance()!=null&&!searchDrugsCriteria.getActiveSubstance().isEmpty()){
-            criteria.add(ACTIVE_SUBSTANCE);
-        }
-
-        if(searchDrugsCriteria.getDrugMaxPrice()!=null&&!searchDrugsCriteria.getDrugMaxPrice().isEmpty()){
-            criteria.add(DRUG_PRICE);
-        }
-
-        if(searchDrugsCriteria.getDrugClass()!=null&&!searchDrugsCriteria.getDrugClass().isEmpty()){
-            criteria.add(DRUG_CLASS);
-        }
-
-        if(searchDrugsCriteria.getDrugManufacture()!=null&&!searchDrugsCriteria.getDrugManufacture().isEmpty()){
-            criteria.add(DRUG_MANUFACTURER);
-        }
-
-        if(searchDrugsCriteria.getOnlyInStock()!=null&&!searchDrugsCriteria.getOnlyInStock().isEmpty()&&Boolean.parseBoolean(searchDrugsCriteria.getOnlyInStock())){
-            criteria.add(IN_STOCK);
-        }
-
-        if(searchDrugsCriteria.getPrescriptionEnable()!=null&&!searchDrugsCriteria.getPrescriptionEnable().isEmpty()){
-            criteria.add(PRESCRIPTION_ENABLE);
-        }
-
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(EXTENDED_DRUGS_SEARCH_QUERY_PREFIX+String.join(Param.AND, criteria)+EXTENDED_DRUG_SEARCH_TAIL)){
-            int paramNumber = 1;
-
-            if(searchDrugsCriteria.getName()!=null&&!searchDrugsCriteria.getName().isEmpty()){
-                databaseOperation.setParameter(paramNumber++, Param.PER_CENT+searchDrugsCriteria.getName()+Param.PER_CENT);
-            }
-
-            if(searchDrugsCriteria.getActiveSubstance()!=null&&!searchDrugsCriteria.getActiveSubstance().isEmpty()){
-                databaseOperation.setParameter(paramNumber++, Param.PER_CENT+searchDrugsCriteria.getActiveSubstance()+Param.PER_CENT);
-            }
-
-            if(searchDrugsCriteria.getDrugMaxPrice()!=null&&!searchDrugsCriteria.getDrugMaxPrice().isEmpty()){
-                databaseOperation.setParameter(paramNumber++, Double.parseDouble(searchDrugsCriteria.getDrugMaxPrice()));
-            }
-
-            if(searchDrugsCriteria.getDrugClass()!=null&&!searchDrugsCriteria.getDrugClass().isEmpty()){
-                databaseOperation.setParameter(paramNumber++, searchDrugsCriteria.getDrugClass());
-            }
-
-            if(searchDrugsCriteria.getDrugManufacture()!=null&&!searchDrugsCriteria.getDrugManufacture().isEmpty()){
-                String[] manufacture = searchDrugsCriteria.getDrugManufacture().split(Param.COMMA);
-                databaseOperation.setParameter(paramNumber++, manufacture[0]);
-                databaseOperation.setParameter(paramNumber++, manufacture[1]);
-            }
-
-            if(searchDrugsCriteria.getPrescriptionEnable()!=null&&!searchDrugsCriteria.getPrescriptionEnable().isEmpty()){
-                databaseOperation.setParameter(paramNumber++, Boolean.parseBoolean(searchDrugsCriteria.getPrescriptionEnable()));
-            }
-
-            databaseOperation.setParameter(paramNumber++, startFrom);
-            databaseOperation.setParameter(paramNumber, limit);
-            ResultSet resultSet = databaseOperation.invokeReadOperation();
-
-            return resultSetToDomainOnSearch(resultSet);
-        } catch (SQLException | ConnectionPoolException e) {
-            throw new DaoException("Can not load drugs with extended searching form database", e);
-
-        }
-    }
+//    @Override
+//    public List<Drug> extendedSearching(SearchDrugsCriteria searchDrugsCriteria, int startFrom, int limit) throws DaoException {
+//        List<String> criteria = new ArrayList<>();
+//
+//        if(searchDrugsCriteria.getName()!=null&&!searchDrugsCriteria.getName().isEmpty()){
+//            criteria.add(DRUG_NAME);
+//        }
+//
+//        if(searchDrugsCriteria.getActiveSubstance()!=null&&!searchDrugsCriteria.getActiveSubstance().isEmpty()){
+//            criteria.add(ACTIVE_SUBSTANCE);
+//        }
+//
+//        if(searchDrugsCriteria.getDrugMaxPrice()!=null&&!searchDrugsCriteria.getDrugMaxPrice().isEmpty()){
+//            criteria.add(DRUG_PRICE);
+//        }
+//
+//        if(searchDrugsCriteria.getDrugClass()!=null&&!searchDrugsCriteria.getDrugClass().isEmpty()){
+//            criteria.add(DRUG_CLASS);
+//        }
+//
+//        if(searchDrugsCriteria.getDrugManufacture()!=null&&!searchDrugsCriteria.getDrugManufacture().isEmpty()){
+//            criteria.add(DRUG_MANUFACTURER);
+//        }
+//
+//        if(searchDrugsCriteria.getOnlyInStock()!=null&&!searchDrugsCriteria.getOnlyInStock().isEmpty()&&Boolean.parseBoolean(searchDrugsCriteria.getOnlyInStock())){
+//            criteria.add(IN_STOCK);
+//        }
+//
+//        if(searchDrugsCriteria.getPrescriptionEnable()!=null&&!searchDrugsCriteria.getPrescriptionEnable().isEmpty()){
+//            criteria.add(PRESCRIPTION_ENABLE);
+//        }
+//
+//        try (DatabaseOperation databaseOperation = new DatabaseOperation(EXTENDED_DRUGS_SEARCH_QUERY_PREFIX+String.join(Param.AND, criteria)+EXTENDED_DRUG_SEARCH_TAIL)){
+//            int paramNumber = 1;
+//
+//            if(searchDrugsCriteria.getName()!=null&&!searchDrugsCriteria.getName().isEmpty()){
+//                databaseOperation.setParameter(paramNumber++, Param.PER_CENT+searchDrugsCriteria.getName()+Param.PER_CENT);
+//            }
+//
+//            if(searchDrugsCriteria.getActiveSubstance()!=null&&!searchDrugsCriteria.getActiveSubstance().isEmpty()){
+//                databaseOperation.setParameter(paramNumber++, Param.PER_CENT+searchDrugsCriteria.getActiveSubstance()+Param.PER_CENT);
+//            }
+//
+//            if(searchDrugsCriteria.getDrugMaxPrice()!=null&&!searchDrugsCriteria.getDrugMaxPrice().isEmpty()){
+//                databaseOperation.setParameter(paramNumber++, Double.parseDouble(searchDrugsCriteria.getDrugMaxPrice()));
+//            }
+//
+//            if(searchDrugsCriteria.getDrugClass()!=null&&!searchDrugsCriteria.getDrugClass().isEmpty()){
+//                databaseOperation.setParameter(paramNumber++, searchDrugsCriteria.getDrugClass());
+//            }
+//
+//            if(searchDrugsCriteria.getDrugManufacture()!=null&&!searchDrugsCriteria.getDrugManufacture().isEmpty()){
+//                String[] manufacture = searchDrugsCriteria.getDrugManufacture().split(Param.COMMA);
+//                databaseOperation.setParameter(paramNumber++, manufacture[0]);
+//                databaseOperation.setParameter(paramNumber++, manufacture[1]);
+//            }
+//
+//            if(searchDrugsCriteria.getPrescriptionEnable()!=null&&!searchDrugsCriteria.getPrescriptionEnable().isEmpty()){
+//                databaseOperation.setParameter(paramNumber++, Boolean.parseBoolean(searchDrugsCriteria.getPrescriptionEnable()));
+//            }
+//
+//            databaseOperation.setParameter(paramNumber++, startFrom);
+//            databaseOperation.setParameter(paramNumber, limit);
+//            ResultSet resultSet = databaseOperation.invokeReadOperation();
+//
+//            return resultSetToDomainOnSearch(resultSet);
+//        } catch (SQLException | ConnectionPoolException e) {
+//            throw new DaoException("Can not load drugs with extended searching form database", e);
+//
+//        }
+//    }
 
     @Override
     public boolean isPrescriptionEnable(int drugId) throws DaoException {

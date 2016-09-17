@@ -8,10 +8,7 @@ import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.service.InitConnectionService;
 import by.training.online_pharmacy.service.OrderService;
 import by.training.online_pharmacy.service.ServiceFactory;
-import by.training.online_pharmacy.service.exception.AmbiguousValueException;
-import by.training.online_pharmacy.service.exception.InvalidParameterException;
-import by.training.online_pharmacy.service.exception.NotFoundException;
-import by.training.online_pharmacy.service.exception.PrescriptionNotFoundException;
+import by.training.online_pharmacy.service.exception.*;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
@@ -73,6 +70,10 @@ public class CreateOrderCommand implements Command {
         } catch (AmbiguousValueException e) {
             jsonObject.put(Parameter.RESULT, false);
             jsonObject.put(Parameter.MESSAGE, "Ambiguous drug count value");
+
+        } catch (InvalidUserStatusException e) {
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.MESSAGE, "Doctors can not create orders");
 
         } finally {
             InitConnectionService initConnectionService = serviceFactory.getInitConnectionService();

@@ -7,6 +7,7 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ include file="header.jsp"%>
+<%@include file="footer.jsp"%>
 <jsp:useBean id="prescriptions" scope="request" class="java.util.ArrayList"/>
 <!DOCTYPE html>
 <html lang="ru">
@@ -60,15 +61,19 @@
             </nobr>
         </form>
         <script>
-            var loadUrl = "/controller?command=GET_PRESCRIPTIONS&overload=false&";
+            var loadUrl = "/controller?command=${param.command}&pr_status=${param.pr_status}&drug_name=${param.drug_name}&";
             var currentUrl;
             var thisPageNum = 2;
             $('#presc_form').submit(function () {
                 var data = $(this).serialize();
                 currentUrl = loadUrl+data;
+
                 $.get(currentUrl+"&page="+1, function (data) {
                     $('#prescriptions').html(data);
                 });
+
+                var pushedPage = {foo:"bar"}
+                window.history.pushState(pushedPage, "page", currentUrl+"&page="+1+"&overload=true");
                 thisPageNum = 2;
                 return false;
             });
@@ -81,54 +86,6 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="about-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header" align="center">
-                    <img class="image-circle img-responsive" src="images/descr.jpg" alt="О проекте"/>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"/>
-                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                </div>
-                <div class="modal-body" style="height:200; overflow:auto;">
-                    <p align="justify">
-                        Представляем вашему вниманию онлайн-аптеку.
-                        Здесь вы можете заказывать и покупать лекарста. Так же возможно получение рецепта на то или иное лекарство.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="contacts-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header" align="center">
-                    <img class="img-circle img-responsive" src="images/contacts.jpg" alt="Контакты"/>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"/>
-                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                </div>
-                <div class="modal-body">
-                    <div class="form_group">
-                        <b>Адрес:</b>&nbsp;<span>Минск, ул. Купревича 1/2</span>
-                        <br/>
-                        <b>Телефон:</b>&nbsp;<span>+375447350720</span>
-                        <br/>
-                        <b>email:</b>&nbsp;<span><a href="mailto:vladislav.zavadski@gmail.com">vladislav.zavadski@gmail.com</a></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <footer class="footer">
-        <div class="container">
-            <p class="navbar-text pull-left">
-                Site Built By <a href="mailto:vladislav.zavadski@gmail.com">Vladislav Zavadski</a>, EPAM Systems, 2016
-            </p>
-            <div class="nav navbar-nav navbar-left" style="line-height:50px">
-                <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#about-modal">О проекте</button>
-                <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#contacts-modal">Контакты</button>
-            </div>
-        </div>
-    </footer>
 <script>
     var thisWork = true;
     function downloadContent(){
@@ -166,5 +123,6 @@
     <c:if test="${user.userRole eq 'DOCTOR'}">
         <script src="js/requestsForPrescription.js"></script>
     </c:if>
+    <script src="js/switchLocale.js"></script>
 </body>
 </html>

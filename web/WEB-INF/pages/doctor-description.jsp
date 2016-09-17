@@ -3,6 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="utf-8" %>
 <%@include file="header.jsp"%>
+<%@include file="footer.jsp"%>
 <jsp:useBean id="doctor" scope="request" class="by.training.online_pharmacy.domain.user.User"/>
 <!DOCTYPE html>
 <html lang="ru">
@@ -33,6 +34,7 @@
                 height:auto;
                 top:100px;
                 right:20px;
+                z-index: 1;
             }
         </style>
     </head>
@@ -46,24 +48,24 @@
                         <img src="/controller?command=GET_USER_IMAGE&login=${doctor.login}&register_type=${doctor.registrationType}" alt="Фото доктора" width="220" height="250"/>
                     </div>
                     <div class="col-lg-6" style="padding-top:30px;">
-                            <b>Специализация:</b>&nbsp;
+                            <b>${specialization}:</b>&nbsp;
                             <span>${doctor.userDescription.specialization}</span>
                             <br/>
-                            <b>Телефон:</b>&nbsp;
+                            <b>${phoneNumber}:</b>&nbsp;
                             <span>${doctor.phone}</span>
                             <br/>
-                            <b>Пол:</b>&nbsp;
+                            <b>${gender}:</b>&nbsp;
                         <c:choose>
                             <c:when test="${doctor.gender eq 'MALE'}">
-                                <span>Мужчина</span>
+                                <span>${male}</span>
                             </c:when>
                             <c:otherwise>
                                 <c:choose>
                                     <c:when test="${doctor.gender eq 'FEMALE'}">
-                                        <span>Женщина</span>
+                                        <span>${female}</span>
                                     </c:when>
                                     <c:otherwise>
-                                        <span>Неизвестно</span>
+                                        <span>${unknown}</span>
                                     </c:otherwise>
                                 </c:choose>
                             </c:otherwise>
@@ -72,7 +74,7 @@
                             <b>e-mail</b>&nbsp;
                             <span><a href="mailto:${doctor.mail}">${doctor.mail}</a></span>
                             <br/>
-                            <b>Описание:</b>
+                            <b>${description}:</b>
                             <p align="justify" style="height:200px; overflow:auto">
                                 ${doctor.userDescription.description}
                             </p>
@@ -81,11 +83,11 @@
                 </div>
                 <form class="form-horizontal">
                     <fieldset>
-                        <legend>Сообщение доктору</legend>
+                        <legend>${docMessage}</legend>
                         <div class="form-group">
-                            <label class="col-md-4 control-label" for="comment">Сообщение: (<span id="symbols_enable">1000</span>)</label>
+                            <label class="col-md-4 control-label" for="comment">${message}: (<span id="symbols_enable">1000</span>)</label>
                             <div class="col-md-4">
-                                <textarea class="form-control" maxlength="1000" id="comment" name="comment" placeholder="Сообщение..."></textarea>
+                                <textarea class="form-control" maxlength="1000" id="comment" name="comment" placeholder="${message}..."></textarea>
                             </div>
                         </div>
                         <div class="form-group">
@@ -111,16 +113,10 @@
                             data: {command:'SEND_MESSAGE', message:comment, receiver_login:'${doctor.login}', receiver_login_via: '${doctor.registrationType}'},
                             success:function (data) {
                                 if(data.result){
-                                    Notify.generate('Ваше сообщение успешно отправлено', 'Успешно!', 1);
-                                }
-                                else if(data.isCritical){
-                                    Notify.generate('Логин под которым вы авторизованы удален из базы данных', 'Критическая ошибка', 3);
-                                    setTimeout(function () {
-                                        window.location = "/index.jsp";
-                                    }, 3000);
+                                    Notify.generate('${mesSended}', '${completed}', 1);
                                 }
                                 else {
-                                    Notify.generate('Выбранный вами врач не существует или был удален', 'Ошибка', 2);
+                                    Notify.generate('${mesError}', '${error}', 2);
                                 }
                             }
                         });
@@ -129,55 +125,6 @@
                 </script>
             </div>
         </div>
-        <div class="modal fade" id="about-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header" align="center">
-                        <img class="image-circle img-responsive" src="images/descr.jpg" alt="О проекте"/>  
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"/>
-                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                    </div>
-                    <div class="modal-body" style="height:200; overflow:auto;">
-                    <p align="justify">
-                    Представляем вашему вниманию онлайн-аптеку.
-                    Здесь вы можете заказывать и покупать лекарста. Так же возможно получение рецепта на то или иное лекарство.
-                    </p>    
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal fade" id="contacts-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header" align="center">
-                        <img class="img-circle img-responsive" src="images/contacts.jpg" alt="Контакты"/>    
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"/>
-                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                    </div> 
-                    <div class="modal-body">
-                        <div class="form_group">
-                            <b>Адрес:</b>&nbsp;<span>Минск, ул. Купревича 1/2</span>
-                            <br/>
-                            <b>Телефон:</b>&nbsp;<span>+375447350720</span>
-                            <br/>
-                            <b>email:</b>&nbsp;<span><a href="mailto:vladislav.zavadski@gmail.com">vladislav.zavadski@gmail.com</a></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            </div>      
-            <footer class="footer">
-                <div class="container">
-                    <p class="navbar-text pull-left"> 
-                        Site Built By <a href="mailto:vladislav.zavadski@gmail.com">Vladislav Zavadski</a>, EPAM Systems, 2016
-                    </p>
-                    <div class="nav navbar-nav navbar-left" style="line-height:50px">
-                        <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#about-modal">О проекте</button>
-                        <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#contacts-modal">Контакты</button>
-                    </div>
-                </div>
-            </footer>
-
     </body>
     <script>
         Notify = {
@@ -211,4 +158,5 @@
     <c:if test="${doctor.userRole eq 'DOCTOR'}">
         <script src="js/requestsForPrescription.js"></script>
     </c:if>
+    <script src="js/switchLocale.js"></script>
 </html>

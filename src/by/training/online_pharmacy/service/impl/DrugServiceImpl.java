@@ -30,30 +30,6 @@ import java.util.List;
 public class DrugServiceImpl implements DrugService {
     private static final Logger logger = LogManager.getLogger();
 
-    @Override
-    public List<Drug> getAllDrugs(int limit, int startFrom) throws InvalidParameterException, InternalServerException {
-
-        if(limit<=0){
-            throw new InvalidParameterException("Invalid parameter limit. Limit can be >0");
-        }
-
-        if(startFrom<0){
-            throw new InvalidParameterException("Invalid parameter startFrom startFrom can be >0");
-        }
-
-        DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
-        DrugDAO drugDAO = daoFactory.getDrugDAO();
-
-        try {
-            List<Drug> result = drugDAO.getAllDrugs(limit, startFrom);
-            return result;
-
-        } catch (DaoException e) {
-            logger.error("Something went wrong when trying to get drugs", e);
-            throw new InternalServerException(e);
-
-        }
-    }
 
     @Override
     public void createDrug(User user, Drug drug, Part part) throws InternalServerException,InvalidParameterException, InvalidUserStatusException, SpecializationNotFoundException, InvalidContentException {
@@ -302,6 +278,16 @@ public class DrugServiceImpl implements DrugService {
 
         if(searchDrugsCriteria==null){
             throw new InvalidParameterException("Invalid parameter search criteria");
+        }
+
+        if(searchDrugsCriteria.getDrugManufacture()!=null && !searchDrugsCriteria.getDrugManufacture().isEmpty()){
+            String[] nameCountry = searchDrugsCriteria.getDrugManufacture().split(",");
+
+            if(nameCountry.length != 2){
+
+                throw new InvalidParameterException("Parameter drug manufacture is invalid");
+
+            }
         }
 
         DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);

@@ -8,6 +8,7 @@ import by.training.online_pharmacy.service.InitConnectionService;
 import by.training.online_pharmacy.service.OrderService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
+import by.training.online_pharmacy.service.exception.InvalidUserStatusException;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
@@ -28,6 +29,7 @@ public class GetAllOrdersCommand implements Command {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);
         User user;
+
         if(httpSession==null||(user=(User)httpSession.getAttribute(Parameter.USER))==null){
             response.sendRedirect(Page.INDEX);
             return;
@@ -64,8 +66,16 @@ public class GetAllOrdersCommand implements Command {
             ServletOutputStream servletOutputStream = response.getOutputStream();
             response.setContentType(Content.JSON);
             servletOutputStream.write(jsonObject.toString().getBytes());
-        }
-        finally {
+        } catch (InvalidUserStatusException e) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put(Parameter.RESULT, false);
+            jsonObject.put(Parameter.MESSAGE, "Doctors can not view orders");
+
+            ServletOutputStream servletOutputStream = response.getOutputStream();
+            response.setContentType(Content.JSON);
+            servletOutputStream.write(jsonObject.toString().getBytes());
+
+        } finally {
             InitConnectionService initConnectionService = serviceFactory.getInitConnectionService();
             initConnectionService.freeConnection();
         }

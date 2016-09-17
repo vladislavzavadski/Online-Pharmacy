@@ -2,6 +2,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="utf-8" %>
 <%@include file="header.jsp"%>
+<%@include file="footer.jsp"%>
 <jsp:useBean id="messageList" scope="request" class="java.util.ArrayList"/>
 <jsp:useBean id="user" scope="session" class="by.training.online_pharmacy.domain.user.User"/>
 <!DOCTYPE html>
@@ -32,6 +33,7 @@
             height:auto;
             top:100px;
             right:20px;
+            z-index: 1;
         }
     </style>
     <script>
@@ -39,7 +41,7 @@
             var date_input=$('input[class=date]'); //our date input has the name "date"
             var container=$('.bootstrap-iso form').length>0 ? $('.bootstrap-iso form').parent() : "body";
             date_input.datepicker({
-                format: 'mm/dd/yyyy',
+                format: 'yyyy-mm-dd',
                 container: container,
                 todayHighlight: true,
                 autoclose: true,
@@ -160,23 +162,6 @@
                 return false;
             });
         </script>
-        <div class="modal fade" id="about-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header" align="center">
-                        <img class="image-circle img-responsive" src="images/descr.jpg" alt="О проекте"/>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"/>
-                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                    </div>
-                    <div class="modal-body" style="height:200; overflow:auto;">
-                        <p align="justify">
-                            Представляем вашему вниманию онлайн-аптеку.
-                            Здесь вы можете заказывать и покупать лекарста. Так же возможно получение рецепта на то или иное лекарство.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
         <c:if test="${user.userRole eq 'DOCTOR'}">
             <div class="modal fade" id="response-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display:none;">
                 <div class="modal-dialog">
@@ -194,7 +179,7 @@
                                 <input name="me_id" type="hidden" id="message_id">
                                 <input type="hidden" name="command" value="ANSWER_MESSAGE">
                                 <label for="response_message">Ответ</label>
-                                <textarea id="response_message" class="form-control" name="rec_message" placeholder="Ответ" required></textarea>
+                                <textarea id="response_message" maxlength="1000" class="form-control" name="rec_message" placeholder="Ответ" required></textarea>
 
                                 </div>
                             <div class="modal-footer">
@@ -235,37 +220,6 @@
 
             </script>
         </c:if>
-        <div class="modal fade" id="contacts-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header" align="center">
-                        <img class="img-circle img-responsive" src="images/contacts.jpg" alt="Контакты"/>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"/>
-                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form_group">
-                            <b>Адрес:</b>&nbsp;<span>Минск, ул. Купревича 1/2</span>
-                            <br/>
-                            <b>Телефон:</b>&nbsp;<span>+375447350720</span>
-                            <br/>
-                            <b>email:</b>&nbsp;<span><a href="mailto:vladislav.zavadski@gmail.com">vladislav.zavadski@gmail.com</a></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <footer class="footer">
-            <div class="container">
-                <p class="navbar-text pull-left">
-                    Site Built By <a href="mailto:vladislav.zavadski@gmail.com">Vladislav Zavadski</a>, EPAM Systems, 2016
-                </p>
-                <div class="nav navbar-nav navbar-left" style="line-height:50px">
-                    <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#about-modal">О проекте</button>
-                    <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#contacts-modal">Контакты</button>
-                </div>
-            </div>
-        </footer>
         <script>
             $("#menu-toggle").click(function(e) {
                 e.preventDefault();
@@ -273,7 +227,7 @@
 
             });
             var currentPage = 2;
-            var loadUrl = "/controller?command=GET_ALL_MESSAGES&overload=false&page=";
+            var loadUrl = "/controller?command=${param.command}&message_status=${param.message_status}&date_to=${param.date_to}&date_from=${param.date_from}&overload=false&page=";
             var thisWork = true;
             function downloadContent(){
                 if(thisWork) {
@@ -333,5 +287,6 @@
         <c:if test="${user.userRole eq 'DOCTOR'}">
             <script src="js/requestsForPrescription.js"></script>
         </c:if>
+        <script src="js/switchLocale.js"></script>
 </body>
 </html>

@@ -2,13 +2,13 @@ package by.training.online_pharmacy.service.impl;
 
 import by.training.online_pharmacy.dao.*;
 import by.training.online_pharmacy.dao.exception.DaoException;
-import by.training.online_pharmacy.dao.exception.EntityDeletedException;
 import by.training.online_pharmacy.dao.exception.EntityNotFoundException;
 import by.training.online_pharmacy.dao.exception.OutOfRangeException;
 import by.training.online_pharmacy.domain.order.Order;
 import by.training.online_pharmacy.domain.order.OrderStatus;
 import by.training.online_pharmacy.domain.order.SearchOrderCriteria;
 import by.training.online_pharmacy.domain.user.User;
+import by.training.online_pharmacy.domain.user.UserRole;
 import by.training.online_pharmacy.service.OrderService;
 import by.training.online_pharmacy.service.exception.*;
 import org.apache.logging.log4j.LogManager;
@@ -23,7 +23,7 @@ public class OrderServiceImpl implements OrderService {
     private static final Logger logger = LogManager.getLogger();
 
     @Override
-    public void createOrder(Order order) throws InternalServerException, InvalidParameterException, NotFoundException, PrescriptionNotFoundException, AmbiguousValueException {
+    public void createOrder(Order order) throws InternalServerException, InvalidParameterException, NotFoundException, PrescriptionNotFoundException, AmbiguousValueException, InvalidUserStatusException {
 
         if (order.getClient() == null) {
             throw new InvalidParameterException("Parameter order is invalid");
@@ -44,6 +44,10 @@ public class OrderServiceImpl implements OrderService {
 
         if (order.getDrugCount() <= 0||order.getDrugCount()>10) {
             throw new InvalidParameterException("Parameter drug count is invalid");
+        }
+
+        if(order.getClient().getUserRole()!= UserRole.CLIENT){
+            throw new InvalidUserStatusException("Only client can create order");
         }
 
         order.setOrderStatus(OrderStatus.ORDERED);
@@ -83,7 +87,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<Order> getAllUsersOrders(User user, SearchOrderCriteria searchOrderCriteria, int limit, int startFrom)
-            throws InternalServerException, InvalidParameterException {
+            throws InternalServerException, InvalidParameterException, InvalidUserStatusException {
 
         if(user==null||user.getLogin()==null||user.getLogin().isEmpty()||user.getRegistrationType()==null){
             throw new InvalidParameterException("Parameter user is invalid");
@@ -101,16 +105,80 @@ public class OrderServiceImpl implements OrderService {
             throw new InvalidParameterException("Invalid parameter searchOrderCriteria");
         }
 
+        if(user.getUserRole()==UserRole.DOCTOR){
+            throw new InvalidUserStatusException("Only client and pharmacist can view orders");
+        }
+
         DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
         OrderDAO orderDAO = daoFactory.getOrderDao();
 
         try {
-            return orderDAO.searchOrders(user, searchOrderCriteria, startFrom, limit);
+            if(user.getUserRole()==UserRole.CLIENT) {
+                return orderDAO.searchUsersOrders(user, searchOrderCriteria, startFrom, limit);
+            }
+
+            else {
+                return orderDAO.searchAllOrders(searchOrderCriteria, startFrom, limit);
+            }
 
         } catch (DaoException e) {
             logger.error("Something went wrong when trying to load orders from database", e);
             throw new InternalServerException(e);
 
+        }
+    }
+
+    @Override
+    public void completeOrder(User user, int orderId) throws InternalServerException, InvalidParameterException, InvalidUserStatusException, OrderNotFoundException {
+
+        if(user==null){
+            throw new InvalidParameterException("Parameter user is invalid");
+        }
+
+        if(user.getUserRole()!=UserRole.PHARMACIST){
+            throw new InvalidUserStatusException("Only pharmacist can complete order");
+        }
+
+        if(orderId<0){
+            throw new InvalidParameterException("Parameter order id is invalid");
+        }
+
+        DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
+        OrderDAO orderDAO = daoFactory.getOrderDao();
+
+        try {
+            orderDAO.completeOrder(orderId);
+        } catch (EntityNotFoundException ex){
+            throw new OrderNotFoundException("Order was not found", ex);
+        } catch (DaoException e) {
+            logger.error("Something went wrong when trying to complete order", e);
+            throw new InternalServerException(e);
+        }
+    }
+
+    @Override
+    public List<Order> getOrderById(User user, int orderId) throws InvalidUserStatusException, InvalidParameterException {
+
+        if(user==null){
+            throw new InvalidParameterException("Parameter user is invalid");
+        }
+
+        if(user.getUserRole()!=UserRole.PHARMACIST){
+            throw new InvalidUserStatusException("Only pharmacist can search orders by id");
+        }
+
+        if(orderId < 0){
+            throw new InvalidParameterException("Parameter orderId is invalid");
+        }
+
+        DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
+        OrderDAO orderDAO = daoFactory.getOrderDao();
+
+        try {
+            return orderDAO.getOrderById(orderId);
+        } catch (DaoException e) {
+            logger.error("Something went wrong when trying to search order by id", e);
+            throw new InternalServerException(e);
         }
     }
 

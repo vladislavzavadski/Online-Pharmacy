@@ -17,15 +17,9 @@ public class SwitchLocaleCommand implements Command {
         HttpSession httpSession = request.getSession();
         httpSession.setAttribute(Parameter.LANGUAGE, request.getParameter(Parameter.LANGUAGE));
 
-        String prevRequest = (String)httpSession.getAttribute(Parameter.PREV_REQUEST);
+        String redirectUrl = request.getParameter(Parameter.REDIRECT_URL);
 
-        if(prevRequest==null){
-            response.sendRedirect(Page.INDEX);
-
-        }else {
-            response.sendRedirect(prevRequest);
-
-        }
+        response.sendRedirect(redirectUrl);
 
     }
 }

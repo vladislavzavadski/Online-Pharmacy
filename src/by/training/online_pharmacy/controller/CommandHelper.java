@@ -7,9 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by vladislav on 18.07.16.
+ * Created by jackson on 18.07.16.
  */
-public class CommandHelper {
+public final class CommandHelper {
     private static final Map<CommandName, Command> commands = new HashMap<>();
     static {
         commands.put(CommandName.USER_LOGIN, new UserLoginCommand());
@@ -27,16 +27,13 @@ public class CommandHelper {
         commands.put(CommandName.DESTROY_CONNECTION, new DestroyConnectionCommand());
         commands.put(CommandName.DELETE_USER, new DeleteUserCommand());
         commands.put(CommandName.LOG_OUT, new LogOutCommand());
-        commands.put(CommandName.GET_ALL_DRUGS, new GetAllDrugsCommand());
-        commands.put(CommandName.GET_DRUGS_BY_CLASS, new GetDrugsByClassCommand());
         commands.put(CommandName.GET_DRUG_DETAILS, new GetDrugDetailsCommand());
         commands.put(CommandName.SEARCH_DRUGS, new SearchDrugsCommand());
         commands.put(CommandName.EXTENDED_DRUG_SEARCH, new ExtendedSearchCommand());
         commands.put(CommandName.CREATE_ORDER, new CreateOrderCommand());
         commands.put(CommandName.CREATE_REQUEST, new CreateRequestCommand());
         commands.put(CommandName.SEND_MESSAGE, new SendMessageCommand());
-        commands.put(CommandName.GET_ALL_DOCTORS, new GetAllDoctorsCommand());
-        commands.put(CommandName.GET_DOCTORS_BY_SPECIALIZATION, new GetDoctorsBySpecializationCommand());
+        commands.put(CommandName.GET_DOCTORS, new GetDoctorsCommand());
         commands.put(CommandName.SEARCH_DOCTORS, new SearchDoctorsCommand());
         commands.put(CommandName.GET_USER_DETAILS, new GetUserDetailsCommand());
         commands.put(CommandName.GET_PROFILE_IMAGE, new GetProfileImageCommand());
@@ -56,7 +53,6 @@ public class CommandHelper {
         commands.put(CommandName.CREATE_CLASS, new CreateDrugClassCommand());
         commands.put(CommandName.CHECK_MANUFACTURER, new CheckIsManufacturerExistCommand());
         commands.put(CommandName.CREATE_MANUFACTURER, new CreateDrugManufacturerCommand());
-        commands.put(CommandName.RESERVE_CONNECTION, new ReserveConnectionCommand());
         commands.put(CommandName.UPDATE_DRUG, new UpdateDrugCommand());
         commands.put(CommandName.DELETE_DRUG, new DeleteDrugCommand());
         commands.put(CommandName.DOCTOR_REGISTRATION, new DoctorRegistrationCommand());
@@ -69,6 +65,8 @@ public class CommandHelper {
         commands.put(CommandName.ANSWER_MESSAGE, new AnswerToMessageCommand());
         commands.put(CommandName.REQUEST_COUNT, new GetRequestCountCommand());
         commands.put(CommandName.UPDATE_DESCRIPTION, new UpdateUserDescriptionCommand());
+        commands.put(CommandName.COMPLETE_ORDER, new CompleteOrderCommand());
+        commands.put(CommandName.GET_ORDER_BY_ID, new GetOrderByIdCommand());
     }
     public static Command getCommand(CommandName commandName){
         return commands.get(commandName);

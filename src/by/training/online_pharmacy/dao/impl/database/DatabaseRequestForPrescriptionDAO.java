@@ -17,6 +17,7 @@ import sun.java2d.pipe.SpanShapeRenderer;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,9 +60,11 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
 
     @Override
     public int getInProgressRequestsCount(User user) throws DaoException {
+
         try(DatabaseOperation databaseOperation = new DatabaseOperation(GET_DOCTORS_NEW_REQUESTS_QUERY)){
             databaseOperation.setParameter(1, user.getLogin());
             databaseOperation.setParameter(2, user.getRegistrationType().toString().toLowerCase());
+
             ResultSet resultSet = databaseOperation.invokeReadOperation();
 
             if(resultSet.next()){
@@ -79,6 +82,7 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
     @Override
     public void insertRequest(RequestForPrescription requestForPrescription) throws DaoException {
         try(DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_REQUEST_QUERY)){
+
             databaseOperation.setParameter(1, requestForPrescription.getClient().getLogin());
             databaseOperation.setParameter(2, requestForPrescription.getDrug().getId());
             databaseOperation.setParameter(3, requestForPrescription.getProlongDate());
@@ -88,37 +92,34 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
             databaseOperation.setParameter(7, requestForPrescription.getClient().getLogin());
             databaseOperation.setParameter(8, requestForPrescription.getDrug().getId());
             databaseOperation.setParameter(9, requestForPrescription.getClient().getRegistrationType().toString().toLowerCase());
+
             if(databaseOperation.invokeWriteOperation()==0){
                 throw new EntityDeletedException("Table was not updated", false);
             }
-        } catch (ConnectionPoolException e) {
+
+        } catch (ConnectionPoolException | SQLException e) {
             throw new DaoException("Can not insert new request for prescription "+requestForPrescription, e);
-        } catch (SQLException ex){
-            if(ex.getErrorCode()==ErrorCode.ERROR_CODE_1452&&ex.getMessage().contains(FK_DRUG)){
-                throw new EntityDeletedException("Can not insert new request for prescription "+requestForPrescription, false, ex);
-            } else if(ex.getErrorCode()==ErrorCode.ERROR_CODE_1452&&ex.getMessage().contains(FK_CLIENT)){
-                throw new EntityDeletedException("Can not insert new request for prescription "+requestForPrescription, true, ex);
-            }
-            else {
-                throw new DaoException("Can not insert new request for prescription "+requestForPrescription, ex);
-            }
         }
     }
 
     @Override
     public void updateRequestForPrescription(RequestForPrescription requestForPrescription) throws DaoException {
         try (DatabaseOperation databaseOperation = new DatabaseOperation(SET_REQUEST_FOR_PRESCRIPTION_STATUS)){
+
             if(requestForPrescription.getRequestStatus()==RequestStatus.CONFIRMED){
                 databaseOperation.beginTransaction();
             }
+
             databaseOperation.setParameter(1, requestForPrescription.getRequestStatus().toString().toLowerCase());
             databaseOperation.setParameter(2, requestForPrescription.getDoctorComment());
             databaseOperation.setParameter(3, requestForPrescription.getId());
             databaseOperation.setParameter(4, requestForPrescription.getDoctor().getLogin());
             databaseOperation.setParameter(5, requestForPrescription.getDoctor().getRegistrationType().toString().toLowerCase());
+
             if(databaseOperation.invokeWriteOperation()==0){
                 throw new EntityNotFoundException("Request for prescription="+requestForPrescription+" was not found");
             }
+
         } catch (SQLException | ConnectionPoolException e) {
             throw new DaoException("Can not change status for request with id="+requestForPrescription.getId(), e);
         }
@@ -136,47 +137,71 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
 
     private List<RequestForPrescription> getRequestsForPrescriptions(User user, RequestForPrescriptionCriteria criteria, int limit, int startFrom, String prefix) throws DaoException {
         StringBuilder query = new StringBuilder(prefix);
+
         if(criteria.getDrugName()!=null&&!criteria.getDrugName().isEmpty()){
             query.append(DRUG_NAME);
         }
+
         if(criteria.getRequestStatus()!=null&&!criteria.getRequestStatus().isEmpty()){
             query.append(REQUEST_STATUS);
         }
+
         if(criteria.getRequestDateFrom()!=null&&!criteria.getRequestDateFrom().isEmpty()){
             query.append(REQUEST_DATE_FROM);
         }
+
         if(criteria.getRequestDateTo()!=null&&!criteria.getRequestDateTo().isEmpty()){
             query.append(REQUEST_DATE_TO);
         }
+
         query.append(SEARCH_REQUESTS_QUERY_POSTFIX);
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(query.toString())){
             int paramNumber = 1;
+
             databaseOperation.setParameter(paramNumber++, user.getLogin());
             databaseOperation.setParameter(paramNumber++, user.getRegistrationType().toString().toLowerCase());
+
             if(criteria.getDrugName()!=null&&!criteria.getDrugName().isEmpty()){
                 databaseOperation.setParameter(paramNumber++, Param.PER_CENT+criteria.getDrugName()+Param.PER_CENT);
             }
+
             if(criteria.getRequestStatus()!=null&&!criteria.getRequestStatus().isEmpty()){
                 databaseOperation.setParameter(paramNumber++, criteria.getRequestStatus());
             }
+
             if(criteria.getRequestDateFrom()!=null&&!criteria.getRequestDateFrom().isEmpty()){
-                databaseOperation.setParameter(paramNumber++, criteria.getRequestDateFrom());
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Param.DATE_PATTERN);
+
+                Date date = simpleDateFormat.parse(criteria.getRequestDateFrom());
+
+                databaseOperation.setParameter(paramNumber++, date);
             }
+
             if(criteria.getRequestDateTo()!=null&&!criteria.getRequestDateTo().isEmpty()){
-                databaseOperation.setParameter(paramNumber++, criteria.getRequestDateTo());
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Param.DATE_PATTERN);
+
+                Date date = simpleDateFormat.parse(criteria.getRequestDateTo());
+
+                databaseOperation.setParameter(paramNumber++, date);
             }
+
             databaseOperation.setParameter(paramNumber++, startFrom);
             databaseOperation.setParameter(paramNumber, limit);
+
             ResultSet resultSet = databaseOperation.invokeReadOperation();
+
             List<RequestForPrescription> requestForPrescriptions = resultSetToRequestList(resultSet);
+
             return requestForPrescriptions;
-        } catch (SQLException | ConnectionPoolException e) {
+        } catch (SQLException | ConnectionPoolException | ParseException e) {
             throw new DaoException("Can not load requests from database by criteria="+criteria, e);
         }
     }
 
     private List<RequestForPrescription> resultSetToRequestList(ResultSet resultSet) throws SQLException {
         List<RequestForPrescription> result = new ArrayList<>();
+
         while (resultSet.next()) {
             RequestForPrescription requestForPrescription = new RequestForPrescription();
             User doctor = new User();

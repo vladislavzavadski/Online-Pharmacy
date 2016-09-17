@@ -35,7 +35,7 @@ public interface UserService {
 
     List<UserDescription> getAllSpecializations();
 
-    List<User> getDoctorsBySpecialization(UserDescription userDescription, int limit, int startFrom) throws InvalidParameterException;
+    List<User> getDoctors(UserDescription userDescription, int limit, int startFrom) throws InvalidParameterException;
 
     List<User> searchDoctors(String query, int limit, int startFrom) throws InvalidParameterException;
 

@@ -33,7 +33,7 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
     private static final String ACTIVE_PRESCRIPTIONS = " and pr_expiration_date>=curdate() ";
     private static final String NON_ACTIVE_PRESCRIPTIONS = " and pr_expiration_date<curdate() ";
     private static final String GET_ALL_PRESCRIPTIONS_QUERY_SUFFIX = " order by pr_expiration_date desc limit ?,?;";
-    private static final String INCREACE_DRUG_COUNT_IN_PRESCRIPTION_BY_NEW_ORDER = "update prescriptions set pr_drug_count=pr_drug_count+(select or_drug_count from orders where or_id=?) where pr_client_login=? and pr_login_via=? and pr_drug_id=(select or_drug_id from orders where or_id=?)";
+    private static final String INCREASE_DRUG_COUNT_IN_PRESCRIPTION_BY_NEW_ORDER = "update prescriptions set pr_drug_count=pr_drug_count+(select or_drug_count from orders where or_id=?) where pr_client_login=? and pr_login_via=? and pr_drug_id=(select or_drug_id from orders where or_id=?)";
     private static final String REDUCE_DRUG_COUNT_IN_PRESCRIPTION_QUERY_BY_ORDER = "update prescriptions set pr_drug_count=pr_drug_count-? where pr_client_login=? and pr_login_via=? and pr_drug_id=? and pr_drug_dosage=?";
     private static final String REDUCE_DRUG_COUNT_IN_PRESCRIPTION_BY_ORDER = "update prescriptions set pr_drug_count=pr_drug_count-(select or_drug_count from orders where or_id=?) where pr_client_login=? and pr_login_via=? and pr_drug_id=(select or_drug_id from orders where or_id=?)";
     private static final String GET_ACTIVE_PRESCRIPTION_QUERY = "select pr_drug_dosage, pr_drug_count from prescriptions where pr_client_login=? and pr_login_via=? and pr_drug_id=? and pr_expiration_date>=curdate();";
@@ -44,6 +44,7 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
 
     @Override
     public void createPrescription(Prescription prescription, int requestForPrescriptionId) throws DaoException {
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(UPDATE_PRESCRIPTION)){
             databaseOperation.setParameter(1, requestForPrescriptionId);
             databaseOperation.setParameter(2, requestForPrescriptionId);
@@ -53,7 +54,9 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
             databaseOperation.setParameter(6, prescription.getDrugCount());
             databaseOperation.setParameter(7, prescription.getDrugDosage());
             databaseOperation.setParameter(8, prescription.getDoctor().getRegistrationType().toString().toLowerCase());
+
             databaseOperation.invokeWriteOperation();
+
             databaseOperation.endTransaction();
         } catch (SQLException | ConnectionPoolException e) {
             throw new DaoException("Can not create new prescription="+prescription, e);
@@ -62,12 +65,13 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
 
     @Override
     public void increaseDrugCountByOrder(User user, int orderId) throws DaoException {
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(INCREACE_DRUG_COUNT_IN_PRESCRIPTION_BY_NEW_ORDER);){
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(INCREASE_DRUG_COUNT_IN_PRESCRIPTION_BY_NEW_ORDER);){
 
             databaseOperation.setParameter(1, orderId);
             databaseOperation.setParameter(2, user.getLogin());
             databaseOperation.setParameter(3, user.getRegistrationType().toString().toLowerCase());
             databaseOperation.setParameter(4, orderId);
+
             databaseOperation.invokeWriteOperation();
         } catch (ConnectionPoolException | SQLException e) {
             throw new DaoException("Can not update prescription count for user="+user, e);
@@ -80,7 +84,9 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
             databaseOperation.setParameter(1, user.getLogin());
             databaseOperation.setParameter(2, user.getRegistrationType().toString().toLowerCase());
             databaseOperation.setParameter(3, drugId);
+
             ResultSet resultSet = databaseOperation.invokeReadOperation();
+
             if(resultSet.next()) {
                 Prescription prescription = new Prescription();
                 prescription.setDrugCount(resultSet.getShort(TableColumn.PRESCRIPTION_DRUG_COUNT));
@@ -123,11 +129,13 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
             databaseOperation.setParameter(3, user.getRegistrationType().toString().toLowerCase());
             databaseOperation.setParameter(4, drugId);
             databaseOperation.setParameter(5, drugDosage);
+
             if(databaseOperation.invokeWriteOperation()==0){
                 databaseOperation.rollBack();
                 databaseOperation.close();
                 throw new EntityNotFoundException("Prescription for user="+user+" was not found");
             }
+
         } catch (SQLException | ConnectionPoolException e) {
             throw new DaoException("Can not update prescription count for user="+user, e);
         }
@@ -145,9 +153,11 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
 
     private List<Prescription> searchPrescriptions(User user, PrescriptionCriteria prescriptionCriteria, String queryPrefix, int limit, int startFrom) throws DaoException {
         StringBuilder query = new StringBuilder(queryPrefix);
+
         if(prescriptionCriteria.getDrugName()!=null&&!prescriptionCriteria.getDrugName().isEmpty()){
             query.append(DRUG_NAME);
         }
+
         if(prescriptionCriteria.getPrescriptionStatus()!=null){
             switch (prescriptionCriteria.getPrescriptionStatus()){
                 case ACTIVE:{
@@ -160,68 +170,31 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
                 }
             }
         }
+
         query.append(GET_ALL_PRESCRIPTIONS_QUERY_SUFFIX);
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(query.toString())){
             int paramNumber = 1;
+
             databaseOperation.setParameter(paramNumber++, user.getLogin());
             databaseOperation.setParameter(paramNumber++, user.getRegistrationType().toString().toLowerCase());
+
             if(prescriptionCriteria.getDrugName()!=null&&!prescriptionCriteria.getDrugName().isEmpty()){
                 databaseOperation.setParameter(paramNumber++, Param.PER_CENT+prescriptionCriteria.getDrugName()+Param.PER_CENT);
             }
+
             databaseOperation.setParameter(paramNumber++, startFrom);
             databaseOperation.setParameter(paramNumber, limit);
+
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             List<Prescription> prescriptions = resultSetToPrescription(resultSet);
+
             return prescriptions;
         } catch (SQLException | ConnectionPoolException e) {
             throw new DaoException("Can not load prescriptions from database by criteria="+prescriptionCriteria, e);
         }
     }
 
-    @Override
-    public List<Prescription> getUsersPrescriptions(String clientLogin, int limit, int startFrom) throws DaoException {
-        return null;
-    }
-
-    @Override
-    public List<Prescription> getPrescriptionsByDrugId(int drugId, int limit, int startFrom) throws DaoException {
-        return null;
-    }
-
-    @Override
-    public List<Prescription> getDoctorsPrescriptions(String doctorLogin, int limit, int startFrom) throws DaoException {
-        return null;
-    }
-
-    @Override
-    public Prescription getPrescriptionByPrimaryKey(String userLogin, int drugId) throws DaoException {
-        return null;
-    }
-
-    @Override
-    public List<Prescription> getPrescriptionsByAppointmentDate(Date date, Period period, int limit, int startFrom) throws DaoException {
-        return null;
-    }
-
-    @Override
-    public List<Prescription> getPrescriptionsByExpirationDate(Date date, Period period, int limit, int startFrom) throws DaoException {
-        return null;
-    }
-
-    @Override
-    public void insertPrescription(Prescription prescription) throws DaoException {
-
-    }
-
-    @Override
-    public void updatePrescription(Prescription prescription) throws DaoException {
-
-    }
-
-    @Override
-    public void deletePrescription(String clientLogin, int drugId) throws DaoException {
-
-    }
     private List<Prescription> resultSetToPrescription(ResultSet resultSet) throws SQLException {
         List<Prescription> result = new ArrayList<>();
         while (resultSet.next()) {

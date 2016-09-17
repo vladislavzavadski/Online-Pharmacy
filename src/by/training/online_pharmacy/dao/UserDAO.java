@@ -25,11 +25,11 @@ public interface UserDAO {
 
     User userAuthentication(String login, String password, RegistrationType registrationType) throws DaoException;
 
-    List<User> getDoctorsBySpecialization(UserDescription userDescription, int limit, int startFrom) throws DaoException;
+    List<User> searchDoctors(UserDescription userDescription, int limit, int startFrom) throws DaoException;
 
     void insertUser(User user) throws DaoException;
 
-    int deleteUser(User user) throws DaoException;
+    void deleteUser(User user) throws DaoException;
 
     boolean isLoginUsed(String login) throws DaoException;
 

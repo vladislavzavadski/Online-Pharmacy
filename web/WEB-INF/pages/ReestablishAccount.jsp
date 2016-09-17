@@ -17,6 +17,7 @@
             height:auto;
             top:100px;
             right:20px;
+            z-index: 1;
         }
     </style>
 </head>
