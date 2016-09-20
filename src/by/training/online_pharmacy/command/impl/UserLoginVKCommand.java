@@ -7,10 +7,9 @@ import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.domain.user.UserRole;
 import by.training.online_pharmacy.service.*;
 import by.training.online_pharmacy.service.exception.CanceledAuthorizationException;
-import by.training.online_pharmacy.service.exception.InternalServerException;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
 import by.training.online_pharmacy.service.exception.InvalidUserStatusException;
-import net.sf.jmimemagic.Magic;
+import by.training.online_pharmacy.service.util.ImageConstant;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
@@ -32,7 +31,7 @@ public class UserLoginVKCommand implements Command {
         SocialNetworkService socialNetworkService = serviceFactory.getSocialNetworkService();
 
         try {
-            user = socialNetworkService.userLoginVk(request.getParameter(Parameter.CODE));
+            user = socialNetworkService.userLoginVk(request.getParameter(Parameter.CODE), request.getServletContext().getRealPath(ImageConstant.USER_IMAGES));
             HttpSession httpSession = request.getSession(true);
 
             if(user.getUserRole()== UserRole.CLIENT || user.getUserRole()==UserRole.DOCTOR){

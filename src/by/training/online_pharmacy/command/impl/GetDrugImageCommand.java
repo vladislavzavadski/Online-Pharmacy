@@ -5,6 +5,7 @@ import by.training.online_pharmacy.service.DrugService;
 import by.training.online_pharmacy.service.InitConnectionService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
+import by.training.online_pharmacy.service.util.ImageConstant;
 import org.apache.commons.compress.utils.IOUtils;
 import org.json.JSONObject;
 
@@ -36,7 +37,7 @@ public class GetDrugImageCommand implements Command {
         DrugService drugService = serviceFactory.getDrugService();
 
         try {
-            InputStream inputStream = drugService.getDrugImage(drugId);
+            InputStream inputStream = drugService.getDrugImage(drugId, request.getServletContext().getRealPath(ImageConstant.DRUG_IMAGES));
 
             ServletOutputStream servletOutputStream = response.getOutputStream();
 

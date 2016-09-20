@@ -8,6 +8,7 @@ import by.training.online_pharmacy.service.UserService;
 import by.training.online_pharmacy.service.exception.InvalidContentException;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
 import by.training.online_pharmacy.service.exception.NotFoundException;
+import by.training.online_pharmacy.service.util.ImageConstant;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
@@ -42,7 +43,7 @@ public class UploadProfileImageCommand implements Command {
         UserService userService = serviceFactory.getUserService();
 
         try {
-            userService.uploadProfileImage(user, part);
+            userService.uploadProfileImage(user, part, request.getServletContext().getRealPath(ImageConstant.USER_IMAGES));
             jsonObject.put(Parameter.RESULT, true);
 
         } catch (InvalidContentException e) {

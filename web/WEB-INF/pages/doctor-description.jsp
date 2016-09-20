@@ -5,6 +5,7 @@
 <%@include file="header.jsp"%>
 <%@include file="footer.jsp"%>
 <jsp:useBean id="doctor" scope="request" class="by.training.online_pharmacy.domain.user.User"/>
+<jsp:useBean id="user" scope="session" class="by.training.online_pharmacy.domain.user.User"/>
 <!DOCTYPE html>
 <html lang="ru">
     <head>
@@ -81,24 +82,26 @@
 
                     </div>
                 </div>
-                <form class="form-horizontal">
-                    <fieldset>
-                        <legend>${docMessage}</legend>
-                        <div class="form-group">
-                            <label class="col-md-4 control-label" for="comment">${message}: (<span id="symbols_enable">1000</span>)</label>
-                            <div class="col-md-4">
-                                <textarea class="form-control" maxlength="1000" id="comment" name="comment" placeholder="${message}..."></textarea>
+                <c:if test="${user.userRole eq 'CLIENT'}">
+                    <form class="form-horizontal">
+                       <fieldset>
+                            <legend>${docMessage}</legend>
+                            <div class="form-group">
+                                <label class="col-md-4 control-label" for="comment">${message}: (<span id="symbols_enable">1000</span>)</label>
+                                <div class="col-md-4">
+                                    <textarea class="form-control" maxlength="1000" id="comment" name="comment" placeholder="${message}..."></textarea>
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-4 control-label" for="send_message"></label>
+                            <div class="form-group">
+                                <label class="col-md-4 control-label" for="send_message"></label>
 
                             <div class="col-md-4">
-                                <button id="send_message" class="btn btn-primary">Отправить</button>
+                                <button id="send_message" class="btn btn-primary">${send}</button>
                             </div>
                         </div>
                     </fieldset>
                 </form>
+                </c:if>
                 <script>
                     $("#comment").on('input',function (e) {
                         var commentLength = $(this).val().length;

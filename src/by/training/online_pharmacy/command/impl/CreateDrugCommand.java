@@ -10,6 +10,7 @@ import by.training.online_pharmacy.service.DrugService;
 import by.training.online_pharmacy.service.InitConnectionService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.exception.*;
+import by.training.online_pharmacy.service.util.ImageConstant;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
@@ -58,7 +59,9 @@ public class CreateDrugCommand implements Command {
         if(dosages!=null) {
             List<String> stringDosages = Arrays.asList(dosages);
             List<Integer> dosagesList = new ArrayList<>(stringDosages.size());
+
             dosagesList.addAll(stringDosages.stream().map(Integer::parseInt).collect(Collectors.toList()));
+
             drug.setDosages(dosagesList);
         }
 
@@ -80,7 +83,7 @@ public class CreateDrugCommand implements Command {
         DrugService drugService = serviceFactory.getDrugService();
 
         try {
-            drugService.createDrug(user, drug, request.getPart(Parameter.DRUG_IMAGE));
+            drugService.createDrug(user, drug, request.getPart(Parameter.DRUG_IMAGE), request.getServletContext().getRealPath(ImageConstant.DRUG_IMAGES));
             jsonObject.put(Parameter.RESULT, true);
 
         } catch (InvalidParameterException e) {

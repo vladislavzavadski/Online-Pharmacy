@@ -28,22 +28,30 @@ public class DatabaseOperation implements AutoCloseable {
 
     public DatabaseOperation(String sqlQuery) throws ConnectionPoolException, SQLException {
         this();
-        if((connection = connectionPool.takeReservedConnection())==null) {
+
+        connection = connectionPool.takeReservedConnection();
+
+        if(connection==null) {
             connection = connectionPool.reserveConnection();
         }
+
         init(sqlQuery);
     }
 
     private DatabaseOperation() throws ConnectionPoolException {
+
         if(connectionPool==null) {
             connectionPool = ConnectionPool.getInstance();
         }
+
     }
 
     public void init(String sqlQuery) throws ConnectionPoolException, SQLException {
+
         sqlQuery = sqlQuery.toLowerCase();
         params = getQueryParameters(sqlQuery);
         preparedStatement = connection.prepareStatement(sqlQuery);
+
     }
 
     public int invokeWriteOperation() throws SQLException {
@@ -60,6 +68,7 @@ public class DatabaseOperation implements AutoCloseable {
         List<String> params = new ArrayList<>();
         Pattern pattern = Pattern.compile(SQL_PARAMETER_REG_EXP);
         Matcher matcher = pattern.matcher(query);
+
         while (matcher.find()){
             int i=0;
             String subResult = matcher.group();
@@ -75,14 +84,18 @@ public class DatabaseOperation implements AutoCloseable {
 
             params.add(subResult);
         }
+
         return params;
     }
 
+
     public void setParameter(String name, Object value) throws ParameterNotFoundException, SQLException {
         name = name.toLowerCase();
+
         if(!params.contains(name)){
             throw new ParameterNotFoundException("Parameter \'"+name+"\' was not found in query");
         }
+
         int paramIndex = params.indexOf(name);
         preparedStatement.setObject(paramIndex+1, value);
     }
@@ -93,9 +106,11 @@ public class DatabaseOperation implements AutoCloseable {
 
     public void setParameter(String name, int number, Object value) throws ParameterNotFoundException, SQLException {
         name = name.toLowerCase();
+
         if(!params.contains(name)){
             throw new ParameterNotFoundException("Parameter \'"+name+"\' was not found in query");
         }
+
         int paramIndex = params.indexOf(name);
         preparedStatement.setObject(paramIndex+number, value);
     }
@@ -114,11 +129,14 @@ public class DatabaseOperation implements AutoCloseable {
 
     @Override
     public void close() throws SQLException {
+
         if(resultSet!=null){
             resultSet.close();
         }
+
         if(preparedStatement!=null){
             preparedStatement.close();
         }
+
     }
 }

@@ -15,7 +15,7 @@ public class FacebookApi implements Api {
     private static final String API_TOKEN_URI = "https://graph.facebook.com/v2.3/oauth/access_token?";
     private static final String CLIENT_ID = "1472508072774891";
     private static final String CLIENT_SECRET = "feaea6b55522d84a2efcae4e9a1728c8";
-    private static final String REDIRECT_URI = "http://localhost:8080/controller?command=USER_LOGIN_FB";
+    private static final String REDIRECT_URI = "http://pharmacy.mycloud.by/controller?command=USER_LOGIN_FB";
     private static final String PICTURE = "picture";
     private static final String DATA = "data";
     private static final String URL = "url";
@@ -69,4 +69,5 @@ public class FacebookApi implements Api {
         String gender = result.getString(Property.GENDER);
         return Gender.valueOf(gender.toUpperCase());
     }
+
 }

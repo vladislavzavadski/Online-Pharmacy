@@ -7,6 +7,7 @@ import by.training.online_pharmacy.service.InitConnectionService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.UserService;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
+import by.training.online_pharmacy.service.util.ImageConstant;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
@@ -21,6 +22,8 @@ import java.util.List;
  * Created by vladislav on 13.08.16.
  */
 public class GetDoctorsCommand implements Command{
+
+    private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger();
     private static final int LIMIT = 6;
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -41,10 +44,10 @@ public class GetDoctorsCommand implements Command{
         UserService userService = serviceFactory.getUserService();
 
         try {
-            List<User> doctors = userService.getDoctors(userDescription, LIMIT, (page-1)*LIMIT);
+            List<User> doctors = userService.getDoctors(userDescription, LIMIT, (page-1)*LIMIT, request.getServletContext().getRealPath(ImageConstant.USER_IMAGES));
 
             request.setAttribute(Parameter.DOCTOR_LIST, doctors);
-
+            logger.error(doctors);
             if(pageOverload){
                 List<UserDescription> userDescriptions = userService.getAllSpecializations();
 

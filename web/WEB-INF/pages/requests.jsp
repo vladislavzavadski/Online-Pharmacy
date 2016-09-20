@@ -10,6 +10,21 @@
 <%@include file="header.jsp"%>
 <%@include file="footer.jsp"%>
 <jsp:useBean id="user" scope="session" class="by.training.online_pharmacy.domain.user.User"/>
+<c:set var="language" value="${not empty sessionScope.language ? sessionScope.language : not empty language ? language : pageContext.request.locale}" scope="session" />
+<fmt:setLocale value="${sessionScope.language}"/>
+<fmt:setBundle basename="resource.locale" var="loc"/>
+<fmt:message bundle="${loc}" key="locale.requests_for_prescriptions" var="requestsForPrescriptions"/>
+<fmt:message bundle="${loc}" key="locale.in_progress" var="inProgress"/>
+<fmt:message bundle="${loc}" key="locale.denied" var="denied"/>
+<fmt:message bundle="${loc}" key="locale.confirmed" var="confirmed"/>
+<fmt:message bundle="${loc}" key="locale.end_acts" var="endActs"/>
+<fmt:message bundle="${loc}" key="locale.request_status" var="requestStatus"/>
+<fmt:message bundle="${loc}" key="locale.answer_sended" var="answerSended"/>
+<fmt:message bundle="${loc}" key="locale.request_denied" var="requestDenied"/>
+<fmt:message bundle="${loc}" key="locale.request_confirmed" var="requestConfirmed"/>
+<fmt:message bundle="${loc}" key="locale.error_sending" var="errorSending"/>
+<fmt:message bundle="${loc}" key="locale.critical_error" var="criticalError"/>
+<fmt:message bundle="${loc}" key="locale.date" var="date"/>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -17,7 +32,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Запросы на рецепты</title>
+    <title>${requestsForPrescriptions}</title>
     <!-- Bootstrap -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <link href="css/bootstrap.css" rel="stylesheet">
@@ -82,25 +97,25 @@
 <body>
     <div class="container content">
         <div id="notifies"></div>
-        <h1 class="display_1">Запросы</h1>
+        <h1 class="display_1">${myRequests}</h1>
         <form id="req_form">
             <nobr>
-            <label for="drug_name">Название лекарства:</label>
+            <label for="drug_name">${drugName}:</label>
             <input id="drug_name" type="text" name="drug_name">
 
-                <label for="from_date">Заказано с:</label>
+                <label for="from_date">${sendedFrom}:</label>
                 <input class="date" id="from_date" type="text" name="date_from" data-type="date">
-                <label for="to_date">Заказано до:</label>
+                <label for="to_date">${sendedBefore}:</label>
                 <input class="date" id="to_date" type="text" name="date_to" data-type="date">
             </nobr>
-                <label for="pr_status">Статус запроса</label>
+                <label for="pr_status">${requestStatus}</label>
                 <select id="pr_status" name="status">
-                    <option value="" selected>Неважно</option>
-                    <option value="in_progress">В обработке</option>
-                    <option value="denied">Отказано</option>
-                    <option value="confirmed">Одобрено</option>
+                    <option value="" selected>${unknown}</option>
+                    <option value="in_progress">${inProgress}</option>
+                    <option value="denied">${denied}</option>
+                    <option value="confirmed">${confirmed}</option>
                 </select>
-                <button id="search_by_date" class="btn btn-primary btn-primary">Найти</button>
+                <button id="search_by_date" class="btn btn-primary btn-primary">${search}</button>
 
         </form>
         <script>
@@ -170,25 +185,25 @@
                             <input type="hidden" name="status" value="CONFIRMED">
                             <input id="re_id" type="hidden" name="request_id" >
                         <div class="form-group">
-                            <label for="drug_count">Количество:</label>
-                            <input placeholder="Количество" class="form-control" id="drug_count" type="number" min="1" max="15" step="1" name="drug_count" required>
+                            <label for="drug_count">${drugCount}:</label>
+                            <input placeholder="${drugCount}" class="form-control" id="drug_count" type="number" min="1" max="15" step="1" name="drug_count" required>
                         </div>
                         <div class="form-group">
-                            <label for="drug_dosage">Дозировка:</label>
+                            <label for="drug_dosage">${dosage}:</label>
                             <select id="drug_dosage" name="drug_dosage" class="form-control" required>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="exp_date">Дата окончания:</label>
-                            <input placeholder="Дата" id="exp_date" type="text" class="form-control" data-type="date" name="exp_date" required>
+                            <label for="exp_date">${endActs}:</label>
+                            <input placeholder="${date}" id="exp_date" type="text" class="form-control" data-type="date" name="exp_date" required>
                         </div>
                         <div class="form-group">
-                            <label for="doc_comment">Комментарий</label>
-                            <textarea id="doc_comment" maxlength="400" class="form-control" name="doc_comment" placeholder="Комментарий"></textarea>
+                            <label for="doc_comment">${comment}</label>
+                            <textarea id="doc_comment" maxlength="400" class="form-control" name="doc_comment" placeholder="${comment}" required></textarea>
                         </div>
                     </div>
                         <div class="modal-footer">
-                            <input class="btn btn-block btn-primary btn-default" type="submit" value="Отправить">
+                            <input class="btn btn-block btn-primary btn-default" type="submit" value="${send}">
                         </div>
                     </form>
                 </div>
@@ -207,12 +222,12 @@
                         <input id="req_id" type="hidden" name="request_id" >
                         <div class="modal-body">
                             <div class="form-group">
-                                <label for="resp_comment">Комментарий</label>
-                               <textarea id="resp_comment" name="doc_comment" class="form-control" placeholder="Комментарий"></textarea>
+                                <label for="resp_comment">${comment}</label>
+                               <textarea id="resp_comment" name="doc_comment" class="form-control" placeholder="${comment}"></textarea>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <input class="btn btn-block btn-primary btn-default" type="submit" value="Отправить">
+                            <input class="btn btn-block btn-primary btn-default" type="submit" value="${send}">
                         </div>
                     </form>
                 </div>
@@ -253,16 +268,16 @@
                     success:function (data) {
                         $('#denied-request').modal('toggle');
                         if(data.result==true){
-                            Notify.generate('Ответ успешно отправлен', 'Готово', 1);
-                            parent.html("<span style='color: red'>Запрос отклонен!</span>");
+                            Notify.generate('${answerSended}', '${completed}', 1);
+                            parent.html("<span style='color: red'>${requestDenied}!</span>");
                         }
                         else {
-                            Notify.generate('Ошибка при отправке ответа', 'Ошибка', 2);
+                            Notify.generate('${errorSending}', '${error}', 2);
                         }
                     },
                     error:function () {
                         $('#confirm-request').modal('toggle');
-                        Notify.generate('Критическая ошибка сервера', 'Ошибка', 3);
+                        Notify.generate('${criticalError}', '${error}', 3);
                     }
                 });
                 return false;
@@ -278,16 +293,16 @@
                     success:function (data) {
                         $('#confirm-request').modal('toggle');
                         if(data.result==true){
-                            Notify.generate('Ответ успешно отправлен', 'Готово', 1);
-                            parent.html("<span style='color: green'>Запрос одобрен!</span>");
+                            Notify.generate('${answerSended}', '${completed}', 1);
+                            parent.html("<span style='color: green'>${requestConfirmed}!</span>");
                         }
                         else {
-                            Notify.generate('Ошибка при отправке ответа', 'Ошибка', 2);
+                            Notify.generate('${errorSending}', '${error}', 2);
                         }
                     },
                     error:function () {
                         $('#confirm-request').modal('toggle');
-                        Notify.generate('Критическая ошибка сервера', 'Ошибка', 3);
+                        Notify.generate('${criticalError}', '${error}', 3);
                     }
                 });
                 return false;

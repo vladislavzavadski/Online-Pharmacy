@@ -7,6 +7,7 @@ import by.training.online_pharmacy.service.InitConnectionService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.UserService;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
+import by.training.online_pharmacy.service.util.ImageConstant;
 import org.apache.commons.compress.utils.IOUtils;
 import org.json.JSONObject;
 
@@ -40,7 +41,7 @@ public class GetUserImageCommand implements Command {
         UserService userService = serviceFactory.getUserService();
 
         try {
-            InputStream inputStream = userService.getUserImage(user);
+            InputStream inputStream = userService.getUserImage(user, request.getServletContext().getRealPath(ImageConstant.USER_IMAGES));
             ServletOutputStream servletOutputStream = response.getOutputStream();
             IOUtils.copy(inputStream, servletOutputStream);
             inputStream.close();

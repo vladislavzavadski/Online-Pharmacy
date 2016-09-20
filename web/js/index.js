@@ -2,6 +2,10 @@
  * Created by vladislav on 03.08.16.
  */
 $("#register_username").blur(function () {
+    if($(this).val()==""){
+        return false;
+    }
+
     $.ajax({
         url:"controller",
         type:"POST",

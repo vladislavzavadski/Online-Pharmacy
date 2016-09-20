@@ -25,7 +25,6 @@ public final class CommandHelper {
         commands.put(CommandName.UPLOAD_PROFILE_IMAGE, new UploadProfileImageCommand());
         commands.put(CommandName.INIT_CONNECTION, new InitConnectionCommand());
         commands.put(CommandName.DESTROY_CONNECTION, new DestroyConnectionCommand());
-        commands.put(CommandName.DELETE_USER, new DeleteUserCommand());
         commands.put(CommandName.LOG_OUT, new LogOutCommand());
         commands.put(CommandName.GET_DRUG_DETAILS, new GetDrugDetailsCommand());
         commands.put(CommandName.SEARCH_DRUGS, new SearchDrugsCommand());

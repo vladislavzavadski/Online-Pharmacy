@@ -30,7 +30,6 @@ public class DatabaseUserDAO implements UserDAO {
     private static final String GET_USER_NATIVE_QUERY = "select us_balance, US_LOGIN, us_first_name, us_second_name, us_image, us_mail, us_phone, us_group, us_gender, login_via, sd_description, sd_specialization from users left join staff_descriptions on sd_user_login=us_login WHERE  us_login=? and us_password=md5(?) and login_via=?;";
     private static final String GET_USER_QUERY = "select us_balance, US_LOGIN, us_first_name, us_second_name, us_image, us_mail, us_phone, us_group, us_gender, login_via, sd_description, sd_specialization from users left join staff_descriptions on sd_user_login=us_login WHERE  us_login=? and login_via=?;";
     private static final String INSERT_USER_QUERY = "INSERT INTO users (us_login, us_password, us_first_name, us_second_name, us_group, us_image, us_mail, us_phone, login_via, us_gender) VALUES (?,md5(?),?,?,?,?,?,?,?,?)";
-    private static final String DELETE_USER_QUERY = "DELETE FROM users WHERE us_login=? and login_via=? and us_password=md5(?)";
     private static final String GET_COUNT_OF_USERS_WITH_LOGIN = "select count(us_login) login_count from users where us_login=?;";
     private static final String UPDATE_PERSONAL_INFORMATION_QUERY = "update users set us_first_name=?, us_second_name=?, us_gender=? where us_login=? and login_via=?;";
     private static final String UPDATE_PASSWORD = "update online_pharmacy.users set us_password=md5(?) where us_login=? and login_via=?;";
@@ -288,23 +287,6 @@ public class DatabaseUserDAO implements UserDAO {
 
         } catch (SQLException | ParameterNotFoundException | ConnectionPoolException e) {
             throw new DaoException("Can not insert user to database", e);
-        }
-    }
-
-    @Override
-    public void deleteUser(User user) throws DaoException {
-
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(DELETE_USER_QUERY)){
-            databaseOperation.setParameter(TableColumn.USER_LOGIN, user.getLogin());
-            databaseOperation.setParameter(TableColumn.REGISTRATION_TYPE, user.getRegistrationType().toString().toLowerCase());
-            databaseOperation.setParameter(TableColumn.USER_PASSWORD, user.getPassword());
-
-            if(databaseOperation.invokeWriteOperation() == 0){
-                throw new EntityDeletedException("User="+user+" was not found", true);
-            }
-
-        } catch (SQLException | ParameterNotFoundException | ConnectionPoolException e) {
-            throw new DaoException("Can not delete user with login \'"+user.getLogin()+"\'", e);
         }
     }
 

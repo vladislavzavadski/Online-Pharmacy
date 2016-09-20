@@ -4,8 +4,6 @@ import by.training.online_pharmacy.command.Command;
 import by.training.online_pharmacy.controller.CommandHelper;
 import by.training.online_pharmacy.controller.CommandName;
 import by.training.online_pharmacy.controller.listener.exception.InternalServerException;
-import by.training.online_pharmacy.service.InitConnectionService;
-import by.training.online_pharmacy.service.ServiceFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,7 +19,9 @@ public class ContextCreateListener implements ServletContextListener {
     private final static Logger logger = LogManager.getLogger();
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
+
         Command command = CommandHelper.getCommand(CommandName.INIT_CONNECTION);
+
         try {
             command.execute(null, null);
         } catch (ServletException|IOException e) {
@@ -32,7 +32,10 @@ public class ContextCreateListener implements ServletContextListener {
 
     @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
+
         Command command = CommandHelper.getCommand(CommandName.DESTROY_CONNECTION);
+        final Logger logger = LogManager.getLogger();
+        logger.error("Closed context!!!!!!!!!!!!!!!!!!!!!");
         try {
             command.execute(null, null);
         } catch (ServletException|IOException e) {

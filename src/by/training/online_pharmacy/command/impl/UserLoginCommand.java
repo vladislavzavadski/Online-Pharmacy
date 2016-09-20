@@ -3,14 +3,13 @@ package by.training.online_pharmacy.command.impl;
 import by.training.online_pharmacy.command.Command;
 import by.training.online_pharmacy.command.util.UrlBuilder;
 import by.training.online_pharmacy.domain.message.MessageStatus;
-import by.training.online_pharmacy.domain.user.RegistrationType;
 import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.domain.user.UserRole;
 import by.training.online_pharmacy.service.*;
-import by.training.online_pharmacy.service.exception.InternalServerException;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
 import by.training.online_pharmacy.service.exception.InvalidUserStatusException;
 import by.training.online_pharmacy.service.exception.UserNotFoundException;
+import by.training.online_pharmacy.service.util.ImageConstant;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
@@ -18,7 +17,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.FileInputStream;
 import java.io.IOException;
 
 /**
@@ -34,7 +32,7 @@ public class UserLoginCommand implements Command {
         UserService userService = serviceFactory.getUserService();
 
         try {
-            user = userService.userLogin(request.getParameter(Parameter.LOGIN), request.getParameter(Parameter.PASSWORD));
+            user = userService.userLogin(request.getParameter(Parameter.LOGIN), request.getParameter(Parameter.PASSWORD), request.getServletContext().getRealPath(ImageConstant.USER_IMAGES));
 
             HttpSession httpSession = request.getSession(true);
 

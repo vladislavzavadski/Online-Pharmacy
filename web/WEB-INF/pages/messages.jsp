@@ -12,7 +12,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Сообщения</title>
+    <title>${messages}</title>
     <!-- Bootstrap -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <link href="../../css/bootstrap.css" rel="stylesheet">
@@ -74,32 +74,32 @@
         <div id="sidebar-wrapper">
             <ul class="sidebar-nav">
                 <li class="sidebar-brand">
-                    Сообщения:
+                    ${messages}:
                 </li>
                 <c:if test="${user.userRole eq 'CLIENT'}">
                     <li>
-                        <a href="#" class="status" data-status="IN_PROGRESS">В обработке</a>
+                        <a href="#" class="status" data-status="IN_PROGRESS">${inProgress}</a>
                     </li>
                 </c:if>
                 <li>
-                    <a href="#" class="status" data-status="NEW">Новые</a>
+                    <a href="#" class="status" data-status="NEW">${newMes}</a>
                 </li>
                 <li>
-                     <a href="#" class="status" data-status="COMPLETED">Прочитанные</a>
+                     <a href="#" class="status" data-status="COMPLETED">${wasRead}</a>
                 </li>
                 <li>
-                    <a href="#" class="status" data-status="">Все сообщения</a>
+                    <a href="#" class="status" data-status="">${allMessages}</a>
                 </li>
             </ul>
         </div>
-        <h1 class="display_1">Сообщения</h1>
+        <h1 class="display_1">${messages}</h1>
         <form>
             <nobr>
-                <label for="from_date">Отправлено с:</label>
+                <label for="from_date">${sendedFrom}:</label>
                 <input class="date" id="from_date" type="text" name="order_from">
-                <label for="to_date">Отправлено до:</label>
+                <label for="to_date">${sendedBefore}:</label>
                 <input class="date" id="to_date" type="text" name="order_to">
-                <button id="search_by_date" class="btn btn-primary btn-primary">Найти</button>
+                <button id="search_by_date" class="btn btn-primary btn-primary">${search}</button>
             </nobr>
         </form>
         <script>
@@ -154,7 +154,7 @@
                     data:{command:'MARK_MESSAGE', me_id:messageId},
                     success:function (data) {
                         if(data.result==true){
-                            parent.html("<span style=\"color:green\">Прочитано!</span>");
+                            parent.html("<span style=\"color:green\">${read}!</span>");
                         }
 
                     }
@@ -172,18 +172,18 @@
                         </div>
                         <form class="form-horizontal" id="resp-form">
                             <div class="modal-body">
-                                <b>Кому:</b>
+                                <b>${for}:</b>
                                 <span id="receiver"></span>
                                 <br/>
 
                                 <input name="me_id" type="hidden" id="message_id">
                                 <input type="hidden" name="command" value="ANSWER_MESSAGE">
-                                <label for="response_message">Ответ</label>
-                                <textarea id="response_message" maxlength="1000" class="form-control" name="rec_message" placeholder="Ответ" required></textarea>
+                                <label for="response_message">${answer}</label>
+                                <textarea id="response_message" maxlength="1000" class="form-control" name="rec_message" placeholder="${answer}" required></textarea>
 
                                 </div>
                             <div class="modal-footer">
-                                <input type="submit" class="btn btn-primary" value="Отправить">
+                                <input type="submit" class="btn btn-primary" value="${send}">
                             </div>
                         </form>
                     </div>
@@ -206,12 +206,12 @@
                         data:data,
                         success:function (data) {
                             if(data.result==true){
-                                Notify.generate('Сообщение успешно отправлено', 'Готово', 1);
+                                Notify.generate('${successSend}', '${completed}', 1);
                                 $('#response-modal').modal('toggle');
                                 parent.html($('#response_message').val());
                             }
                             else {
-                                Notify.generate('Ошибка при отправке сообщения', 'Ошибка', 3);
+                                Notify.generate('${errorSend}', '${error}', 3);
                             }
                         }
                     });

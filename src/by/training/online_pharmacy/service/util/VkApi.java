@@ -19,7 +19,7 @@ public class VkApi implements Api {
     private static final String PHOTO_PROPERTY = "photo_200";
     private static final String CLIENT_ID = "5550894";
     private static final String CLIENT_SECRET = "pLVpHGMyHT6hRvZxHLr6";
-    private static final String REDIRECT_URI = "http://localhost:8080/controller?command=USER_LOGIN_VK";
+    private static final String REDIRECT_URI = "http://pharmacy.mycloud.by/controller?command=USER_LOGIN_VK";
     private static final String SEX = "sex";
     private static final String CONTACTS = "contacts";
     private static final String RESPONSE = "response";

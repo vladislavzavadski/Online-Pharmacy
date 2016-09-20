@@ -1,11 +1,26 @@
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<c:set var="language" value="${not empty sessionScope.language ? sessionScope.language : not empty language ? language : pageContext.request.locale}" scope="session" />
+<fmt:setLocale value="${sessionScope.language}"/>
+<fmt:setBundle basename="resource.locale" var="loc"/>
+<fmt:message bundle="${loc}" key="locale.online_pharmacy" var="onlinePharmacy"/>
+<fmt:message bundle="${loc}" key="locale.reestablish" var="reestablish"/>
+<fmt:message bundle="${loc}" key="locale.login" var="login"/>
+<fmt:message bundle="${loc}" key="locale.secret_word" var="secretWord"/>
+<fmt:message bundle="${loc}" key="locale.question" var="question"/>
+<fmt:message bundle="${loc}" key="locale.completed" var="completed"/>
+<fmt:message bundle="${loc}" key="locale.error" var="error"/>
+<fmt:message bundle="${loc}" key="locale.user_not_found_question" var="userNotFoundQuestion"/>
+<fmt:message bundle="${loc}" key="locale.success_reestablish" var="successReestablish"/>
+<fmt:message bundle="${loc}" key="locale.invalid_response" var="invalidResponse"/>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Онлайн аптека</title>
+    <title>${onlinePharmacy}</title>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <link href="css/bootstrap.css" rel="stylesheet">
     <link href="css/auth-style.css" rel="stylesheet">
@@ -31,10 +46,10 @@
         <form id="reestablish-form" class="form-signin" method="post">
             <span id="reauth-email" class="reauth-email"></span>
             <input name="command" value="REESTABLISH_ACCOUNT" type="hidden">
-            <input name="login" type="text" id="input_login" class="form-control" placeholder="Логин" required autofocus>
+            <input name="login" type="text" id="input_login" class="form-control" placeholder="${login}" required autofocus>
             <span id="secret_message"></span>
-            <input name="secret_word" type="text" id="inputPassword" class="form-control" placeholder="Секретоное слово" required>
-            <button class="btn btn-lg btn-primary btn-block btn-signin" id="submit_button" type="submit" disabled>Восстановить</button>
+            <input name="secret_word" type="text" id="inputPassword" class="form-control" placeholder="${secretWord}" required>
+            <button class="btn btn-lg btn-primary btn-block btn-signin" id="submit_button" type="submit" disabled>${reestablish}</button>
         </form><!-- /form -->
     </div><!-- /card-container -->
 </div><!-- /container -->
@@ -53,11 +68,11 @@
             data:{command:'GET_SECRET', login:login},
             success:function (data) {
                 if(data.result==true&&data.question!=""){
-                    $('#secret_message').html("<span style=\"color:green\">Секретный вопрос: "+data.question+"</span>");
+                    $('#secret_message').html("<span style=\"color:green\">${question}: "+data.question+"</span>");
                     $('#submit_button').prop('disabled', false);
                 }
                 else {
-                    $('#secret_message').html("<span style=\"color:red\">Пользователь не найден, или для него не задан секретный вопрос</span>");
+                    $('#secret_message').html("<span style=\"color:red\"${userNotFoundQuestion}</span>");
                 }
             }
         });
@@ -72,10 +87,10 @@
             success:function (data) {
                 if(data.result==true){
                     $(this).trigger('reset');
-                    Notify.generate('На ваш почтовый ящик высланы инструкции по восстановлению пароля.' , 'Готово!', 1);
+                    Notify.generate('${successReestablish}' , '${completed}!', 1);
                 }
                 else {
-                    Notify.generate('Пользователь не найден или для него не найдено секретное слово', 'Ошибка!', 3);
+                    Notify.generate('${invalidResponse}', '${error}!', 3);
                 }
             }
         });

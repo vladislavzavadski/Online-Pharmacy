@@ -29,8 +29,6 @@ public interface UserDAO {
 
     void insertUser(User user) throws DaoException;
 
-    void deleteUser(User user) throws DaoException;
-
     boolean isLoginUsed(String login) throws DaoException;
 
     void updatePersonalInformation(User user) throws DaoException;

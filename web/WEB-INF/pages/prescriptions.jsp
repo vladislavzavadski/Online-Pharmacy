@@ -16,7 +16,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Рецепты</title>
+    <title>${myPrescriptions}</title>
     <!-- Bootstrap -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet">
@@ -46,18 +46,18 @@
 
     <div class="container content">
 
-        <h1 class="display_1">Рецепты</h1>
+        <h1 class="display_1">${myPrescriptions}</h1>
         <form id="presc_form">
-            <label for="drug_name">Название лекарства:</label>
+            <label for="drug_name">${drugName}:</label>
             <input id="drug_name" type="text" name="drug_name">
             <nobr>
-                <label for="pr_status">Статус рецепта</label>
+                <label for="pr_status">${orderStatus}</label>
                 <select id="pr_status" name="pr_status">
-                    <option value="" selected>Неважно</option>
-                    <option value="ACTIVE">Действует</option>
-                    <option value="NON_ACTIVE">Истёк</option>
+                    <option value="" selected>${unknown}</option>
+                    <option value="ACTIVE">${proceed}</option>
+                    <option value="NON_ACTIVE">${expired}</option>
                 </select>
-                <button id="search_by_date" class="btn btn-primary btn-primary">Найти</button>
+                <button id="search_by_date" class="btn btn-primary btn-primary">${search}</button>
             </nobr>
         </form>
         <script>

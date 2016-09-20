@@ -70,6 +70,10 @@ public class ExtendedSearchCommand implements Command {
                     List<UserDescription> userDescriptions = userService.getAllSpecializations();
 
                     request.setAttribute(Parameter.SPECIALIZATIONS, userDescriptions);
+
+                    List<DrugManufacturer> drugManufacturers = drugService.getDrugManufactures();
+
+                    request.setAttribute(Parameter.DRUG_MANUFACTURES, drugManufacturers);
                 }
 
                 request.getRequestDispatcher(Page.DRUGS).forward(request, response);

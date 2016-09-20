@@ -56,10 +56,9 @@ public class EmailSender {
                 try {
                     Transport.send(message);
                 } catch (MessagingException e) {
-                    logger.error("Something went wrong when trying to send email");
+                    logger.error("Something went wrong when trying to send email", e);
                 }
             };
-
             new Thread(transferMailThread).start();
         } catch (MessagingException e) {
             throw new RuntimeException(e);

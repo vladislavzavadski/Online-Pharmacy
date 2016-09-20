@@ -15,6 +15,7 @@ import by.training.online_pharmacy.service.util.*;
 import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 /**
  * Created by vladislav on 25.07.16.
  */
@@ -22,7 +23,7 @@ public class SocialNetworkServiceImpl implements SocialNetworkService {
     private static final Logger logger = LogManager.getRootLogger();
 
     @Override
-    public User userLoginVk(String code) throws InternalServerException, CanceledAuthorizationException, InvalidParameterException {
+    public User userLoginVk(String code, String pathToImages) throws InternalServerException, CanceledAuthorizationException, InvalidParameterException {
 
         if(code==null){
             throw new CanceledAuthorizationException("User cancel authorization");
@@ -38,7 +39,7 @@ public class SocialNetworkServiceImpl implements SocialNetworkService {
         try {
             User user = getUserFromApi(vkApi, code);
             user.setRegistrationType(RegistrationType.VK);
-            user = requestToDao(vkApi, user);
+            user = requestToDao(vkApi, user, pathToImages);
             return user;
 
         } catch (IOException | DaoException e) {
@@ -49,7 +50,7 @@ public class SocialNetworkServiceImpl implements SocialNetworkService {
     }
 
     @Override
-    public User userLoginFb(String code) throws InternalServerException, CanceledAuthorizationException, InvalidParameterException {
+    public User userLoginFb(String code, String pathToImages) throws InternalServerException, CanceledAuthorizationException, InvalidParameterException {
 
         if(code==null){
             throw new CanceledAuthorizationException("User cancel exception");
@@ -65,7 +66,7 @@ public class SocialNetworkServiceImpl implements SocialNetworkService {
         try {
             User user = getUserFromApi(facebookApi, code);
             user.setRegistrationType(RegistrationType.FACEBOOK);
-            user = requestToDao(facebookApi, user);
+            user = requestToDao(facebookApi, user, pathToImages);
             return user;
 
         } catch (IOException|DaoException e) {
@@ -76,7 +77,7 @@ public class SocialNetworkServiceImpl implements SocialNetworkService {
     }
 
     @Override
-    public User userLoginLi(String code) throws InternalServerException, CanceledAuthorizationException, InvalidParameterException {
+    public User userLoginLi(String code, String pathToImages) throws InternalServerException, CanceledAuthorizationException, InvalidParameterException {
 
         if(code==null){
             throw new CanceledAuthorizationException("User cancel exception");
@@ -92,7 +93,7 @@ public class SocialNetworkServiceImpl implements SocialNetworkService {
         try {
             User user = getUserFromApi(linkedInApi, code);
             user.setRegistrationType(RegistrationType.LINKEDIN);
-            user = requestToDao(linkedInApi, user);
+            user = requestToDao(linkedInApi, user, pathToImages);
             return user;
 
         } catch (IOException|DaoException e) {
@@ -117,7 +118,7 @@ public class SocialNetworkServiceImpl implements SocialNetworkService {
         return user;
     }
 
-    private User requestToDao(Api api, User user) throws IOException, DaoException {
+    private User requestToDao(Api api, User user, String pathToImages) throws IOException, DaoException {
 
         String login = user.getLogin();
         RegistrationType registrationType = user.getRegistrationType();
@@ -132,7 +133,7 @@ public class SocialNetworkServiceImpl implements SocialNetworkService {
             result.setRegistrationType(registrationType);
 
             if(result.getPathToImage()==null) {
-                result.setPathToImage(ImageConstant.PHARMACY_DEFAULT_IMAGE);
+                result.setPathToImage(pathToImages+ImageConstant.PHARMACY_DEFAULT_IMAGE);
             }
 
             return result;
@@ -142,8 +143,10 @@ public class SocialNetworkServiceImpl implements SocialNetworkService {
 
         if(!(pathToImage==null||pathToImage.contains(ImageConstant.VK_DEFAULT_IMAGE)
                 ||pathToImage.contains(ImageConstant.FACEBOOK_DEFAULT_IMAGE))){
-            ImageDownloader.download(pathToImage, ImageConstant.USER_IMAGES, login);
-            user.setPathToImage(ImageConstant.USER_IMAGES+login+ImageConstant.IMAGE_JPG);
+
+            ImageDownloader.download(pathToImage, pathToImages, login);
+            user.setPathToImage(pathToImages+"/"+login+ImageConstant.IMAGE_JPG);
+
         }
 
         userDAO.insertUser(user);

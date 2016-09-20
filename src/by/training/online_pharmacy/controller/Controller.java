@@ -5,11 +5,14 @@ import by.training.online_pharmacy.command.impl.Parameter;
 import by.training.online_pharmacy.dao.UserDAO;
 import by.training.online_pharmacy.dao.exception.DaoException;
 import by.training.online_pharmacy.dao.impl.database.DatabaseUserDAO;
+import by.training.online_pharmacy.service.util.ImageConstant;
 
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 /**
@@ -28,6 +31,10 @@ public class Controller extends javax.servlet.http.HttpServlet {
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    protected void doOptions(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         processRequest(request, response);
     }
 }

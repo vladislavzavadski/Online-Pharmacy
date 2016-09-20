@@ -7,6 +7,7 @@ import by.training.online_pharmacy.service.InitConnectionService;
 import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.UserService;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
+import by.training.online_pharmacy.service.util.ImageConstant;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
@@ -39,7 +40,7 @@ public class SearchDoctorsCommand implements Command {
         UserService userService = serviceFactory.getUserService();
 
         try {
-            List<User> doctors = userService.searchDoctors(query, LIMIT, (page-1)*LIMIT);
+            List<User> doctors = userService.searchDoctors(query, LIMIT, (page-1)*LIMIT, request.getServletContext().getRealPath(ImageConstant.USER_IMAGES));
             request.setAttribute(Parameter.DOCTOR_LIST, doctors);
 
             if(overloadPage){

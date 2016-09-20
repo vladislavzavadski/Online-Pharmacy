@@ -5,7 +5,24 @@
   Time: 10:36
   To change this template use File | Settings | File Templates.
 --%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<c:set var="language" value="${not empty sessionScope.language ? sessionScope.language : not empty language ? language : pageContext.request.locale}" scope="session" />
+<fmt:setLocale value="${sessionScope.language}"/>
+<fmt:setBundle basename="resource.locale" var="loc"/>
+<fmt:message bundle="${loc}" key="locale.present_pharmacy" var="presentPharmacy"/>
+<fmt:message bundle="${loc}" key="locale.address" var="address"/>
+<fmt:message bundle="${loc}" key="locale.location" var="location"/>
+<fmt:message bundle="${loc}" key="locale.share" var="share"/>
+<!-- Put this script tag to the <head> of your page -->
+<script type="text/javascript" src="http://vk.com/js/api/share.js?94" charset="windows-1251"></script>
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/ru_RU/sdk.js#xfbml=1&version=v2.7&appId=1472508072774891";
+    fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
 <footer class="footer">
     <div class="container">
         <p class="navbar-text pull-left">
@@ -14,6 +31,12 @@
         <div class="nav navbar-nav navbar-left" style="line-height:50px">
             <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#about-modal">${about}</button>
             <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#contacts-modal">${contacts}</button>
+            <!-- Put this script tag to the place, where the Share button will be -->
+            <script type="text/javascript"><!--
+            document.write(VK.Share.button({url: "http://pharmacy.mycloud.by"},{type: "round", text: "${share}"}));
+            --></script>
+
+            <div class="fb-share-button" data-href="http://pharmacy.mycloud.by" data-layout="button_count" data-size="large" data-mobile-iframe="true"><a class="fb-xfbml-parse-ignore" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fpharmacy.mycloud.by%2F&amp;src=sdkpreparse">${share}</a></div>
         </div>
     </div>
 </footer>
@@ -27,8 +50,7 @@
             </div>
             <div class="modal-body" style="height:200; overflow:auto;">
                 <p align="justify">
-                    Представляем вашему вниманию онлайн-аптеку.
-                    Здесь вы можете заказывать и покупать лекарста. Так же возможно получение рецепта на то или иное лекарство.
+                    ${presentPharmacy}
                 </p>
             </div>
         </div>
@@ -45,7 +67,7 @@
             <div class="modal-body">
                 <div class="modal-body">
                     <div class="form_group">
-                        <b>Адрес:</b>&nbsp;<span>Минск, ул. Купревича 1/2</span>
+                        <b>${address}:</b>&nbsp;<span>${location}</span>
                         <br/>
                         <b>${phoneNumber}:</b>&nbsp;<span>+375447350720</span>
                         <br/>

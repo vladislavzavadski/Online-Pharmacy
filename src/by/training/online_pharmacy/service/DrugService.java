@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface DrugService {
 
-    void createDrug(User user, Drug drug, Part part) throws InvalidParameterException, InvalidUserStatusException, SpecializationNotFoundException,  InvalidContentException;
+    void createDrug(User user, Drug drug, Part part, String pathToImages) throws InvalidParameterException, InvalidUserStatusException, SpecializationNotFoundException,  InvalidContentException;
 
     List<DrugClass> getAllDrugClasses();
 
@@ -28,7 +28,7 @@ public interface DrugService {
 
     List<Drug> extendedDrugSearch(SearchDrugsCriteria searchDrugsCriteria, int limit, int startFrom) throws InvalidParameterException;
 
-    InputStream getDrugImage(int drugId) throws InvalidParameterException;
+    InputStream getDrugImage(int drugId, String defaultImage) throws InvalidParameterException;
 
     List<DrugManufacturer> getDrugManufactures();
 
@@ -40,7 +40,7 @@ public interface DrugService {
 
     void createDrugManufacturer(User user, DrugManufacturer drugManufacturer) throws InvalidUserStatusException, InvalidParameterException;
 
-    void updateDrug(User user, Drug drug, Part part) throws InvalidParameterException, InvalidUserStatusException, DrugNotFoundException, InvalidContentException, SpecializationNotFoundException;
+    void updateDrug(User user, Drug drug, Part part, String pathToImages) throws InvalidParameterException, InvalidUserStatusException, DrugNotFoundException, InvalidContentException, SpecializationNotFoundException;
 
     void deleteDrug(User user, int drugId) throws InvalidParameterException, InvalidUserStatusException;
 }

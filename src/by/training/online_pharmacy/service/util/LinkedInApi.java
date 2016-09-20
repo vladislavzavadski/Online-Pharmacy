@@ -14,7 +14,7 @@ public class LinkedInApi implements Api {
     private static final String OAUTH_URL = "https://www.linkedin.com/oauth/v2/accessToken?";
     private static final String API_URL = "https://api.linkedin.com/v1/people/~:(id,picture-urls::(original),email-address,first-name,last-name)?";
     private static final String GRANT_TYPE = "authorization_code";
-    private static final String REDIRECT_URI = "http://localhost:8080/controller?command=USER_LOGIN_LI";
+    private static final String REDIRECT_URI = "http://pharmacy.mycloud.by/controller?command=USER_LOGIN_LI";
     private static final String CLIENT_ID = "78i3k2ihydq5da";
     private static final String CLIENT_SECRET = "45P64u8tNmkChUA0";
     private static final String FIRST_NAME = "firstName";
@@ -76,6 +76,7 @@ public class LinkedInApi implements Api {
     public Gender getGender() {
         return Gender.UNKNOWN;
     }
+
 
     @Override
     public String getId(){

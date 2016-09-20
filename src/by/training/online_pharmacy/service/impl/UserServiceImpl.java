@@ -20,6 +20,7 @@ import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by vladislav on 18.07.16.
@@ -35,7 +36,7 @@ public class UserServiceImpl implements UserService {
     private static final int PASSWORD_LENGTH = 7;
 
     @Override
-    public User userLogin(String login, String password)
+    public User userLogin(String login, String password, String defaultImage)
             throws InternalServerException, UserNotFoundException, InvalidParameterException {
 
         if(login==null||login.isEmpty()){
@@ -56,7 +57,7 @@ public class UserServiceImpl implements UserService {
             }
 
             if(user.getPathToImage()==null){
-                user.setPathToImage(ImageConstant.PHARMACY_DEFAULT_IMAGE);
+                user.setPathToImage(defaultImage+ImageConstant.PHARMACY_DEFAULT_IMAGE);
             }
 
             return user;
@@ -265,7 +266,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void uploadProfileImage(User user, Part part) throws InternalServerException, InvalidContentException, InvalidParameterException, NotFoundException {
+    public void uploadProfileImage(User user, Part part, String pathToImages) throws InternalServerException, InvalidContentException, InvalidParameterException, NotFoundException {
 
         if(user==null){
             throw new InvalidParameterException("Parameter user is invalid");
@@ -295,7 +296,7 @@ public class UserServiceImpl implements UserService {
                 throw new InvalidContentException("Invalid image size");
             }
 
-            File uploads = new File(ImageConstant.USER_IMAGES);
+            File uploads = new File(pathToImages);
             String fileName = user.getLogin()+user.getRegistrationType()+ImageConstant.IMAGE_JPG;
 
             File file = new File(uploads,fileName);
@@ -303,76 +304,16 @@ public class UserServiceImpl implements UserService {
 
             user.setPathToImage(file.getAbsolutePath());
 
-            if(user.getPathToImage()==null||!user.getPathToImage().equals(fileName)) {
-                DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
-                UserDAO userDAO = daoFactory.getUserDAO();
-                userDAO.uploadProfileImage(user);
-            }
+            DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
+            UserDAO userDAO = daoFactory.getUserDAO();
+            userDAO.uploadProfileImage(user);
+
 
         }catch (EntityDeletedException e) {
             throw new NotFoundException("User with login=" + user.getLogin() + " was not found", e);
 
         }  catch (DaoException | IOException e) {
             logger.error("Something went wrong, when trying to update profile image", e);
-            throw new InternalServerException(e);
-
-        }
-    }
-
-    @Override
-    public void deleteUser(User user, String password)
-            throws InternalServerException, InvalidPasswordException, InvalidParameterException, InvalidUserStatusException {
-
-        if(user==null){
-            throw new InvalidParameterException("Parameter user is invalid");
-        }
-
-        if(user.getLogin()==null || user.getLogin().isEmpty()){
-            throw new InvalidParameterException("Parameter user login is invalid");
-        }
-
-        if(user.getRegistrationType() != RegistrationType.NATIVE){
-            throw new InvalidUserStatusException("Only native user can delete account");
-        }
-
-        if(!user.getPassword().equals(password)){
-            throw new InvalidPasswordException("Entered password is invalid");
-        }
-
-        DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
-        UserDAO userDAO = daoFactory.getUserDAO();
-
-        try {
-            userDAO.deleteUser(user);//TODO:глянь
-
-        } catch (DaoException e) {
-            logger.error("Something went wrong when trying to delete user", e);
-            throw new InternalServerException(e);
-
-        }
-    }
-
-    @Override
-    public List<User> getAllDoctors(int limit, int startFrom, boolean pageOverload)
-            throws InternalServerException, InvalidParameterException {
-
-        if(limit<=0){
-            throw new InvalidParameterException("Invalid parameter limit. Limit can be >0");
-        }
-
-        if(startFrom<0){
-            throw new InvalidParameterException("Invalid parameter startFrom startFrom can be >0");
-        }
-
-        DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
-        UserDAO userDAO = daoFactory.getUserDAO();
-
-        try {
-            List<User> doctors =  userDAO.getAllDoctors(limit, startFrom);
-            return doctors;
-
-        } catch (DaoException e) {
-            logger.error("Something went wrong when trying to load doctors", e);
             throw new InternalServerException(e);
 
         }
@@ -395,7 +336,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getDoctors(UserDescription userDescription, int limit, int startFrom)
+    public List<User> getDoctors(UserDescription userDescription, int limit, int startFrom, String defaultImage)
             throws InternalServerException, InvalidParameterException {
 
         if(limit<=0){
@@ -415,7 +356,7 @@ public class UserServiceImpl implements UserService {
 
         try {
             List<User> doctors = userDAO.searchDoctors(userDescription, limit, startFrom);
-            doctors.stream().filter(user -> user.getPathToImage()==null).forEach(user -> user.setPathToImage(ImageConstant.PHARMACY_DEFAULT_IMAGE));
+            doctors.stream().filter(user -> user.getPathToImage()==null).forEach(user -> user.setPathToImage(defaultImage+ImageConstant.PHARMACY_DEFAULT_IMAGE));
             return doctors;
 
         } catch (DaoException e) {
@@ -426,7 +367,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> searchDoctors(String query, int limit, int startFrom)
+    public List<User> searchDoctors(String query, int limit, int startFrom, String defaultImage)
             throws InternalServerException, InvalidParameterException {
 
         if(limit<=0){
@@ -446,7 +387,7 @@ public class UserServiceImpl implements UserService {
 
         try {
             List<User> doctors = userDAO.searchUsers(query.split(" "), limit, startFrom);
-            doctors.stream().filter(user -> user.getPathToImage()==null).forEach(user -> user.setPathToImage(ImageConstant.PHARMACY_DEFAULT_IMAGE));
+            doctors.stream().filter(user -> user.getPathToImage()==null).forEach(user -> user.setPathToImage(defaultImage+ImageConstant.PHARMACY_DEFAULT_IMAGE));
             return doctors;
 
         } catch (DaoException e) {
@@ -484,12 +425,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public InputStream getUserImage(User user) throws InternalServerException, InvalidParameterException {
+    public InputStream getUserImage(User user, String defaultImage) throws InternalServerException, InvalidParameterException {
 
         if(user==null||user.getLogin()==null||
                 user.getLogin().isEmpty()||user.getRegistrationType()==null){
             throw new InvalidParameterException("Parameter user is invalid");
         }
+
        try {
 
            if (user.getPathToImage() != null) {
@@ -502,15 +444,24 @@ public class UserServiceImpl implements UserService {
                InputStream inputStream = userDAO.getProfileImage(user);
 
                if (inputStream == null) {
-                    return new FileInputStream(ImageConstant.PHARMACY_DEFAULT_IMAGE);
+                    return new FileInputStream(defaultImage+ImageConstant.PHARMACY_DEFAULT_IMAGE);
                }
 
                return inputStream;
            }
 
-       } catch (DaoException | FileNotFoundException e) {
+       } catch (DaoException e) {
            logger.error("Something went wrong when trying to load image", e);
            throw new InternalServerException(e);
+
+       } catch (FileNotFoundException e) {
+
+           try {
+               return new FileInputStream(defaultImage+ImageConstant.PHARMACY_DEFAULT_IMAGE);
+           } catch (FileNotFoundException e1) {
+               logger.error("Something went wrong when trying to load image", e);
+               throw new InternalServerException(e);
+           }
 
        }
     }

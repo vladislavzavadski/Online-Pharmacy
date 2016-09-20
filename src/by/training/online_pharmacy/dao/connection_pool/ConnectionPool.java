@@ -15,7 +15,7 @@ import java.util.logging.Logger;
  * Created by vladislav on 09.06.16.
  */
 public class ConnectionPool {
-    private List<Connection> freeConnections = new LinkedList<>();
+    private final List<Connection> freeConnections = new LinkedList<>();
     private Map<Long, Connection> reservedConnections = new Hashtable<>();
     private String databaseURL;
     private String username;
@@ -104,7 +104,7 @@ public class ConnectionPool {
             }
 
         } catch (SQLException e) {
-            throw new ConnectionPoolException("Exception while trying to free connection");
+            throw new ConnectionPoolException("Exception while trying to free connection", e);
         }
     }
 
@@ -135,7 +135,7 @@ public class ConnectionPool {
 
     private void closeConnectionList(List<Connection> connectionList) throws SQLException {
 
-        for(int i=0; i<connectionList.size(); i++){
+        while(!connectionList.isEmpty()){
             Connection connection = connectionList.remove(0);
 
             if(!connection.getAutoCommit()){
@@ -150,7 +150,6 @@ public class ConnectionPool {
 
         for(Map.Entry<Long, Connection> entry:map.entrySet()){
 
-            long key = entry.getKey();
             Connection connection = entry.getValue();
 
             if(!connection.getAutoCommit()){
@@ -164,7 +163,6 @@ public class ConnectionPool {
     }
 
     private class PooledConnection implements Connection{
-
         private Connection connection;
 
         public PooledConnection(Connection connection) {
@@ -190,6 +188,7 @@ public class ConnectionPool {
                 connection.rollback();
                 connection.setAutoCommit(true);
             }
+
 
             long threadId = Thread.currentThread().getId();
 

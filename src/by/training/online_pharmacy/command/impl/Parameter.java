@@ -19,7 +19,7 @@ public class Parameter {
     public static final String FIRST_NAME = "first_name";
     public static final String SECOND_NAME = "second_name";
     public static final String GENDER = "gender";
-    public static final String PROFILE_IMAGE = "profile_image";
+    public static final String PROFILE_IMAGE = "webcam";
     public static final String PASSWORD = "password";
     public static final String CODE = "code";
     public static final String REGISTRATION_SUCCESS = "registrationSuccess";

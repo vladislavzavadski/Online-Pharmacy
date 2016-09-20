@@ -1,12 +1,30 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="utf-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@include file="footer.jsp"%>
 <%@include file="header.jsp"%>
 <c:if test="${sessionScope.user eq null}">
     <c:redirect url="http://localhost:8080"/>
 </c:if>
 <jsp:useBean id="user" scope="session" class="by.training.online_pharmacy.domain.user.User"/>
+<fmt:message bundle="${loc}" key="locale.personal_info" var="personalInfo"/>
+<fmt:message bundle="${loc}" key="locale.security" var="security"/>
+<fmt:message bundle="${loc}" key="locale.old_password" var="oldPassword"/>
+<fmt:message bundle="${loc}" key="locale.new_password" var="newPassword"/>
+<fmt:message bundle="${loc}" key="locale.confirmed_password" var="confirmPassword"/>
+<fmt:message bundle="${loc}" key="locale.reestablish_password" var="reestablishPassword"/>
+<fmt:message bundle="${loc}" key="locale.question" var="question"/>
+<fmt:message bundle="${loc}" key="locale.secret_word_saved" var="secretSaved"/>
+<fmt:message bundle="${loc}" key="locale.information_success_update" var="infoSuccessUpdate"/>
+<fmt:message bundle="${loc}" key="locale.error_information_update" var="errorInfoUpdate"/>
+<fmt:message bundle="${loc}" key="locale.personal_info_saved" var="personalInfoSaved"/>
+<fmt:message bundle="${loc}" key="locale.all_fields_must" var="allFieldsMust"/>
+<fmt:message bundle="${loc}" key="locale.pass_not_same" var="passNotSame"/>
+<fmt:message bundle="${loc}" key="locale.password_saved" var="passwordSaved"/>
+<fmt:message bundle="${loc}" key="locale.check_password" var="checkPassord"/>
+<fmt:message bundle="${loc}" key="locale.contacts_saved" var="contactsSaved"/>
+<fmt:message bundle="${loc}" key="locale.new_photo_saved" var="newPhotoSaved"/>
+<fmt:message bundle="${loc}" key="locale.photo_not_selected" var="photoNotSelected"/>
+
 <!DOCTYPE html>
 <html lang="ru">
     <head>
@@ -14,7 +32,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-        <title>Настройки</title>
+        <title>${mySettings}</title>
         <!-- Bootstrap -->
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -43,31 +61,32 @@
         <div class="container content">
             <div id="notifies"></div>
             <!-- Sidebar -->
-            <h1 class="display_1">Настройки</h1>
+            <h1 class="display_1">${mySettings}</h1>
             <div class="container" style="background:white">
-                <div class="form-horizontal">
+                <form id="profile_info_form" class="form-horizontal">
                     <fieldset>
-                        <legend>Личная информация</legend>
+                        <legend>${personalInfo}</legend>
+                        <input type="hidden" name="command" value="UPDATE_PERSONAL_INFORMATION">
                         <span id="personal_inf"></span>
                         <div class="form-group">
-                            <label class="col-md-4 control-label" for="first_name">Имя:</label>  
+                            <label class="col-md-4 control-label" for="first_name">${firstName}:</label>
                             <div class="col-md-4">
                                 <input id="first_name"  name="first_name" maxlength="30" type="text" value="${user.firstName}" class="form-control input-md span3" required="">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-md-4 control-label" for="second_name">Фамилия:</label>  
+                            <label class="col-md-4 control-label" for="second_name">${lastName}:</label>
                             <div class="col-md-4">
                                 <input id="second_name" maxlength="30"  name="second_name" type="text" value="${user.secondName}" class="form-control input-md span3" required="">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-md-4 control-label" for="gender_select">Пол:</label>
+                            <label class="col-md-4 control-label" for="gender_select">${gender}:</label>
                             <div class="col-md-4">
                                 <select name="gender" id="gender_select" class="selectpicker form-control input-md span3">
-                                    <option value="MALE" ${user.gender eq 'MALE'?'selected':''}>Мужчина</option>
-                                    <option value="FEMALE" ${user.gender eq 'FEMALE'?'selected':''}>Женщина</option>
-                                    <option value="UNKNOWN" ${user.gender eq 'UNKNOWN'?'selected':''}>Неизвестно</option>
+                                    <option value="MALE" ${user.gender eq 'MALE'?'selected':''}>${male}</option>
+                                    <option value="FEMALE" ${user.gender eq 'FEMALE'?'selected':''}>${female}</option>
+                                    <option value="UNKNOWN" ${user.gender eq 'UNKNOWN'?'selected':''}>${unknown}</option>
                                 </select>
                             </div>
 
@@ -75,31 +94,31 @@
                         <div class="form-group">
                             <label class="col-md-4 control-label"></label>
                             <div class="col-md-4">
-                                <button id="save_personal_info" class="btn btn-primary">Сохранить</button>
+                                <button id="save_personal_info" class="btn btn-primary">${save}</button>
                             </div>
                         </div>
 
                     </fieldset>
-                </div>
+                </form>
                 <c:if test="${user.registrationType eq 'NATIVE'}">
                 <div class="form-horizontal">
                     <fieldset>
-                        <legend>Безопасность</legend>
+                        <legend>${security}</legend>
                         <span id="security_inf"></span>
                         <div class="form-group">
-                            <label class="col-md-4 control-label" for="old_password">Старый пароль:</label>  
+                            <label class="col-md-4 control-label" for="old_password">${oldPassword}:</label>
                             <div class="col-md-4">
                                 <input id="old_password" maxlength="60"  name="old_password" type="password" class="form-control input-md span3" required>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-md-4 control-label" for="new_password">Новый пароль:</label>  
+                            <label class="col-md-4 control-label" for="new_password">${newPassword}:</label>
                             <div class="col-md-4">
                                 <input id="new_password" maxlength="60"  name="new_password" type="password" class="form-control input-md span3" required>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-md-4 control-label" for="confirm_password">Подтверждение пароля:</label>  
+                            <label class="col-md-4 control-label" for="confirm_password">${confirmPassword}:</label>
                             <div class="col-md-4">
                                 <input id="confirm_password" maxlength="60"  name="confirm_password" type="password" class="form-control input-md span3" required>
                             </div>
@@ -107,7 +126,7 @@
                         <div class="form-group">
                             <label class="col-md-4 control-label"></label>
                             <div class="col-md-4">
-                                <button id="save_password" class="btn btn-primary">Сохранить</button>
+                                <button id="save_password" class="btn btn-primary">${save}</button>
                             </div>
                         </div>
 
@@ -116,7 +135,7 @@
                 </c:if>
                 <div class="form-horizontal">
                     <fieldset>
-                        <legend>Контакты</legend>
+                        <legend>${contacts}</legend>
                         <span id="contacts_inf"></span>
                         <div class="form-group">
                             <label class="col-md-4 control-label" for="e-mail">E-mail:</label>  
@@ -125,7 +144,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-md-4 control-label" for="phone_number">Номер телефона:</label>
+                            <label class="col-md-4 control-label" for="phone_number">${phoneNumber}:</label>
                             <div class="col-md-4">
                                 <input id="phone_number" maxlength="15"  name="phone_number" type="text" value="${user.phone}" class="form-control input-md span3" required="">
                             </div>
@@ -133,7 +152,7 @@
                         <div class="form-group">
                             <label class="col-md-4 control-label"></label>
                             <div class="col-md-4">
-                                <button id="save_contacts" class="btn btn-primary">Сохранить</button>
+                                <button id="save_contacts" class="btn btn-primary">${save}</button>
                             </div>
                         </div>
 
@@ -142,10 +161,10 @@
                <!-- <form id="image_form" class="form-horizontal" action="/controller" method="post" enctype="multipart/form-data" name="contact">-->
                 <div class="form-horizontal">
                 <fieldset>
-                        <legend>Фото профиля</legend>
+                        <legend>${photo}</legend>
                         <span id="photo_inf"></span>
                         <div class="form-group">
-                            <label class="col-md-4 control-label" for="profile_image1">Фото:</label>
+                            <label class="col-md-4 control-label" for="profile_image1">${photo}:</label>
                             <div class="col-md-4">
                                 <input id="profile_image1"  name="profile_image" type="file" class="form-control input-md span3" accept="image/*" required>
                             </div>
@@ -153,7 +172,7 @@
                         <div class="form-group">
                             <label class="col-md-4 control-label"></label>
                             <div class="col-md-4">
-                                <button type="submit" id="save_image"  class="btn btn-primary">Сохранить</button>
+                                <button type="submit" id="save_image"  class="btn btn-primary">${save}</button>
                                 <img id="loading" src="images/Loading_icon.gif" width="150" height="100" style="display: none"/>
                             </div>
                         </div>
@@ -164,9 +183,9 @@
                     <form class="form-horizontal" id="secret_form">
                         <input type="hidden" name="command" value="CREATE_SECRET">
                         <fieldset>
-                            <legend>Восстановление пароля</legend>
+                            <legend>${reestablishPassword}</legend>
                             <div class="form-group">
-                                <label class="col-md-4 control-label" for="questions">Вопрос:</label>
+                                <label class="col-md-4 control-label" for="questions">${question}:</label>
                                 <div class="col-md-4">
                                     <select name="question_id" id="questions" class="selectpicker form-control input-md span3" required>
                                         <c:forEach items="${secretQuestions}" var="question">
@@ -176,7 +195,7 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-md-4 control-label" for="secret_word">Ответ:</label>
+                                <label class="col-md-4 control-label" for="secret_word">${answer}:</label>
                                 <div class="col-md-4">
                                     <input type="text" maxlength="50" class="form-control input-md span3" name="secret_word" id="secret_word" required>
                                 </div>
@@ -184,7 +203,7 @@
                             <div class="form-group">
                                 <label class="col-md-4 control-label"></label>
                                 <div class="col-md-4">
-                                    <button type="submit" id="save_secret"  class="btn btn-primary">Сохранить</button>
+                                    <button type="submit" id="save_secret"  class="btn btn-primary">${save}</button>
                                 </div>
                             </div>
                         </fieldset>
@@ -200,19 +219,12 @@
                                 data:data,
                                 success: function (data) {
                                     if(data.result==true){
-                                        Notify.generate('Секретное слово сохранено','Сохранено',  1)
+                                        Notify.generate('${secretSaved}','${completed}',  1);
                                     }
                                     else {
-                                        if(data.isCritical){
-                                            Notify.generate('Логин под которым вы авторизованы был удален из базы данных.', 'Критическая ошибка', 3);
-                                            setTimeout(function () {
-                                                window.location.assign("/index.jsp");
-                                            }, 5000);
-                                        }
-                                        else {
-                                            Notify.generate('Не сохранить изменения. Ответ сервера: '+data.message, 'Не сохранить изменения', 2);
-                                        }
+                                        Notify.generate('${serverResponse}: '+data.message, '${error}', 2);
                                     }
+
                                 }
                             });
                             return false;
@@ -225,21 +237,21 @@
                         <input type="hidden" name="command" value="UPDATE_DESCRIPTION">
                         <legeng>Описание персонала</legeng>
                         <div class="form-group">
-                            <label for="specialization" class="col-md-4 control-label">Специализация</label>
+                            <label for="specialization" class="col-md-4 control-label">${specialization}</label>
                             <div class="col-md-4">
-                                <input type="text" value="${user.userDescription.specialization}" class="form-control input-md span3" name="specialization" id="specialization" placeholder="Специализация" required maxlength="40">
+                                <input type="text" value="${user.userDescription.specialization}" class="form-control input-md span3" name="specialization" id="specialization" placeholder="${specialization}" required maxlength="40">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="description" class="col-md-4 control-label">Описание:</label>
+                            <label for="description" class="col-md-4 control-label">${description}:</label>
                             <div class="col-md-4">
-                                <textarea id="description" name="description" maxlength="300" placeholder="Описание" required>${user.userDescription.description}</textarea>
+                                <textarea id="description" name="description" maxlength="300" placeholder="${description}" required>${user.userDescription.description}</textarea>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-4 control-label"></label>
                             <div class="col-md-4">
-                                <button type="submit"  class="btn btn-primary">Сохранить</button>
+                                <button type="submit"  class="btn btn-primary">${save}</button>
                             </div>
                         </div>
                     </form>
@@ -252,92 +264,62 @@
                                 dataType:'json',
                                 data:data,
                                 success:function (data) {
+
                                     if(data.result==true){
-                                        Notify.generate('Информация успешно обновлена', 'Готово', 1);
+                                        Notify.generate('${infoSuccessUpdate}', '${completed}', 1);
                                     }
+
                                     else {
-                                        Notify.generate("Произошла ошибка при попытке обновления информации", "Ошибка", 3);
+                                        Notify.generate("${errorInfoUpdate}", "${error}", 3);
                                     }
+
                                 },
                                 error:function () {
-                                    Notify.generate("Произошла ошибка при попытке обновления информации", "Ошибка", 3);
+                                    Notify.generate("${errorInfoUpdate}", "${error}", 3);
                                 }
                             });
                             return false;
                         });
                     </script>
                 </c:if>
-                <c:if test="${user.registrationType eq 'NATIVE'}">
-                <div class="form-horizontal">
-                    <fieldset>
-                        <legend>Удаление аккаунта</legend>
-                        <span id="delete_inf"></span>
-                        <div class="form-group">
-                            <label class="col-md-4 control-label" for="delete_password">Пароль:</label>
-                            <div class="col-md-4">
-                                <input id="delete_password"  name="profile_image" type="password" class="form-control input-md span3" required>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-4 control-label"></label>
-                            <div class="col-md-4">
-                                <button type="submit" id="delete_user"  class="btn btn-danger">Удалить</button>
-                            </div>
-                        </div>
-                    </fieldset>
-                </div>
-                </c:if>
-
                 <script>
 
-                    $("#save_personal_info").click(function () {
-                        var firstName = $("#first_name").val();
-                        var secondName = $("#second_name").val();
-                        var gender = $("#gender_select").val();
-                        if(firstName==""){
-                            Notify.generate('Поле имя не должно быть пустым', 'Ошибка', 2);
-                            return;
-                        }
-                        if(secondName==""){
-                            Notify.generate('Поле ФАМИЛИЯ должно быть заполнено', 'Ошибка', 2);
-                            return;
-                        }
+                    $('#profile_info_form').submit(function () {
+                        var data = $(this).serialize();
+
                         $.ajax({
                             url: "controller",
                             type: "POST",
                             dataType:"json",
-                            data:{command:"UPDATE_PERSONAL_INFORMATION", first_name:firstName, second_name:secondName, gender:gender},
+                            data:data,
                             success: function (data) {
                                 if(data.result==true){
-                                    Notify.generate('Сохранено', 'Персональная информация успешно сохранена', 1)
+                                    Notify.generate('${personalInfoSaved}', '${completed}', 1)
                                 }
                                 else {
-                                    if(data.isCritical){
-                                        Notify.generate('Логин под которым вы авторизованы был удален из базы данных.', 'Критическая ошибка', 3);
-                                        setTimeout(function () {
-                                            window.location.assign("/index.jsp");
-                                        }, 5000);
-                                    }
-                                    else {
-                                        Notify.generate('Не сохранить изменения. Ответ сервера: '+data.message, 'Не сохранить изменения', 2);
-                                    }
+                                    Notify.generate('${serverResponse} '+data.message, '${error}', 2);
                                 }
+
                             }
                         });
+                        return false;
                     });
 
                     $("#save_password").click(function () {
                         var oldPassword = $("#old_password").val();
                         var newPassword = $("#new_password").val();
                         var confirmedPassword = $("#confirm_password").val();
+
                         if(oldPassword==""||newPassword==""||confirmedPassword==""){
-                            Notify.generate('Все поля должны быть заполнены', 'Ошибка', 2);
+                            Notify.generate('${allFieldsMust}', '${error}', 2);
                             return;
                         }
+
                         if(newPassword!=confirmedPassword){
-                            Notify.generate('Введенные пароли не совпадают', 'Ошибка', 2);
+                            Notify.generate('${passNotSame}', '${error}', 2);
                             return;
                         }
+
                         $.ajax({
                             url: "controller",
                             type: "POST",
@@ -345,14 +327,9 @@
                             data:{command:"UPDATE_PASSWORD", new_password:newPassword, old_password:oldPassword},
                             success:function (data) {
                                 if(data.result==true){
-                                    Notify.generate('Сохранено', 'Новый пароль сохранен', 1);
-                                }else if(data.isCritical){
-                                    Notify.generate('Логин под которым вы авторизованы был удален из базы данных.', 'Критическая ошибка', 3);
-                                    setTimeout(function () {
-                                        window.location = "/index.jsp";
-                                    }, 3);
+                                    Notify.generate('${passwordSaved}', '${completed}', 1);
                                 } else {
-                                    Notify.generate('Проверьте введенный пароль', 'Ошибка', 2);
+                                    Notify.generate('${checkPassord}', '${error}', 2);
                                 }
                             }
                         });
@@ -361,15 +338,12 @@
                     $("#save_contacts").click(function () {
                         var mail = $("#e-mail").val();
                         var phone = $("#phone_number").val();
-                        if(mail==""){
-                            Notify.generate('Поле E-MAIL не должно быть пустым', 'Ошибка', 2);
+
+                        if(mail==""||phone==""){
+                            Notify.generate('${allFieldsMust}', '${error}', 2);
                             return;
                         }
-                        if(mail==""){
-                            $("#contacts_inf").html("<span style=\"color:red\"></span>");
-                            Notify.generate('Поле НОМЕР ТЕЛЕФОНА не должно быть пустым', 'Ошибка', 2);
-                            return;
-                        }
+
                         $.ajax({
                             url: "controller",
                             type: "POST",
@@ -377,38 +351,37 @@
                             data:{command:"UPDATE_CONTACTS", email:mail, phone:phone},
                             success: function (data) {
                                 if(data.result==true){
-                                    Notify.generate('Контакты успешно сохранены', 'Сохранено', 1);
-                                }
-                                else if(!data.isCritical){
-                                    Notify.generate("Ошибка. Сообщение сервера: "+data.message, 'Ошибка', 2);
+                                    Notify.generate('К${contactsSaved}', '${completed}', 1);
                                 }
                                 else {
-                                    Notify.generate('Логин под которым вы авторизованы был удален из базы данных.', 'Критическая ошибка', 3);
-                                    setTimeout(function () {
-                                        window.location = "/index.jsp";
-                                    }, 3);
+                                    Notify.generate("${serverResponse} "+data.message, '${error}', 2);
                                 }
+
                             }
                         });
                     });
 
                     $('#save_image').click(function(){
+
                         if($("#profile_image1").val()==""){
-                            Notify.generate("Не выбрано фото для загрузки", 'Ошибка', 2);
+                            Notify.generate("${photoNotSelected}", '${error}', 2);
                             return;
                         }
+
                         var formData = new FormData();
                         formData.append("command", "UPLOAD_PROFILE_IMAGE");
-                        formData.append("profile_image", $("#profile_image1")[0].files[0]);
-                        alert($("#profile_image1")[0].files[0].size+" "+$("#profile_image1")[0].files[0].type);
+                        formData.append("webcam", $("#profile_image1")[0].files[0]);
+
                         if($('#profile_image1')[0].files[0].size>1.342e+9){
-                            Notify.generate("Размер файла слишком велик");
+                            Notify.generate("${tooLarge}", "${error}", 2);
                             return;
                         }
-                        if(!$('#profile_image1')[0].files[0].type.contains('image')){
-                            Notify.generate("Данный файл не является картинкой");
+
+                        if($('#profile_image1')[0].files[0].type!="image/jpeg"){
+                            Notify.generate("${notImage}", "${error}", 2);
                             return;
                         }
+
                         $("#loading").show();
                         $.ajax({
                             type: 'POST',
@@ -420,40 +393,13 @@
                             success:function (data) {
                                 $("#loading").hide();
                                 if(data.result==true) {
-                                    Notify.generate("Новое фото успешно сохранено", 'Сохранено', 1);
-                                }
-                                else if(!data.isCritical){
-                                    Notify.generate("Ошибка. Сообщение сервера: "+data.message, 'Ошибка', 2);
+                                    Notify.generate("${newPhotoSaved}", '${completed}', 1);
                                 }
                                 else {
-                                    Notify.generate('Логин под которым вы авторизованы был удален из базы данных.', 'Критическая ошибка', 3);
-                                    setTimeout(function () {
-                                        window.location = "/index.jsp";
-                                    }, 3);
+                                    Notify.generate("${serverResponse}: "+data.message, '${error}', 2);
                                 }
                             }
-                        });
-                    });
 
-                    $('#delete_user').click(function () {
-                        var password = $("#delete_password").val();
-                        if(password==""){
-                            $("#delete_inf").html("<span style=\"color:red\">Пароль не должен быть пустым</span>");
-                            return;
-                        }
-                        $.ajax({
-                            type:'POST',
-                            url:'controller',
-                            dataType:'json',
-                            data:{command:'DELETE_USER', password:password},
-                            success: function (data) {
-                                if(data.result==true){
-                                    window.location = "/index.jsp";
-                                }
-                                else {
-                                    $("#delete_inf").html("<span style=\"color:red\">Введен ошибочный пароль</span>");
-                                }
-                            }
                         });
                     });
                 </script>

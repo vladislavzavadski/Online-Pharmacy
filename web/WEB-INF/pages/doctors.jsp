@@ -118,6 +118,7 @@
                 var load = true;
                 var thisWork=1;
                 var loadUrl = "/controller?command=${param.command}&specialization=${param.specialization}&query=${param.query}&page=";
+
                 function downloadContent(){
                     if(thisWork == 1){
                         thisWork = 0;
@@ -134,6 +135,7 @@
                         });
                     }
                 }
+
                 $(document).ready(function(){
                     var scrH = $(window).height();
                     var scrHP = $("#drugs").height();
@@ -204,6 +206,10 @@
             </div>
             <script>
                 $("#register_username").blur(function () {
+                    if($(this)==""){
+                        return false;
+                    }
+
                     $.ajax({
                         url:"controller",
                         type:"POST",
@@ -233,11 +239,11 @@
                             $('#registration-modal').modal('toggle');
                             $(this).trigger('reset');
                             if(data.result==true){
-                                Notify.generate('Новый врач успешно зарегестрирован', '${completed}', 1);
+                                Notify.generate('${docCreated}', '${completed}', 1);
 
                             }
                             else {
-                                Notify.generate('Ответ сервера '+data.message, '${error}', 3);
+                                Notify.generate('${serverResponse} '+data.message, '${error}', 3);
                             }
                         }
                     });

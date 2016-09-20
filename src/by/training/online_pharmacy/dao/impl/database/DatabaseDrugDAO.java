@@ -45,7 +45,7 @@ public class DatabaseDrugDAO implements DrugDAO {
     private static final String EXTENDED_DRUG_SEARCH_TAIL = " order by dr_name limit ?, ?;";
     private static final String IS_PRESCRIPTION_ENABLE_BY_ORDER = "select dr_prescription_enable from drugs where dr_id=(select or_drug_id from orders where or_id=?)";
     private static final String INSERT_DRUG_QUERY = "insert into drugs (dr_name, dr_price, dr_image, dr_prescription_enable, dr_description, dr_man_name, dr_man_country, dr_in_stock, dr_class, dr_type, dr_dosage, dr_active_substance, doctor_specialization) values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
-    private static final String UPDATE_DRUG_QUERY = "update drugs set dr_name=?, dr_price=?,  dr_prescription_enable=?, dr_description=?, dr_in_stock=?, dr_class=?, dr_type=?, dr_dosage=?, dr_active_substance=?, doctor_specialization=?, dr_man_name=?, dr_man_country=?  where dr_id=?;";
+    private static final String UPDATE_DRUG_QUERY = "update drugs set dr_name=?, dr_image=?, dr_price=?,  dr_prescription_enable=?, dr_description=?, dr_in_stock=?, dr_class=?, dr_type=?, dr_dosage=?, dr_active_substance=?, doctor_specialization=?, dr_man_name=?, dr_man_country=?  where dr_id=?;";
     private static final String DELETE_DRUG_QUERY = "delete from drugs where dr_id=?;";
     private static final String REDUCE_DRUG_COUNT_BY_NEW_ORDER = "update drugs set dr_in_stock=dr_in_stock-? where dr_id=?;";
     private static final String GET_DRUG_COUNT_IN_STOCK_QUERY = "select dr_in_stock from drugs where dr_id=?;";
@@ -178,6 +178,7 @@ public class DatabaseDrugDAO implements DrugDAO {
     public void reduceDrugCountByReestablishedOrder(User user, int orderId) throws DaoException {
 
         try (DatabaseOperation databaseOperation = new DatabaseOperation(REDUCE_DRUG_COUNT_BY_ORDER_QUERY)){
+
             databaseOperation.setParameter(1, orderId);
             databaseOperation.setParameter(2, orderId);
             databaseOperation.setParameter(3, user.getLogin());
@@ -467,18 +468,19 @@ public class DatabaseDrugDAO implements DrugDAO {
         try (DatabaseOperation databaseOperation = new DatabaseOperation(UPDATE_DRUG_QUERY);){
 
             databaseOperation.setParameter(1, drug.getName());
-            databaseOperation.setParameter(2, drug.getPrice());
-            databaseOperation.setParameter(3, drug.isPrescriptionEnable());
-            databaseOperation.setParameter(4, drug.getDescription());
-            databaseOperation.setParameter(5, drug.getDrugsInStock());
-            databaseOperation.setParameter(6, drug.getDrugClass().getName());
-            databaseOperation.setParameter(7, drug.getType().toString().toLowerCase());
-            databaseOperation.setParameter(8, String.join(Param.COMMA, ListConverter.toStringList(drug.getDosages())));
-            databaseOperation.setParameter(9, drug.getActiveSubstance());
-            databaseOperation.setParameter(10, drug.getDoctorSpecialization());
-            databaseOperation.setParameter(11, drug.getDrugManufacturer().getName());
-            databaseOperation.setParameter(12, drug.getDrugManufacturer().getCountry());
-            databaseOperation.setParameter(13, drug.getId());
+            databaseOperation.setParameter(2, drug.getPathToImage());
+            databaseOperation.setParameter(3, drug.getPrice());
+            databaseOperation.setParameter(4, drug.isPrescriptionEnable());
+            databaseOperation.setParameter(5, drug.getDescription());
+            databaseOperation.setParameter(6, drug.getDrugsInStock());
+            databaseOperation.setParameter(7, drug.getDrugClass().getName());
+            databaseOperation.setParameter(8, drug.getType().toString().toLowerCase());
+            databaseOperation.setParameter(9, String.join(Param.COMMA, ListConverter.toStringList(drug.getDosages())));
+            databaseOperation.setParameter(10, drug.getActiveSubstance());
+            databaseOperation.setParameter(11, drug.getDoctorSpecialization());
+            databaseOperation.setParameter(12, drug.getDrugManufacturer().getName());
+            databaseOperation.setParameter(13, drug.getDrugManufacturer().getCountry());
+            databaseOperation.setParameter(14, drug.getId());
 
             if(databaseOperation.invokeWriteOperation()==0){
                 throw new EntityNotFoundException("Drug with id="+drug.getId()+" was not found");

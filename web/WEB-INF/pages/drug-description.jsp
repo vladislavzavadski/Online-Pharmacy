@@ -6,7 +6,7 @@
 <jsp:useBean id="user" scope="session" class="by.training.online_pharmacy.domain.user.User"/>
 <jsp:useBean id="drug" scope="request" class="by.training.online_pharmacy.domain.drug.Drug"/>
 <jsp:useBean id="prescriptionExist" scope="request" type="java.lang.Boolean"/>
-<c:if test="${user.userRole eq 'CLIENT' and drug.prescriptionEnable}">
+<c:if test="${user.userRole eq 'CLIENT' and drug.prescriptionEnable and prescriptionExist}">
     <jsp:useBean id="prescription" scope="request" type="by.training.online_pharmacy.domain.prescription.Prescription"/>
 </c:if>
 <!DOCTYPE html>
@@ -40,10 +40,10 @@
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
             <script>
                 $(document).ready(function(){
-                    var date_input=$('input[name="date"]'); //our date input has the name "date"
+                    var date_input=$('input[name="prolong_date"]'); //our date input has the name "date"
                     var container=$('.bootstrap-iso form').length>0 ? $('.bootstrap-iso form').parent() : "body";
                     date_input.datepicker({
-                        format: 'yyyy-MM-dd',
+                        format: 'yyyy-mm-dd',
                         container: container,
                         todayHighlight: true,
                         autoclose: true,
@@ -71,75 +71,75 @@
                             ${drug.description}
                         </p>
                         <b>
-                            Производитель:
+                            ${manufacturer}:
                         </b>&nbsp;
                         <span title="${drug.drugManufacturer.description}" id="drug_man_desc">
                             ${drug.drugManufacturer.name}
                         </span>
                         <br/>
                         <b>
-                            Страна:
+                            ${country}:
                         </b>&nbsp;
                         <span id="drug_country_desc">
                             ${drug.drugManufacturer.country}
                         </span>
                         <br/>
                         <b>
-                            Отпуск по рецепту:
+                            ${byPresc}:
                         </b>&nbsp;
                         <span id="drug_prescription_desc">
                     <c:choose>
                         <c:when test="${drug.prescriptionEnable}">
-                            Да
+                            ${yes}
                         </c:when>
                         <c:otherwise>
-                            Нет
+                            ${no}
                         </c:otherwise>
                     </c:choose>
                 </span>
                         <br/>
                         <b>
-                            Есть в наличии:
+                            ${isInStock}:
                         </b>&nbsp;
                         <span id="in_stock_desc">
                             ${drug.drugsInStock}
                         </span>
                         <br/>
                         <b>
-                            Класс лекарства:
+                            ${drugClass}:
                         </b>&nbsp;
                         <span title="${drug.drugClass.description}" id="drug_class_desc">
                             ${drug.drugClass.name}
                         </span>
                         <br/>
                         <b>
-                            Тип лекарства:
+                            ${drugType}:
                         </b>&nbsp;
                         <span id="drug_type_desc">
                             ${drug.type}
                         </span>
                         <br/>
                         <b>
-                            Активное вещество:
+                            ${actSubs}:
                         </b>&nbsp;
                         <span id="drug_substance_desc">
                             ${drug.activeSubstance}
                         </span>
                         <br/>
                         <c:if test="${not drug.inStock}">
-                            <span style="color: red">Лекарсва нет в наличии</span>
+                            <span style="color: red">${drNotInStock}</span>
                         </c:if>
                     </div>
                     <div class="col-xs-12 col-lg-4" style="padding-top:40px">
                         <c:if test="${((not drug.prescriptionEnable)or(drug.prescriptionEnable and prescriptionExist)) and drug.inStock and user.userRole eq 'CLIENT'}">
-                            <button class="btn btn-lg btn-success" style="float:right" data-toggle="modal" data-target="#order-modal" >Заказать</button>
+                            <button class="btn btn-lg btn-success" style="float:right" data-toggle="modal" data-target="#order-modal" >${orderDrug}</button>
                         </c:if>
                         <c:if test="${drug.prescriptionEnable and user.userRole eq 'CLIENT'}">
-                            <button data-toggle="modal" data-target="#request-prescription-modal" class="btn btn-primary btn-primary">Заказать рецепт</button>
+                            <button data-toggle="modal" data-target="#request-prescription-modal" class="btn btn-primary btn-primary">${orderPrescription}</button>
                         </c:if>
                         <c:if test="${user.userRole eq 'PHARMACIST'}">
-                            <button style="float:right" data-toggle="modal" data-target="#edit-modal" class="btn btn-primary"><span class="glyphicon glyphicon-edit"></span> Изменить</button>
-                            <button style="float:right" data-toggle="modal" data-target="#delete-modal" class="btn btn-danger">Удалить</button>
+                            <button style="float:right" data-toggle="modal" data-target="#edit-modal" class="btn btn-primary"><span class="glyphicon glyphicon-edit"></span> ${edit}</button>
+                            <button style="float:right" data-toggle="modal" data-target="#delete-modal" class="btn btn-danger">${delete}</button>
                         </c:if>
                     </div>
                 </div>
@@ -156,15 +156,17 @@
                   </button>
                   <img class="img-circle img-responsive" id="img_logo" src="images/order.jpg" alt="Заказ">
                </div>
-               <form id="register-form">
+               <form id="create_order_form">
+                   <input type="hidden" name="command" value="CREATE_ORDER">
+                   <input type="hidden" name="dr_id" value="${drug.id}">
                   <div class="modal-body">
                      <div id="div-register-msg">
                         <div id="icon-register-msg" class="glyphicon glyphicon-chevron-right"></div>
-                        <span id="text-register-msg">Заказ лекарства</span>
+                        <span id="text-register-msg">${drugOrder}</span>
                      </div>
                      <div class="form_group">    
-                        <label for="dosage">Дозировка: </label>
-                         <select id="dosage" class="form-control">
+                        <label for="dosage">${dosage}: </label>
+                         <select name="drug_dosage" id="dosage" class="form-control">
                          <c:choose>
                              <c:when test="${drug.prescriptionEnable and prescriptionExist}">
                                  <option value="${prescription.drugDosage}">${prescription.drugDosage}</option>
@@ -178,13 +180,13 @@
                         </select>
                      </div>
                      <div class="form_group">
-                        <label for="drug_count">Количество: </label>     
-                        <input id="drug_count"  class="form-control" type="number" placeholder="Количество" step="1" min="1" max="${prescriptionExist?prescription.drugCount:drug.drugsInStock}" required>
+                        <label for="drug_count">${drugCount}: </label>
+                        <input id="drug_count" name="drug_count"  class="form-control" type="number" placeholder="${drugCount}" step="1" min="1" max="${prescriptionExist ? (prescription.drugCount<10 ? prescription.drugCount : 10) : (drug.drugsInStock <10 ? drug.drugsInStock : 10)}" required>
                      </div>
                   </div>
                   <div class="modal-footer">
                      <div>
-                        <button id="create_order" data-dismiss="modal" type="submit" class="btn btn-primary btn-lg btn-block" >Заказать</button>
+                        <button id="create_order" type="submit" class="btn btn-primary btn-lg btn-block" >${orderDrug}</button>
                      </div>
                   </div>
                </form>
@@ -201,25 +203,27 @@
                                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                             </button>
                         </div>
-                        <form>
-                                <div class="form-group ">
+                        <form id="create_request_form">
+                            <input type="hidden" name="command" value="CREATE_REQUEST">
+                            <input type="hidden" name="dr_id" value="${drug.id}">
+                                <div class="form-group">
                                     <label class="control-label" for="date">
-                                        Продлить до:
+                                        ${prolongTo}:
                                         <span class="asteriskField">
                                         *
                                     </span>
                                     </label>
-                                    <input class="form-control input-md" id="date" name="date" placeholder="MM/DD/YYYY" type="text" required/>
+                                    <input class="form-control input-md" id="date" name="prolong_date" placeholder="yyyy-mm-dd" type="text" required/>
                                     <span id="date_comment"></span>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label" for="comment">Описание проблемы</label>
-                                    <textarea class="form-control" id="comment" name="comment" maxlength="400" placeholder="Комментарий"></textarea>
+                                    <label class="control-label" for="comment">${problemDescription}</label>
+                                    <textarea class="form-control" id="comment" name="client_comment" maxlength="400" placeholder="${comment}" required></textarea>
                                     <span id="comment_comment"></span>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label" for="create_order_button"></label>
-                                    <button id="create_order_button" class="btn btn-primary" required>Отправить</button>
+                                    <label class="control-label"></label>
+                                    <button class="btn btn-primary">${send}</button>
                                 </div>
                         </form>
                     </div>
@@ -227,19 +231,21 @@
             </div>
         </c:if>
         <script>
-            $("#create_order").click(function () {
-                var drugDosage = parseInt($("#dosage").val());
-                var count = parseInt($("#drug_count").val());
+            $('#create_order_form').submit(function () {
+                var data = $(this).serialize();
+
+                var count=parseInt($('#drug_count').val());
 
                 $.ajax({
                     url: 'controller',
                     dataType: 'json',
                     type: 'POST',
-                    data: {command:'CREATE_ORDER', drug_count:count, drug_dosage:drugDosage, dr_id:${drug.id}},
+                    data: data,
                     success:function (data) {
-                        $("#order-modal").modal('hide');
+                        $("#order-modal").modal('toggle');
+
                         if(data.result){
-                            Notify.generate('Ваш заказ успешно выполнен', 'Завершено', 1);
+                            Notify.generate('${orderSuccess}','${completed}', 1);
                             var inStock = parseInt($("#in_stock").html())-count;
                             $("#in_stock").html(inStock);
                             $("#drug_count").attr("max", parseInt($("#drug_count").attr('max'))-count);
@@ -247,46 +253,30 @@
 
                         }
                         else {
-                            if(data.isCritical){
-                                Notify.generate('Логин под которым вы авторизованы был удален из базы данных.', 'Критическая ошибка', 3);
-                                setTimeout(function () {
-                                   window.location.assign("/index.jsp");
-                                }, 5000);
-                            }
-                            else {
-                                Notify.generate('Не удалось совершить заказ. Ответ сервера: '+data.message, 'Не удалось совершить заказ', 2);
-                            }
+                            Notify.generate('${orderError}', '${error}', 2);
                         }
+
                     }
                 });
+
                 return false;
             });
             
-            $('#create_order_button').click(function () {
-                var date = $("#date").val();
-                var comment = $("#comment").val();
-                if(date==""){
-                    $("#date_comment").html("<span style='color:red'>Поле дата должно быть заполнено</span>");
-                    return false;
-                }
-                if(comment == ""){
-                    $("#date_comment").html("<span style='color:red'>Поле комментарий должно быть заполнено</span>");
-                    return false;
-                }
+            $('#create_request_form').submit(function () {
+                var data=$(this).serialize();
+
                 $.ajax({
                     url:'controller',
                     type:'POST',
                     dataType:'json',
-                    data:{command:'CREATE_REQUEST', client_comment:comment, prolong_date:date, dr_id:${drug.id}},
+                    data:data,
                     success:function (data) {
                         $("#request-prescription-modal").modal('hide');
+
                         if(data.result){
-                            Notify.generate('Ваш запрос на получение рецепта успешно отправлен', 'Успешно', 1);
-                        }else if(data.isCritical){
-                            Notify.generate('Логин под которым вы авторизованы был удален из базы данных', 'Критическая ошибка', 3);
-                            window.location = '/index.jsp';
+                            Notify.generate('${requestSuccess}', '${completed}', 1);
                         }else {
-                            Notify.generate('Данное лекарство не обнаружено в базе, \n\r или отпускается без рецепта. \r\n Или у вас уже имеется необработанный запрос', 'Ошибка', 2);
+                            Notify.generate('${nonProcessedRequest}', '${error}', 2);
                         }
 
                     }
@@ -305,7 +295,7 @@
                             <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">
                                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                             </button>
-                            <img class="img-circle img-responsive" id="img_logo" src="images/edit.png" width="150" height="150" alt="Редактирование">
+                            <img class="img-circle img-responsive" id="img_logo" src="images/edit.png" width="150" height="150" alt="${edit}">
                         </div>
                         <form id="update_drug_form">
                             <input type="hidden" name="command" value="UPDATE_DRUG">
@@ -313,19 +303,19 @@
                             <div class="modal-body">
                                 <div id="div-register-msg">
                                     <div id="icon-register-msg" class="glyphicon glyphicon-chevron-right"></div>
-                                    <span id="text-register-msg">Редактировать лекарство</span>
+                                    <span id="text-register-msg">${editDrug}</span>
                                 </div>
                                 <div class="form_group">
-                                    <label for="drug_name">Название: </label>
+                                    <label for="drug_name">${drugName}: </label>
                                     <input type="text" maxlength="20" class="form-control" id="drug_name" value="${drug.name}" name="drug_name" required/>
                                 </div>
                                 <div class="form_group">
-                                    <label for="drug_image">Фото: </label>
+                                    <label for="drug_image">${photo}: </label>
                                     <input class="form-control" type="file" id="drug_image" name="drug_image" accept="image/*"/>
                                     <span id="mes_img"></span>
                                 </div>
                                 <div class="form_group">
-                                    <label for="manufacturer_name">Производитель: </label>
+                                    <label for="manufacturer_name">${manufacturer}: </label>
                                     <select id="manufacturer_name" class="form-control" name="dr_manufacturer">
                                         <c:forEach items="${drugManufacturers}" var="drugMan">
                                             <option value="${drugMan.name},${drugMan.country}" <c:if test="${drugMan.name eq drug.drugManufacturer.name and drugMan.country eq drug.drugManufacturer.country}">selected</c:if>>${drugMan.name}(${drugMan.country})</option>
@@ -333,7 +323,7 @@
                                     </select>
                                 </div>
                                 <div class="form_group">
-                                    <label id="drug_class">Класс лекарства:</label>
+                                    <label for="drug_class">${drugClass}:</label>
                                     <select id="drug_class" class="form-control" name="dr_class">
                                         <c:forEach items="${drugClasses}" var="drugClass">
                                             <option value="${drugClass.name}" <c:if test="${drug.drugClass.name eq drugClass.name}">selected</c:if>>${drugClass.name}</option>
@@ -341,31 +331,31 @@
                                     </select>
                                 </div>
                                 <div class="form_group">
-                                    <label for="prescription_enable">Требуется рецепт:</label>
+                                    <label for="prescription_enable">${prescriptionEnable}:</label>
                                     <select id="prescription_enable" class="form-control" name="pr_status">
-                                        <option value="true" <c:if test="${drug.prescriptionEnable}">selected</c:if>>Да</option>
-                                        <option value="false" <c:if test="${ not drug.prescriptionEnable}">selected</c:if>>Нет</option>
+                                        <option value="true" <c:if test="${drug.prescriptionEnable}">selected</c:if>>${yes}</option>
+                                        <option value="false" <c:if test="${ not drug.prescriptionEnable}">selected</c:if>>${no}</option>
                                     </select>
                                 </div>
                                 <div class="form_group">
-                                    <label for="in_stock">В наличии:</label>
+                                    <label for="in_stock">${inStock}:</label>
                                     <input id="in_stock" type="number" max="1000" class="form-control" step="1" min="0" name="drugs_in_stock" value="${drug.drugsInStock}" required>
                                 </div>
                                 <div class="form_group">
-                                    <label for="drug_type">Тип лекарста</label>
+                                    <label for="drug_type">${drugType}</label>
                                     <select id="drug_type" class="form-control" name="drug_type">
-                                        <option value="tablet" <c:if test="${drug.type eq 'TABLET'}">selected</c:if>>Таблетки</option>
-                                        <option value="capsule" <c:if test="${drug.type eq 'CAPSULE'}">selected</c:if>>Капсулы</option>
-                                        <option value="salve" <c:if test="${drug.type eq 'SALVE'}">selected</c:if>>Мазь</option>
-                                        <option value="syrop" <c:if test="${drug.type eq 'SYROP'}">selected</c:if>>Сироп</option>
-                                        <option value="injection" <c:if test="${drug.type eq 'INJECTION'}">selected</c:if>>Укол</option>
-                                        <option value="candle" <c:if test="${drug.type eq 'CANDLE'}">selected</c:if>>Свечи</option>
-                                        <option value="drops" <c:if test="${drug.type eq 'DROPS'}">selected</c:if>>Капли</option>
-                                        <option value="unknown" <c:if test="${drug.type eq 'UNKNOWN'}">selected</c:if>>Неизвестно</option>
+                                        <option value="tablet" <c:if test="${drug.type eq 'TABLET'}">selected</c:if>>${tablet}</option>
+                                        <option value="capsule" <c:if test="${drug.type eq 'CAPSULE'}">selected</c:if>>${capsule}</option>
+                                        <option value="salve" <c:if test="${drug.type eq 'SALVE'}">selected</c:if>>${salve}</option>
+                                        <option value="syrop" <c:if test="${drug.type eq 'SYROP'}">selected</c:if>>${syrop}</option>
+                                        <option value="injection" <c:if test="${drug.type eq 'INJECTION'}">selected</c:if>>${injection}</option>
+                                        <option value="candle" <c:if test="${drug.type eq 'CANDLE'}">selected</c:if>>${candle}</option>
+                                        <option value="drops" <c:if test="${drug.type eq 'DROPS'}">selected</c:if>>${drops}</option>
+                                        <option value="unknown" <c:if test="${drug.type eq 'UNKNOWN'}">selected</c:if>>${unknown}</option>
                                     </select>
                                 </div>
                                 <div class="form_group">
-                                    <label id="drug_type">Квалификация специалиста</label>
+                                    <label id="drug_type">${specialization}</label>
                                     <select id="drug_type" class="form-control" name="specialization">
                                         <c:forEach items="${specializations}" var="spec">
                                             <option value="${spec.specialization}" <c:if test="${drug.doctorSpecialization eq spec.specialization}">selected</c:if>>${spec.specialization}</option>
@@ -373,15 +363,15 @@
                                     </select>
                                 </div>
                                 <div class="form_group">
-                                    <label for="drug_active_substance">Активное вещество: </label>
+                                    <label for="drug_active_substance">${actSubs}: </label>
                                     <input class="form-control" maxlength="45" type="text" id="drug_active_substance" name="active_substance" value="${drug.activeSubstance}" required/>
                                 </div>
                                 <div class="form_group">
-                                    <label for="drug_price">Цена: </label>
+                                    <label for="drug_price">${drugPrice}: </label>
                                     <input class="form-control" max="999.99" type="number" min="0" id="drug_price" step="0.1" name="drug_price" value="${drug.price}" required/>
                                 </div>
                                 <div class="form_group">
-                                    <label >Дозировка: </label>
+                                    <label >${dosage}: </label>
                                     <span id="dosage_message" style="color: red;"></span>
                                     <div class="row">
                                         <c:forEach var="i" begin="50" end="1000" step="50">
@@ -394,13 +384,13 @@
                                     </div>
                                 </div>
                                 <div class="form_group">
-                                    <label for="drug_price">Описание: </label>
-                                    <textarea class="form-control" maxlength="300" id="description" name="drug_description" placeholder="Комментарий">${drug.description}</textarea>
+                                    <label for="drug_price">${description}: </label>
+                                    <textarea class="form-control" maxlength="300" id="description" name="drug_description" placeholder="${comment}">${drug.description}</textarea>
                                 </div>
                             </div>
                             <div class="modal-footer">
                                 <div>
-                                    <button type="submit" id="save_edit" class="btn btn-primary btn-lg btn-block">Сохранить изменения</button>
+                                    <button type="submit" id="save_edit" class="btn btn-primary btn-lg btn-block">${save}</button>
                                 </div>
                             </div>
                         </form>
@@ -411,23 +401,28 @@
                 var checkboxes = $("input[type='checkbox']");
                 checkboxes.click(function () {
                     $('#save_edit').prop('disabled', !checkboxes.is(':checked'));
+
                     if(!checkboxes.is(':checked')){
-                        $('#dosage_message').html('Выберите хотя бы одну дозировку!');
+                        $('#dosage_message').html('${checkOneDosage}!');
                     }
                     else {
                         $('#dosage_message').html('');
                     }
                 });
+
                 $('#update_drug_form').submit(function () {
                     var data = new FormData($(this)[0]);
-                    if($('#drug_image').val()!=""&&!$('#drug_image')[0].files[0].type.contains('image')){
-                        $('#mes_img').html("Файл не является картинкой");
+
+                    if($('#drug_image').val()!=""&&$('#drug_image')[0].files[0].type!="image/jpeg"){
+                        $('#mes_img').html("${notImage}");
                         return false;
                     }
+
                     if($('#drug_image').val()!=""&&$('#drug_image')[0].files[0].size>1.342e+9){
-                        $('#mes_img').html("Размер файла слишком велик");
+                        $('#mes_img').html("${tooLarge}");
                         return false;
                     }
+
                     $.ajax({
                         url:'controller',
                         type:'POST',
@@ -438,26 +433,29 @@
                         data:data,
                         success: function (data) {
                             if(data.result==true){
-                                Notify.generate("Изменения сохранены", 'Готово!', 1);
+                                Notify.generate("${changesSaved}", '${completed}!', 1);
                                 $('#edit-modal').modal('toggle');
                                 $('#drug_img').attr('src', '/controller?command=GET_DRUG_IMAGE&dr_id=${drug.id}&atr='+new Date().getTime());
                                 $('#drug_name_desc').html($('#drug_name').val()+"<span class=\"label label-success\">$"+$('#drug_price').val()+"</span>");
                                 $('#drug_description_desc').html($('#description').val());
+
                                 var strings = $('#manufacturer_name').val().toString().split(",");
                                 $('#drug_man_desc').html(strings[0]);
                                 $('#drug_country_desc').html(strings[1]);
+
                                 if($('#prescription_enable').val()=="true"){
-                                    $('#drug_prescription_desc').html("Да");
+                                    $('#drug_prescription_desc').html("${yes}");
                                 }
                                 else {
-                                    $('#drug_prescription_desc').html("Нет");
+                                    $('#drug_prescription_desc').html("${no}");
                                 }
+
                                 $('#in_stock_desc').html($('#in_stock').val());
                                 $('#drug_substance_desc').html($('#drug_active_substance').val());
                                 $('#drug_type_desc').html($( "#drug_type option:selected" ).text());
                             }
                             else {
-                                Notify.generate('Ответ сервера'+data.message, 'Ошибка!', 3);
+                                Notify.generate('${serverResponse}'+data.message, '${error}!', 3);
                             }
                         }
                     });
@@ -470,16 +468,16 @@
 
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                            <h4 class="modal-title" id="myModalLabel">Удаление</h4>
+                            <h4 class="modal-title" id="myModalLabel">${deleting}</h4>
                         </div>
 
                         <div class="modal-body">
-                            <p>Вы действительно хотите удалить лекарство?</p>
+                            <p>${sureDelete}?</p>
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
-                            <a  class="btn btn-danger btn-ok" href="/controller?command=DELETE_DRUG&dr_id=${drug.id}">Удалить</a>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">${cancel}</button>
+                            <a  class="btn btn-danger btn-ok" href="/controller?command=DELETE_DRUG&dr_id=${drug.id}">${delete}</a>
                         </div>
                     </div>
                 </div>

@@ -35,7 +35,7 @@ public class GetProfileImageCommand implements Command {
         UserService userService = serviceFactory.getUserService();
 
         try {
-            InputStream inputStream = userService.getUserImage(user);
+            InputStream inputStream = userService.getUserImage(user, request.getServletContext().getRealPath(ImageConstant.USER_IMAGES));
 
             response.setContentType(Content.IMAGE);
             ServletOutputStream servletOutputStream = response.getOutputStream();

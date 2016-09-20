@@ -10,7 +10,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta contentType="text/html; charset=UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Препараты</title>
+        <title>${drugs}</title>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <link href="css/bootstrap.css" rel="stylesheet">
         <link href="css/style.css" rel="stylesheet">
@@ -40,7 +40,7 @@
             <div id="sidebar-wrapper">
                 <ul class="sidebar-nav">
                     <li class="sidebar-brand">
-                        Классы лекарств:
+                        ${drugClass}:
                     </li>
                     <div id="drug_classes">
                         <c:forEach items="${drugClasses}" var="drugClass">
@@ -50,7 +50,7 @@
                         </c:forEach>
                     </div>
                     <li>
-                        <a id="all_dr" href="/controller?command=EXTENDED_DRUG_SEARCH&overload=false&page=1">Все классы</a>
+                        <a id="all_dr" href="/controller?command=EXTENDED_DRUG_SEARCH&overload=false&page=1">${allClasses}</a>
                     </li>
                 </ul>
             </div>
@@ -102,12 +102,12 @@
                     return false;
                 });
             </script>
-            <h1 class="display_1">Препараты</h1>
+            <h1 class="display_1">${drugs}</h1>
             <c:if test="${user.userRole eq 'PHARMACIST'}">
                 <div class="btn-group" style="padding-top:20px;" role="group">
-                    <button data-toggle="modal" data-target="#new-drug-modal" class="btn btn-primary btn-primary">Добавить лекарство</button>
-                    <button data-toggle="modal" data-target="#new-drug-class-modal" class="btn btn-primary btn-primary">Добавить класс лекарств</button>
-                    <button data-toggle="modal" data-target="#new-drug-manufacturer-modal" class="btn btn-primary btn-primary">Добавить производителя</button>
+                    <button data-toggle="modal" data-target="#new-drug-modal" class="btn btn-primary btn-primary">${addDrug}</button>
+                    <button data-toggle="modal" data-target="#new-drug-class-modal" class="btn btn-primary btn-primary">${addDrugClass}</button>
+                    <button data-toggle="modal" data-target="#new-drug-manufacturer-modal" class="btn btn-primary btn-primary">${addManufacturer}</button>
                 </div>
             </c:if>
             <div id="drugs" class="row" align="justify" style="background:white;">
@@ -181,6 +181,7 @@
 
         </div>
             <c:if test="${user.userRole eq 'PHARMACIST'}">
+                <jsp:useBean id="drugManufacturers" scope="request" class="java.util.ArrayList"/>
             <div class="modal fade" id="new-drug-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -195,27 +196,27 @@
                             <div class="modal-body">
                                 <div id="div-register-msg">
                                     <div id="icon-register-msg" class="glyphicon glyphicon-chevron-right"></div>
-                                    <span id="text-register-msg">Новое лекарство</span>
+                                    <span id="text-register-msg">${newDrug}</span>
                                 </div>
                                 <div class="form_group">
-                                    <label for="drug_name11">Название: </label>
+                                    <label for="drug_name11">${drugName}: </label>
                                     <input type="text" class="form-control" id="drug_name11" maxlength="20" name="drug_name" required/>
                                 </div>
                                 <div class="form_group">
-                                    <label for="drug_image">Фото: </label>
+                                    <label for="drug_image">${photo}: </label>
                                     <input class="form-control" type="file" id="drug_image" name="drug_image" accept="image/*"/>
                                     <span id="mes_img"></span>
                                 </div>
                                 <div class="form_group">
-                                    <label for="manufacturer_name">Производитель: </label>
+                                    <label for="manufacturer_name">${manufacturer}: </label>
                                     <select id="manufacturer_name" class="form-control" name="dr_manufacturer">
-                                        <c:forEach items="${drugManufactures}" var="man">
+                                        <c:forEach items="${drugManufacturers}" var="man">
                                             <option value="${man.name},${man.country}">${man.name}(${man.country})</option>
                                         </c:forEach>
                                     </select>
                                 </div>
                                 <div class="form_group">
-                                    <label id="drug_class">Класс лекарства:</label>
+                                    <label id="drug_class">${drugClass}:</label>
                                     <select id="drug_class_select" class="form-control" name="dr_class">
                                         <c:forEach items="${drugClasses}" var="cls">
                                             <option value="${cls.name}">${cls.name}</option>
@@ -223,31 +224,31 @@
                                     </select>
                                 </div>
                                 <div class="form_group">
-                                    <label id="prescription_enable">Требуется рецепт:</label>
+                                    <label id="prescription_enable">${prescriptionEnable}:</label>
                                     <select id="prescription_enable" class="form-control" name="pr_status">
-                                        <option value="true">Да</option>
-                                        <option value="false">Нет</option>
+                                        <option value="true">${yes}</option>
+                                        <option value="false">${no}</option>
                                     </select>
                                 </div>
                                 <div class="form_group">
-                                    <label id="in_stock">В наличии:</label>
+                                    <label id="in_stock">${inStock}:</label>
                                     <input type="number" class="form-control" step="1" min="0" max="1000" name="drugs_in_stock" required>
                                 </div>
                                 <div class="form_group">
-                                    <label id="drug_type">Тип лекарста</label>
+                                    <label for="drug_type">${drugType}</label>
                                     <select id="drug_type" class="form-control" name="drug_type">
-                                        <option value="tablet">Таблетки</option>
-                                        <option value="capsule">Капсулы</option>
-                                        <option value="salve">Мазь</option>
-                                        <option value="syrop">Сироп</option>
-                                        <option value="injection">Укол</option>
-                                        <option value="candle">Свечи</option>
-                                        <option value="drops">Капли</option>
-                                        <option value="unknown" selected>Неизвестно</option>
+                                        <option value="tablet">${tablet}</option>
+                                        <option value="capsule">${capsule}</option>
+                                        <option value="salve">${salve}</option>
+                                        <option value="syrop">${syrop}</option>
+                                        <option value="injection">${injection}</option>
+                                        <option value="candle">${candle}</option>
+                                        <option value="drops">${drops}</option>
+                                        <option value="unknown" selected>${unknown}</option>
                                     </select>
                                 </div>
                                 <div class="form_group">
-                                    <label id="drug_type">Квалификация специалиста</label>
+                                    <label id="drug_type">${specialization}</label>
                                     <select id="drug_type" class="form-control" name="specialization">
                                         <c:forEach items="${specializations}" var="spec">
                                             <option value="${spec.specialization}">${spec.specialization}</option>
@@ -255,7 +256,7 @@
                                     </select>
                                 </div>
                                 <div class="form_group">
-                                    <label for="drug_active_substance">Активное вещество: </label>
+                                    <label for="drug_active_substance">${actSubs}: </label>
                                     <input class="form-control" maxlength="45"  type="text" id="drug_active_substance" name="active_substance" required/>
                                 </div>
                                 <div class="form_group">
@@ -263,7 +264,7 @@
                                     <input class="form-control" type="number" max="999.99" min="0" id="drug_price" step="0.1" name="drug_price" required/>
                                 </div>
                                 <div class="form_group">
-                                    <label>Дозировка: </label>
+                                    <label>${dosage}: </label>
                                     <span id="dos_message"></span>
                                     <div class="row">
                                         <c:forEach var="i" begin="50" end="1000" step="50">
@@ -276,13 +277,13 @@
                                     </div>
                                 </div>
                                 <div class="form_group">
-                                    <label for="drug_price">Описание: </label>
-                                    <textarea class="form-control" maxlength="300" id="description" name="drug_description" placeholder="Комментарий"></textarea>
+                                    <label for="drug_price">${description}: </label>
+                                    <textarea class="form-control" maxlength="300" id="description" name="drug_description" placeholder="${comment}"></textarea>
                                 </div>
                             </div>
                             <div class="modal-footer">
                                 <div>
-                                    <button id="create_drug" type="submit" class="btn btn-primary btn-lg btn-block">Сохранить</button>
+                                    <button id="create_drug" type="submit" class="btn btn-primary btn-lg btn-block">${save}</button>
                                 </div>
                             </div>
                         </form>
@@ -293,14 +294,17 @@
                 $("#create-drug-form").submit(function (event) {
                     event.preventDefault();
                     var formData = new FormData($(this)[0]);
-                    if($('#drug_image').val()!=""&&!$('#drug_image')[0].files[0].type.contains('image')){
-                        $('#mes_img').html("Файл не является картинкой");
+
+                    if($('#drug_image').val()!=""&&$('#drug_image')[0].files[0].type!="image/jpeg"){
+                        $('#mes_img').html("${notImage}");
                         return false;
                     }
+
                     if($('#drug_image').val()!=""&&$('#drug_image')[0].files[0].size>1.342e+9){
-                        $('#mes_img').html("Размер файла слишком велик");
+                        $('#mes_img').html("${tooLarge}");
                         return false;
                     }
+
                     $.ajax({
                         url:'controller',
                         type:'POST',
@@ -314,17 +318,17 @@
                                 $('#create-drug-form').trigger('reset');
                                 $('#new-drug-modal').modal('toggle');
                                 $('#dos_message').html("");
-                                Notify.generate("Новое лекарство создано", "Готово!", 1);
+                                Notify.generate("${newDrugCreated}", "${completed}!", 1);
                             }
                             else {
                                 if(data.message.contains("dosages")){
-                                    $('#dos_message').html("<span style='color: red'>Выберите дозировку</span>");
+                                    $('#dos_message').html("<span style='color: red'>${checkOneDosage}</span>");
                                 }
                                 else {
                                     $('#create-drug-form').trigger('reset');
                                     $('#new-drug-modal').modal('toggle');
                                     $('#dos_message').html("");
-                                    Notify.generate("Не удалось создать лекарство ответ:"+data.message, "Ошибка", 3);
+                                    Notify.generate("${serverResponse}:"+data.message, "${error}", 3);
                                 }
                             }
                         }
@@ -339,28 +343,28 @@
                             <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">
                                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                             </button>
-                            <img class="img-circle img-responsive" id="img_logo" src="images/create.png" width="250" height="200" alt="Новый класс лекарства"/>
+                            <img class="img-circle img-responsive" id="img_logo" src="images/create.png" width="250" height="200" alt="${newDrugClass}"/>
                         </div>
                         <form id="create_class_form">
                             <input type="hidden" name="command" value="CREATE_CLASS">
                             <div class="modal-body">
                                 <div id="div-register-msg">
                                     <div id="icon-register-msg" class="glyphicon glyphicon-chevron-right"></div>
-                                    <span id="text-register-msg">Новый класс</span>
+                                    <span id="text-register-msg">${newDrugClass}</span>
                                 </div>
                                 <div class="form_group">
-                                    <label for="drug_class_name">Название класса: </label>
+                                    <label for="drug_class_name">${className}: </label>
                                     <input type="text" class="form-control" maxlength="30" id="drug_class_name" name="dr_class" required/>
                                     <span id="create_class_message"></span>
                                 </div>
                                 <div class="form_group">
-                                    <label for="drug_price">Описание класса: </label>
-                                    <textarea class="form-control" id="description" name="class_description" placeholder="Комментарий" maxlength="300" required></textarea>
+                                    <label for="drug_price">${classDescription}: </label>
+                                    <textarea class="form-control" id="description" name="class_description" placeholder="${comment}" maxlength="300" required></textarea>
                                 </div>
                             </div>
                             <div class="modal-footer">
                                 <div>
-                                    <button id="submit_drug_class" type="submit" class="btn btn-primary btn-lg btn-block" disabled>Сохранить</button>
+                                    <button id="submit_drug_class" type="submit" class="btn btn-primary btn-lg btn-block" disabled>${save}</button>
                                 </div>
                             </div>
                         </form>
@@ -382,10 +386,10 @@
                             success:function (data) {
                                 if(data.result==true){
                                     if(data.isExist==true) {
-                                        message.html("<span style='color: red'>Данный класс уже существует</span>");
+                                        message.html("<span style='color: red'>${classExist}</span>");
                                     }
                                     else {
-                                        message.html("<span style='color: green'>Данный класс пока не создан</span>");
+                                        message.html("<span style='color: green'>${classNotExist}</span>");
                                         button.prop('disabled', false);
                                     }
                                 }
@@ -408,7 +412,7 @@
                             $(this).trigger('reset');
                             $("#new-drug-class-modal").modal('toggle');
                             if(data.result==true){
-                                Notify.generate("Новый класс успешно создан",'Готово!', 1);
+                                Notify.generate("${newClassCreated}",'${completed}', 1);
                                 var drugClasses = $('#drug_classes');
                                 drugClasses.html("<li>" +
                                         "<a class='Class' href='/controller?command=GET_DRUGS_BY_CLASS&dr_class="+className+"&page=1' title='"+classDescription+"'>"+className+"</a> " +
@@ -417,7 +421,7 @@
                                 $('#dr_class_select').html("<option value='"+className+"'>"+className+"</option>"+$('#dr_class_select').html());
                             }
                             else {
-                                Notify.generate("Не удалось создать новый класс. Ответ сервера:"+data.message,'Ошибка', 2);
+                                Notify.generate("${serverResponse}:"+data.message,'${error}', 2);
 
                             }
                         }
@@ -432,32 +436,32 @@
                             <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">
                                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                             </button>
-                            <img class="img-circle img-responsive" id="img_logo" src="images/create.png" width="250" height="200" alt="Новый производитель">
+                            <img class="img-circle img-responsive" id="img_logo" src="images/create.png" width="250" height="200" alt="${newManufacturer}">
                         </div>
                         <form id="create_manufacturer">
                             <input type="hidden" name="command" value="CREATE_MANUFACTURER">
                             <div class="modal-body">
                                 <div id="div-register-msg">
                                     <div id="icon-register-msg" class="glyphicon glyphicon-chevron-right"></div>
-                                    <span id="text-register-msg">Новый производитель</span>
+                                    <span id="text-register-msg">${newManufacturer}</span>
                                 </div>
                                 <div class="form_group">
-                                    <label for="drug_manufacturer_name">Название производителя: </label>
+                                    <label for="drug_manufacturer_name">${manName}: </label>
                                     <input max="50" type="text" class="form-control new_man" maxlength="50" id="drug_manufacturer_name" name="man_name" required/>
                                 </div>
                                 <div class="form_group">
-                                    <label for="drug_manufacturer_country">Страна производителя: </label>
+                                    <label for="drug_manufacturer_country">${manCountry}: </label>
                                     <input max="50" type="text" class="form-control new_man" maxlength="50" id="drug_manufacturer_country" name="man_country" required/>
                                 </div>
                                 <span id="create_man_message"></span>
                                 <div class="form_group">
-                                    <label for="drug_price">Описание производителя: </label>
-                                    <textarea maxlength="300" class="form-control" id="man_description" name="man_description" placeholder="Комментарий" required></textarea>
+                                    <label for="drug_price">${description}: </label>
+                                    <textarea maxlength="300" class="form-control" id="man_description" name="man_description" placeholder="${comment}" required></textarea>
                                 </div>
                             </div>
                             <div class="modal-footer">
                                 <div>
-                                    <button type="submit" id="submit_man" class="btn btn-primary btn-lg btn-block" disabled>Сохранить</button>
+                                    <button type="submit" id="submit_man" class="btn btn-primary btn-lg btn-block" disabled>${save}</button>
                                 </div>
                             </div>
                         </form>
@@ -481,10 +485,10 @@
 
                             if(data.result==true){
                                 if(data.isExist==true){
-                                    $('#create_man_message').html("<span style='color:red'>Данный производитель уже существует</span>");
+                                    $('#create_man_message').html("<span style='color:red'>${manufacturerExist}</span>");
                                 }
                                 else {
-                                    $('#create_man_message').html("<span style='color:green'>Данный производитель не существует</span>");
+                                    $('#create_man_message').html("<span style='color:green'>${manufacturerNotExist}</span>");
                                     $('#submit_man').prop('disabled', false);
                                 }
                             }
@@ -506,11 +510,11 @@
                             $('#new-drug-manufacturer-modal').modal('toggle');
                             $('#create_man_message').html("");
                             if(data.result==true){
-                                Notify.generate("Новый производитель создан", "Готово!", 1);
+                                Notify.generate("${manufacturerCreated}", "${completed}!", 1);
                                 $('#drug_manufacturer_s').html("<option value='"+manName+","+manCountry+"'>"+manName+"("+manCountry+")"+"</option>>"+$('#drug_manufacturer_s').html());
                             }
                             else {
-                                Notify.generate("Не удалось создать нового производителя. Ответ сервера: "+data.message, 'Ошибка', 3);
+                                Notify.generate("${serverResponse}: "+data.message, '${error}', 3);
                             }
                         }
                     });

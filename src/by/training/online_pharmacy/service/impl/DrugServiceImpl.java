@@ -2,7 +2,6 @@ package by.training.online_pharmacy.service.impl;
 
 import by.training.online_pharmacy.dao.*;
 import by.training.online_pharmacy.dao.exception.DaoException;
-import by.training.online_pharmacy.dao.exception.EntityDeletedException;
 import by.training.online_pharmacy.dao.exception.EntityNotFoundException;
 import by.training.online_pharmacy.domain.drug.Drug;
 import by.training.online_pharmacy.domain.drug.DrugClass;
@@ -32,7 +31,7 @@ public class DrugServiceImpl implements DrugService {
 
 
     @Override
-    public void createDrug(User user, Drug drug, Part part) throws InternalServerException,InvalidParameterException, InvalidUserStatusException, SpecializationNotFoundException, InvalidContentException {
+    public void createDrug(User user, Drug drug, Part part, String pathToImages) throws InternalServerException,InvalidParameterException, InvalidUserStatusException, SpecializationNotFoundException, InvalidContentException {
         if(user==null){
             throw new InvalidParameterException("Parameter user is invalid");
         }
@@ -133,7 +132,7 @@ public class DrugServiceImpl implements DrugService {
 
             }
 
-            String drugPathToImage = ImageConstant.DRUG_IMAGES+drug.getName()+drug.getDrugManufacturer().getName();
+            String drugPathToImage = pathToImages+"/"+drug.getName()+drug.getDrugManufacturer().getName();
             drugPathToImage+=drug.getDrugManufacturer().getCountry()+drug.getActiveSubstance();
 
             drug.setPathToImage(drugPathToImage);
@@ -306,7 +305,7 @@ public class DrugServiceImpl implements DrugService {
     }
 
     @Override
-    public InputStream getDrugImage(int drugId) throws InternalServerException, InvalidParameterException {
+    public InputStream getDrugImage(int drugId, String defaultImage) throws InternalServerException, InvalidParameterException {
 
         if(drugId<0){
             throw new InvalidParameterException("Parameter drug id is invalid");
@@ -319,7 +318,7 @@ public class DrugServiceImpl implements DrugService {
             InputStream inputStream = drugDAO.getDrugImage(drugId);
 
             if(inputStream==null){
-                return new FileInputStream(ImageConstant.DEFAULT_DRUG_IMAGE);
+                return new FileInputStream(defaultImage+ImageConstant.DEFAULT_DRUG_IMAGE);
             }
 
             return inputStream;
@@ -330,7 +329,7 @@ public class DrugServiceImpl implements DrugService {
 
         } catch (FileNotFoundException e) {
             try {
-                return new FileInputStream(ImageConstant.DEFAULT_DRUG_IMAGE);
+                return new FileInputStream(defaultImage+ImageConstant.DEFAULT_DRUG_IMAGE);
 
             } catch (FileNotFoundException e1) {
                 logger.error("Something went wrong when trying to load drug image", e);
@@ -483,7 +482,7 @@ public class DrugServiceImpl implements DrugService {
     }
 
     @Override
-    public void updateDrug(User user, Drug drug, Part part) throws InternalServerException, InvalidParameterException, InvalidUserStatusException, DrugNotFoundException, InvalidContentException, SpecializationNotFoundException {
+    public void updateDrug(User user, Drug drug, Part part, String pathToImages) throws InternalServerException, InvalidParameterException, InvalidUserStatusException, DrugNotFoundException, InvalidContentException, SpecializationNotFoundException {
 
         if(user==null){
             throw new InvalidParameterException("Parameter user is invalid");
@@ -595,13 +594,18 @@ public class DrugServiceImpl implements DrugService {
                 throw new SpecializationNotFoundException("Specialization with name="+drug.getDoctorSpecialization()+" was not found");
             }
 
-            DrugDAO drugDAO = daoFactory.getDrugDAO();
-            drugDAO.updateDrug(drug);
+            String drugImagePath = pathToImages+"/"+drug.getName()+drug.getDrugManufacturer().getName()+drug.getDrugManufacturer().getCountry()+drug.getActiveSubstance();
 
             if(part!=null&&part.getSize()>0) {
-                File file = new File(ImageConstant.DRUG_IMAGES+drug.getName()+drug.getDrugManufacturer().getName()+drug.getDrugManufacturer().getCountry()+drug.getActiveSubstance());
+                File file = new File(drugImagePath);
                 Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
             }
+
+            drug.setPathToImage(drugImagePath);
+
+            DrugDAO drugDAO = daoFactory.getDrugDAO();
+
+            drugDAO.updateDrug(drug);
 
         } catch (EntityNotFoundException e) {
             throw new DrugNotFoundException("This drug was deleted or does't exist", e);

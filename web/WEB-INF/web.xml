@@ -55,14 +55,6 @@
         <url-pattern>/prescription</url-pattern>
     </servlet-mapping>
     <servlet>
-        <servlet-name>Registration</servlet-name>
-        <jsp-file>/WEB-INF/pages/registration.jsp</jsp-file>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>Registration</servlet-name>
-        <url-pattern>/registration.jsp</url-pattern>
-    </servlet-mapping>
-    <servlet>
         <servlet-name>AuthorizationPage</servlet-name>
         <jsp-file>/WEB-INF/pages/authorization.jsp</jsp-file>
     </servlet>

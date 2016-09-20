@@ -12,7 +12,7 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Заказы</title>
+        <title>${myOrders}</title>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <link href="css/bootstrap.css" rel="stylesheet">
         <link href="css/style.css" rel="stylesheet">
@@ -81,46 +81,46 @@
                 <ul class="sidebar-nav">
                     <li class="sidebar-brand">
                         <a href="#">
-                        Статус заказа:
+                        ${orderStatus}:
                         </a>
                     </li>
                     <li>
-                        <a class="status" data-status="ORDERED" href="#">Заказано</a>
+                        <a class="status" data-status="ORDERED" href="#">${statusOrdered}</a>
                     </li>
                     <li>
-                        <a class="status" data-status="CANCELED" href="#">Отменено</a>
+                        <a class="status" data-status="CANCELED" href="#">${statusCanceled}</a>
                     </li>
                     <li>
-                        <a class="status" data-status="PAID" href="#">Оплачено</a>
+                        <a class="status" data-status="PAID" href="#">${statusPaid}</a>
                     </li>
                     <li>
-                        <a class="status" data-status="COMPLETED" href="#">Завершено</a>
+                        <a class="status" data-status="COMPLETED" href="#">${statusCompleted}</a>
                     </li>
                     <li>
-                        <a id="all_orders" href="#">Все заказы</a>
+                        <a id="all_orders" href="#">${allOrders}</a>
                     </li>
                 </ul>
             </div>
 
-            <h1 class="display_1">Заказы</h1>
+            <h1 class="display_1">${myOrders}</h1>
             <form>
-                <label for="drug_name">Название лекарства:</label>
+                <label for="drug_name">${drugName}:</label>
                 <input id="drug_name" type="text" name="drug_name">
                 <nobr>
-                    <label for="from_date">Заказано с:</label>
+                    <label for="from_date">${sendedFrom}:</label>
                     <input class="date" id="from_date" type="text" name="order_from">
-                    <label for="to_date">Заказано до:</label>
+                    <label for="to_date">${sendedBefore}:</label>
                     <input class="date" id="to_date" type="text" name="order_to">
-                    <button id="search_by_date" class="btn btn-primary btn-primary">Найти</button>
+                    <button id="search_by_date" class="btn btn-primary btn-primary">${search}</button>
                 </nobr>
             </form>
             <br/>
             <c:if test="${user.userRole eq 'PHARMACIST'}">
                 <form id="search_by_id">
                     <input type="hidden" name="command" value="GET_ORDER_BY_ID">
-                    <label for="order_number">Номер заказа:</label>
+                    <label for="order_number">${orderNumber}:</label>
                     <input type="number" min="0" step="1" max="2147483647" name="order_id" id="order_number" required>
-                    <button class="btn btn-primary btn-primary">Найти</button>
+                    <button class="btn btn-primary btn-primary">${search}</button>
                 </form>
             </c:if>
 
@@ -237,11 +237,11 @@
                         success:function (data) {
                             if(data.result){
                                 tmpHtml  = buttons.html();
-                                buttons.html("<span style='color:green'>Заказ отменен...</span>" +
-                                        "<a href='#' class='reestablish' data-order='"+orderId+"'>Восстановить</a>");
+                                buttons.html("<span style='color:green'>${orderCanceled}...</span>" +
+                                        "<a href='#' class='reestablish' data-order='"+orderId+"'>${reestablish}</a>");
                             }
                             else {
-                                Notify.generate('Заказ не был найден', 'Ошибка', 3);
+                                Notify.generate('${orderNotFound}', '${error}', 3);
                             }
                         }
                     });
@@ -280,16 +280,16 @@
 
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                            <h4 class="modal-title" id="myModalLabel">Оплата</h4>
+                            <h4 class="modal-title" id="myModalLabel">${payment}</h4>
                         </div>
 
                         <div class="modal-body">
-                            <p>Вы действительно хотите оплатить заказ? Сумма заказа $<span id="price"></span></p>
+                            <p>${surePay} $<span id="price"></span></p>
                             <p class="debug-url"></p>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
-                            <button id="buy_drug" class="btn btn-danger btn-ok" data-dismiss="modal" data-order="">Оплатить</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">${cancel}</button>
+                            <button id="buy_drug" class="btn btn-danger btn-ok" data-dismiss="modal" data-order="">${payment}</button>
                         </div>
                     </div>
                 </div>
@@ -304,14 +304,14 @@
                         data:{command: 'PAY_ORDER', order_id:orderId},
                         success: function (data) {
                             if(data.result==true){
-                                currentParent.html("<span style='color: green'>Оплачено!</span>");
+                                currentParent.html("<span style='color: green'>${statusPaid}!</span>");
                             }
                             else {
                                 if(data.message=="Order not found"){
-                                    Notify.generate("Заказ не найден", "Ошибка", 2);
+                                    Notify.generate("${orderNotFound}", "${error}", 2);
                                 }
-                                else if(data.message=="Insufficient funds"){
-                                    Notify.generate("Недостаточно средств", "Ошибка", 2);
+                                else if(data.message=="You does not have money to pay for this order"){
+                                    Notify.generate("${insFunds}", "${error}", 2);
                                 }
                             }
                         }

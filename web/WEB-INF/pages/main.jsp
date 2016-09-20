@@ -34,14 +34,16 @@
     </style>
 </head>
 <body>
+    <script src="js/webcam.js"></script>
     <div class="container">
         <!-- Sidebar -->
         <div id="notifies"></div>
         <div class="container" style="background: white; padding-top: 10px">
             <div class="row">
                 <div class="col-lg-6">
-                     <img src="/controller?command=GET_PROFILE_IMAGE" class="img-responsive" alt="<jsp:getProperty name="user" property="firstName"/> <jsp:getProperty name="user" property="secondName"/>" width="300" height="400"/>
+                     <img id="cabinet_image" src="/controller?command=GET_PROFILE_IMAGE" class="img-responsive" alt="<jsp:getProperty name="user" property="firstName"/> <jsp:getProperty name="user" property="secondName"/>" width="300" height="400"/>
                      <!--<h1><jsp:getProperty name="user" property="firstName"/> <jsp:getProperty name="user" property="secondName"/></h1>-->
+                    <button data-toggle="modal" data-target="#take-photo-modal" class="btn btn-primary"><span class="glyphicon glyphicon-camera" ></span> ${takePhoto}</button>
                 </div>
                 <div class="col-lg-6">
                     <h1><jsp:getProperty name="user" property="firstName"/> <jsp:getProperty name="user" property="secondName"/></h1>
@@ -77,6 +79,41 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="take-photo-modal" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" align="center">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div align="center" class="center-block" id="my_camera" style="width:320px; height:240px;"></div>
+                </div>
+                <div class="modal-footer">
+                    <a href="javascript:void(submit_to_server())" class="btn btn-block btn-primary btn-default"><span class="glyphicon glyphicon-camera"></span> ${takePhoto}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $('#take-photo-modal').on('shown.bs.modal', function() {
+            Webcam.attach('#my_camera');
+        });
+        $('#take-photo-modal').on('hidden.bs.modal', function () {
+            Webcam.reset();
+        });
+
+        function submit_to_server(){
+            Webcam.snap(function(data_uri){
+                Webcam.upload( data_uri, '/controller?command=UPLOAD_PROFILE_IMAGE', function(code, text) {
+                    $('#take-photo-modal').modal('toggle');
+                    $('#cabinet_image').attr('src', '/controller?command=GET_PROFILE_IMAGE'+'&time='+new Date());
+
+                } );
+            });
+        }
+    </script>
     <c:if test="${user.userRole eq 'CLIENT'}">
     <div class="modal fade" id="replish-modal" tabindex="-1" role="dialog"  aria-hidden="true" style="display: none;">
         <div class="modal-dialog">
