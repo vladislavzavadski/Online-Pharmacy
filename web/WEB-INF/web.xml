@@ -185,4 +185,5 @@
         <exception-type>by.training.online_pharmacy.controller.listener.exception.InternalServerException</exception-type>
         <location>/WEB-INF/pages/error/500.html</location>
     </error-page>
+
 </web-app>

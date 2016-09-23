@@ -47,6 +47,9 @@
       <link href="css/style.css" rel="stylesheet">
       <script src="js/bootstrap.js"></script>
       <style>
+         .pluso-more {
+            display: none !important;
+         }
          #notifies {
             position:fixed;
             width:400px;
@@ -245,6 +248,16 @@
          js.src = "//connect.facebook.net/ru_RU/sdk.js#xfbml=1&version=v2.7&appId=1472508072774891";
          fjs.parentNode.insertBefore(js, fjs);
       }(document, 'script', 'facebook-jssdk'));</script>
+      <script type="text/javascript">(function() {
+         if (window.pluso)if (typeof window.pluso.start == "function") return;
+         if (window.ifpluso==undefined) { window.ifpluso = 1;
+            var d = document, s = d.createElement('script'), g = 'getElementsByTagName';
+            s.type = 'text/javascript'; s.charset='UTF-8'; s.async = true;
+            s.src = ('https:' == window.location.protocol ? 'https' : 'http')  + '://share.pluso.ru/pluso-like.js';
+            var h=d[g]('body')[0];
+            h.appendChild(s);
+         }})();
+      </script>
       <footer class="footer">
          <div class="container">
             <p class="navbar-text pull-left">
@@ -254,12 +267,13 @@
                <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#about-modal">${about}</button>
                <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#contacts-modal">${contacts}</button>
                <!-- Put this script tag to the place, where the Share button will be -->
-               <script type="text/javascript"><!--
-               document.write(VK.Share.button({url: "http://pharmacy.mycloud.by"},{type: "round", text: "${share}"}));
-               --></script>
+               <%--<script type="text/javascript"><!----%>
+               <%--document.write(VK.Share.button({url: "http://pharmacy.mycloud.by"},{type: "round", text: "${share}"}));--%>
+               <%----></script>--%>
 
-               <div class="fb-share-button" data-href="http://pharmacy.mycloud.by" data-layout="button_count" data-size="large" data-mobile-iframe="true"><a class="fb-xfbml-parse-ignore" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fpharmacy.mycloud.by%2F&amp;src=sdkpreparse">${share}</a></div>
+               <%--<div class="fb-share-button" data-href="http://pharmacy.mycloud.by" data-layout="button_count" data-size="large" data-mobile-iframe="true"><a class="fb-xfbml-parse-ignore" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fpharmacy.mycloud.by%2F&amp;src=sdkpreparse">${share}</a></div>--%>
             </div>
+            <div class="pluso pull-right" data-background="transparent" data-options="big,round,line,horizontal,nocounter,theme=04" data-services="vkontakte,facebook"></div>
          </div>
       </footer>
       <div class="modal fade" id="about-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">

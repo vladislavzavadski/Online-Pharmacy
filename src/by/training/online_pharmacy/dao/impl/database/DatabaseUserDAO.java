@@ -35,7 +35,6 @@ public class DatabaseUserDAO implements UserDAO {
     private static final String UPDATE_PASSWORD = "update online_pharmacy.users set us_password=md5(?) where us_login=? and login_via=?;";
     private static final String UPDATE_CONTACTS = "update users set us_mail=?, us_phone=? where us_login=? and login_via=?;";
     private static final String UPLOAD_PROFILE_IMAGE = "update users set us_image=? where us_login=? and login_via=?;";
-    private static final String GET_ALL_DOCTORS_QUERY = "select us_login, login_via, us_first_name, us_second_name, us_image, sd_specialization from users inner join staff_descriptions on us_login=sd_user_login and login_via=sd_login_via where us_group='doctor' order by us_second_name limit ?, ?";
     private static final String GET_DOCTORS_QUERY_PREFIX= "select us_login, login_via, us_first_name, us_second_name, us_image, sd_specialization from users inner join staff_descriptions on us_login=sd_user_login and login_via=sd_login_via where us_group='doctor' ";
     private static final String SPECIALIZATION = " and sd_specialization=? ";
     private static final String GET_DOCTORS_QUERY_TAIL = " order by us_second_name limit ?, ?;";
@@ -375,24 +374,6 @@ public class DatabaseUserDAO implements UserDAO {
 
         } catch (SQLException | ParameterNotFoundException | ConnectionPoolException e) {
             throw new DaoException("Can not upload profile image", e);
-        }
-    }
-
-    @Override
-    public List<User> getAllDoctors(int limit, int startFrom) throws DaoException {
-        List<User> doctors;
-
-        try(DatabaseOperation databaseOperation = new DatabaseOperation(GET_ALL_DOCTORS_QUERY)){
-            databaseOperation.setParameter(TableColumn.LIMIT, 1, startFrom);
-            databaseOperation.setParameter(TableColumn.LIMIT, 2, limit);
-
-            ResultSet resultSet = databaseOperation.invokeReadOperation();
-
-            doctors = resultSetToUsersOnSearch(resultSet);
-
-            return doctors;
-        } catch (SQLException | ConnectionPoolException | ParameterNotFoundException e) {
-            throw new DaoException("Can not load doctors from database", e);
         }
     }
 

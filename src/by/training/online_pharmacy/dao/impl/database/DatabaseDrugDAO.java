@@ -27,7 +27,6 @@ public class DatabaseDrugDAO implements DrugDAO {
 
     private static final String GET_DRUGS_BY_ID_QUERY = "SELECT dr_id, dr_class, dr_description, dr_image, dr_in_stock, dr_name, dr_prescription_enable, dr_price, dr_type,  dr_dosage, dr_active_substance, dm_name, dm_country, dm_description, dr_class_name, dr_class_description FROM drugs inner join drugs_manufactures on dr_man_name = dm_name and dr_man_country=dm_country inner join drug_classes on dr_class = dr_class_name WHERE dr_id=?;";
     private static final String GET_DRUGS_BY_CLASS_QUERY = "select dr_price, dr_id, dr_image, dr_description, dr_name, dr_active_substance, dr_class from drugs WHERE dr_class=? order by dr_name LIMIT ?, ?;";
-    private static final String GET_ALL_DRUGS_QUERY = "select dr_price, dr_id, dr_image, dr_description, dr_name, dr_active_substance, dr_class from drugs order by dr_name limit ?, ?;";
     private static final String SEARCH_DRUGS_QUERY = "select dr_price, dr_id, dr_image, dr_description, dr_name, dr_active_substance, dr_class from drugs where dr_name like ? or dr_description like ?  or dr_active_substance like ? order by dr_name limit ?, ?;";
     private static final String EXTENDED_DRUGS_SEARCH_QUERY_PREFIX = "select dr_id, dr_image, dr_description, dr_price, dr_name, dr_active_substance, dr_class from drugs ";
 
@@ -251,79 +250,6 @@ public class DatabaseDrugDAO implements DrugDAO {
     }
 
 
-
-//    @Override
-//    public List<Drug> extendedSearching(SearchDrugsCriteria searchDrugsCriteria, int startFrom, int limit) throws DaoException {
-//        List<String> criteria = new ArrayList<>();
-//
-//        if(searchDrugsCriteria.getName()!=null&&!searchDrugsCriteria.getName().isEmpty()){
-//            criteria.add(DRUG_NAME);
-//        }
-//
-//        if(searchDrugsCriteria.getActiveSubstance()!=null&&!searchDrugsCriteria.getActiveSubstance().isEmpty()){
-//            criteria.add(ACTIVE_SUBSTANCE);
-//        }
-//
-//        if(searchDrugsCriteria.getDrugMaxPrice()!=null&&!searchDrugsCriteria.getDrugMaxPrice().isEmpty()){
-//            criteria.add(DRUG_PRICE);
-//        }
-//
-//        if(searchDrugsCriteria.getDrugClass()!=null&&!searchDrugsCriteria.getDrugClass().isEmpty()){
-//            criteria.add(DRUG_CLASS);
-//        }
-//
-//        if(searchDrugsCriteria.getDrugManufacture()!=null&&!searchDrugsCriteria.getDrugManufacture().isEmpty()){
-//            criteria.add(DRUG_MANUFACTURER);
-//        }
-//
-//        if(searchDrugsCriteria.getOnlyInStock()!=null&&!searchDrugsCriteria.getOnlyInStock().isEmpty()&&Boolean.parseBoolean(searchDrugsCriteria.getOnlyInStock())){
-//            criteria.add(IN_STOCK);
-//        }
-//
-//        if(searchDrugsCriteria.getPrescriptionEnable()!=null&&!searchDrugsCriteria.getPrescriptionEnable().isEmpty()){
-//            criteria.add(PRESCRIPTION_ENABLE);
-//        }
-//
-//        try (DatabaseOperation databaseOperation = new DatabaseOperation(EXTENDED_DRUGS_SEARCH_QUERY_PREFIX+String.join(Param.AND, criteria)+EXTENDED_DRUG_SEARCH_TAIL)){
-//            int paramNumber = 1;
-//
-//            if(searchDrugsCriteria.getName()!=null&&!searchDrugsCriteria.getName().isEmpty()){
-//                databaseOperation.setParameter(paramNumber++, Param.PER_CENT+searchDrugsCriteria.getName()+Param.PER_CENT);
-//            }
-//
-//            if(searchDrugsCriteria.getActiveSubstance()!=null&&!searchDrugsCriteria.getActiveSubstance().isEmpty()){
-//                databaseOperation.setParameter(paramNumber++, Param.PER_CENT+searchDrugsCriteria.getActiveSubstance()+Param.PER_CENT);
-//            }
-//
-//            if(searchDrugsCriteria.getDrugMaxPrice()!=null&&!searchDrugsCriteria.getDrugMaxPrice().isEmpty()){
-//                databaseOperation.setParameter(paramNumber++, Double.parseDouble(searchDrugsCriteria.getDrugMaxPrice()));
-//            }
-//
-//            if(searchDrugsCriteria.getDrugClass()!=null&&!searchDrugsCriteria.getDrugClass().isEmpty()){
-//                databaseOperation.setParameter(paramNumber++, searchDrugsCriteria.getDrugClass());
-//            }
-//
-//            if(searchDrugsCriteria.getDrugManufacture()!=null&&!searchDrugsCriteria.getDrugManufacture().isEmpty()){
-//                String[] manufacture = searchDrugsCriteria.getDrugManufacture().split(Param.COMMA);
-//                databaseOperation.setParameter(paramNumber++, manufacture[0]);
-//                databaseOperation.setParameter(paramNumber++, manufacture[1]);
-//            }
-//
-//            if(searchDrugsCriteria.getPrescriptionEnable()!=null&&!searchDrugsCriteria.getPrescriptionEnable().isEmpty()){
-//                databaseOperation.setParameter(paramNumber++, Boolean.parseBoolean(searchDrugsCriteria.getPrescriptionEnable()));
-//            }
-//
-//            databaseOperation.setParameter(paramNumber++, startFrom);
-//            databaseOperation.setParameter(paramNumber, limit);
-//            ResultSet resultSet = databaseOperation.invokeReadOperation();
-//
-//            return resultSetToDomainOnSearch(resultSet);
-//        } catch (SQLException | ConnectionPoolException e) {
-//            throw new DaoException("Can not load drugs with extended searching form database", e);
-//
-//        }
-//    }
-
     @Override
     public boolean isPrescriptionEnable(int drugId) throws DaoException {
 
@@ -395,24 +321,6 @@ public class DatabaseDrugDAO implements DrugDAO {
 
         } catch (ConnectionPoolException | SQLException | ParameterNotFoundException e) {
             throw new DaoException("Can not find drugs with params "+query);
-
-        }
-    }
-
-    @Override
-    public List<Drug> getAllDrugs(int limit, int startFrom) throws DaoException {
-        List<Drug> result;
-
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_ALL_DRUGS_QUERY)){
-            databaseOperation.setParameter(TableColumn.LIMIT, 1, startFrom);
-            databaseOperation.setParameter(TableColumn.LIMIT, 2, limit);
-            ResultSet resultSet = databaseOperation.invokeReadOperation();
-            result = resultSetToDomainOnSearch(resultSet);
-
-            return result;
-
-        } catch (SQLException | ParameterNotFoundException | ConnectionPoolException e) {
-            throw new DaoException("Can not get drugs with limit = "+limit+" and startFrom = "+startFrom, e);
 
         }
     }

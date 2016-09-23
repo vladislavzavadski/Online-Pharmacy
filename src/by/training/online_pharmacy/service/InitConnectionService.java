@@ -5,9 +5,8 @@ package by.training.online_pharmacy.service;
  */
 public interface InitConnectionService {
     void initConnection();
-    void destroyConnection();
 
-    void reserveConnection();
+    void destroyConnection();
 
     void freeConnection();
 }

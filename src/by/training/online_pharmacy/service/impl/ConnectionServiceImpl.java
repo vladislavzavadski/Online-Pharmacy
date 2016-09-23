@@ -43,20 +43,6 @@ public class ConnectionServiceImpl implements InitConnectionService {
     }
 
     @Override
-    public void reserveConnection(){
-        ConnectionPool connectionPool = ConnectionPool.getInstance();
-
-        try {
-            connectionPool.reserveConnection();
-
-        } catch (ConnectionPoolException e) {
-            logger.error("Something went wrong when trying to reserve connection", e);
-            throw new InternalServerException(e);
-
-        }
-    }
-
-    @Override
     public void freeConnection(){
         ConnectionPool connectionPool = ConnectionPool.getInstance();
 

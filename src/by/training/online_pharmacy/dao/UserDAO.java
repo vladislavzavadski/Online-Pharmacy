@@ -39,7 +39,5 @@ public interface UserDAO {
 
     void uploadProfileImage(User user) throws DaoException;
 
-    List<User> getAllDoctors(int limit, int startFrom) throws DaoException;
-
     void withdrawMoneyFromBalance(User user, float orderSum) throws DaoException;
 }

@@ -17,6 +17,7 @@ import java.io.IOException;
  */
 public class ContextCreateListener implements ServletContextListener {
     private final static Logger logger = LogManager.getLogger();
+
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
 
@@ -34,10 +35,10 @@ public class ContextCreateListener implements ServletContextListener {
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
 
         Command command = CommandHelper.getCommand(CommandName.DESTROY_CONNECTION);
-        final Logger logger = LogManager.getLogger();
-        logger.error("Closed context!!!!!!!!!!!!!!!!!!!!!");
+
         try {
             command.execute(null, null);
+
         } catch (ServletException|IOException e) {
             logger.error("Something went wrong when trying to destroy connection pool", e);
             throw new InternalServerException(e);

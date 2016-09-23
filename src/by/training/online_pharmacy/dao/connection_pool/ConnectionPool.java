@@ -177,7 +177,7 @@ public class ConnectionPool {
         public void close() throws SQLException {
 
             if(connection.isClosed()) {
-                throw new SQLException("Given connection already closed");
+                throw new SQLException("Given connection already closed "+reservedConnections.size()+" "+freeConnections.size());
             }
 
             if(connection.isReadOnly()) {

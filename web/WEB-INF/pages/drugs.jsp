@@ -17,6 +17,8 @@
         <link href="css/simple-sidebar.css" rel="stylesheet">
         <link href="css/sticky-footer-navbar.css" rel="stylesheet">
         <script src="js/bootstrap.js"></script>
+        <script src="js/jquery.cookie.js"></script>
+        <%--<script src="js/redirect.js"></script>--%>
         <style>
             #notifies {
                 position:fixed;
@@ -59,9 +61,11 @@
                 $('#drug_classes').on('click', '.Class',function () {
                     var toLoad = $(this).attr("href");
 
-                    $.get(toLoad, function (data) {
+                    $.get(toLoad, function (data, status, jqXHR) {
                         $("#drugs").html(data);
+
                     });
+
 
                     load = true;
                     thisPageNum = 2;
@@ -73,9 +77,11 @@
 
                 $("#all_dr").click(function () {
                     var toLoad = $(this).attr("href");
+
                     $.get(toLoad, function (data) {
                         $("#drugs").html(data);
                     });
+
                     thisPageNum = 2;
                     load = true;
                     loadUrl="/controller?command=EXTENDED_DRUG_SEARCH&overload=false&page=";

@@ -13,13 +13,14 @@
 
 .name{
     height: 60px;
-    line-height: 80px;
+    line-height: 35px;
     font-size: 30px;
     color: azure;
     font-family: 'Oswald Regular',Tahoma,sans-serif;
     text-transform: uppercase;
     text-decoration: none;
     font-style: italic;
+    margin-left: 0 !important;
 }
 
 .error-message {
@@ -36,9 +37,9 @@
     border-radius: 100%;
 }
 
-.content{
+/*.content{
     padding-top: 80px;
-}
+}*/
 
 body{
     background: #DCDCDC;
@@ -88,7 +89,7 @@ div.right_block {
     display: none;
 }
 
-@media (max-width:1006px)
+/*@media (max-width:1006px)
 { .name{display:none;} }
 
 @media (max-width:1548px){
@@ -101,7 +102,7 @@ div.right_block {
     .content{
         padding-top: 80px;
     }
-}
+}*/
 
 .badge-notify{
     background:red;
@@ -112,6 +113,7 @@ div.right_block {
 
 .navbar {
     min-height: 60px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 }
 
 #dr_class_select, #drug_manufacturer_s{
