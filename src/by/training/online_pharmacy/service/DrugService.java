@@ -20,8 +20,6 @@ public interface DrugService {
 
     List<DrugClass> getAllDrugClasses();
 
-    List<Drug> getDrugsByClass(String className, int limit, int startFrom) throws InvalidParameterException;
-
     Drug getDrugDetails(int drugId) throws InvalidParameterException;
 
     List<Drug> searchDrugs(String query, int limit, int startFrom) throws InvalidParameterException;

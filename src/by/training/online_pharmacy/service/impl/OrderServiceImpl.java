@@ -114,11 +114,11 @@ public class OrderServiceImpl implements OrderService {
 
         try {
             if(user.getUserRole()==UserRole.CLIENT) {
-                return orderDAO.searchUsersOrders(user, searchOrderCriteria, startFrom, limit);
+                return orderDAO.searchOrders(user, searchOrderCriteria, startFrom, limit);
             }
 
             else {
-                return orderDAO.searchAllOrders(searchOrderCriteria, startFrom, limit);
+                return orderDAO.searchOrders(searchOrderCriteria, startFrom, limit);
             }
 
         } catch (DaoException e) {
@@ -147,7 +147,7 @@ public class OrderServiceImpl implements OrderService {
         OrderDAO orderDAO = daoFactory.getOrderDao();
 
         try {
-            orderDAO.completeOrder(orderId);
+            orderDAO.setOrderStatus(OrderStatus.COMPLETED, orderId);
         } catch (EntityNotFoundException ex){
             throw new OrderNotFoundException("Order was not found", ex);
         } catch (DaoException e) {
@@ -157,7 +157,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> getOrderById(User user, int orderId) throws InvalidUserStatusException, InvalidParameterException {
+    public Order getOrderById(User user, int orderId) throws InvalidUserStatusException, InvalidParameterException {
 
         if(user==null){
             throw new InvalidParameterException("Parameter user is invalid");

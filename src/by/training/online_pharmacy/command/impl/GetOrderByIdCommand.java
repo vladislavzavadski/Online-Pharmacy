@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -40,8 +41,8 @@ public class GetOrderByIdCommand implements Command {
         OrderService orderService = serviceFactory.getOrderService();
 
         try {
-            List<Order> orders = orderService.getOrderById(user, orderId);
-            request.setAttribute(Parameter.ORDER_LIST, orders);
+            Order order = orderService.getOrderById(user, orderId);
+            request.setAttribute(Parameter.ORDER_LIST, Collections.singletonList(order));
 
             if(pageOverload){
                 request.getRequestDispatcher(Page.ORDERS).forward(request, response);

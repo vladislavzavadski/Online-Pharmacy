@@ -16,11 +16,9 @@ import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.Part;
 import java.io.*;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created by vladislav on 18.07.16.
@@ -286,9 +284,9 @@ public class UserServiceImpl implements UserService {
 
         try {
             InputStream newImageStream = part.getInputStream();
-            String content = URLConnection.guessContentTypeFromStream(newImageStream);
+            String contentType = part.getContentType();
 
-            if(content==null||!content.startsWith(ImageConstant.IMAGE)){
+            if(contentType==null||!contentType.startsWith(ImageConstant.IMAGE)){
                 throw new InvalidContentException("This file is not an image");
             }
 

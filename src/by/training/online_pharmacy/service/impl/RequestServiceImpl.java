@@ -16,7 +16,6 @@ import by.training.online_pharmacy.service.RequestService;
 import by.training.online_pharmacy.service.exception.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Ignore;
 
 import java.util.Date;
 import java.util.List;
@@ -213,7 +212,7 @@ public class RequestServiceImpl implements RequestService {
         RequestForPrescriptionDAO requestForPrescriptionDAO = daoFactory.getRequestForPrescriptionDAO();
 
         try {
-            return requestForPrescriptionDAO.getInProgressRequestsCount(user);
+            return requestForPrescriptionDAO.getRequestsCount(user, RequestStatus.IN_PROGRESS);
 
         } catch (DaoException e) {
             logger.error("Something went wrong when trying to get requests count", e);

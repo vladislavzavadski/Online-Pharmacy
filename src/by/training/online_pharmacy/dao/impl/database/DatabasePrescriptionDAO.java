@@ -34,7 +34,8 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
     private static final String NON_ACTIVE_PRESCRIPTIONS = " and pr_expiration_date<curdate() ";
     private static final String GET_ALL_PRESCRIPTIONS_QUERY_SUFFIX = " order by pr_expiration_date desc limit ?,?;";
     private static final String INCREASE_DRUG_COUNT_IN_PRESCRIPTION_BY_NEW_ORDER = "update prescriptions set pr_drug_count=pr_drug_count+(select or_drug_count from orders where or_id=?) where pr_client_login=? and pr_login_via=? and pr_drug_id=(select or_drug_id from orders where or_id=?)";
-    private static final String REDUCE_DRUG_COUNT_IN_PRESCRIPTION_QUERY_BY_ORDER = "update prescriptions set pr_drug_count=pr_drug_count-? where pr_client_login=? and pr_login_via=? and pr_drug_id=? and pr_drug_dosage=?";
+
+    private static final String REDUCE_DRUG_COUNT = "update prescriptions set pr_drug_count=pr_drug_count-? where pr_client_login=? and pr_login_via=? and pr_drug_id=? and pr_drug_dosage=?";
     private static final String REDUCE_DRUG_COUNT_IN_PRESCRIPTION_BY_ORDER = "update prescriptions set pr_drug_count=pr_drug_count-(select or_drug_count from orders where or_id=?) where pr_client_login=? and pr_login_via=? and pr_drug_id=(select or_drug_id from orders where or_id=?)";
     private static final String GET_ACTIVE_PRESCRIPTION_QUERY = "select pr_drug_dosage, pr_drug_count from prescriptions where pr_client_login=? and pr_login_via=? and pr_drug_id=? and pr_expiration_date>=curdate();";
 
@@ -123,7 +124,8 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
 
     @Override
     public void reduceDrugCount(User user, int drugId, int drugCount, int drugDosage) throws DaoException {
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(REDUCE_DRUG_COUNT_IN_PRESCRIPTION_QUERY_BY_ORDER);){
+
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(REDUCE_DRUG_COUNT)){
             databaseOperation.setParameter(1, drugCount);
             databaseOperation.setParameter(2, user.getLogin());
             databaseOperation.setParameter(3, user.getRegistrationType().toString().toLowerCase());

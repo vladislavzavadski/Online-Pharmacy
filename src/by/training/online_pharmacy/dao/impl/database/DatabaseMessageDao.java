@@ -4,7 +4,6 @@ package by.training.online_pharmacy.dao.impl.database;
 import by.training.online_pharmacy.dao.MessageDao;
 import by.training.online_pharmacy.dao.connection_pool.exception.ConnectionPoolException;
 import by.training.online_pharmacy.dao.exception.DaoException;
-import by.training.online_pharmacy.dao.exception.EntityDeletedException;
 import by.training.online_pharmacy.dao.exception.EntityNotFoundException;
 import by.training.online_pharmacy.dao.impl.database.util.DatabaseOperation;
 import by.training.online_pharmacy.dao.impl.database.util.exception.ParameterNotFoundException;
@@ -39,13 +38,13 @@ public class DatabaseMessageDao implements MessageDao {
     private static final String LAST_UPDATE_FROM = " and me_last_update>=? ";
     private static final String LAST_UPDATE_TO = " and me_last_update<=? ";
     private static final String GET_ALL_MESSAGES_QUERY_POSTFIX = " order by me_last_update desc limit ?, ?;";
-    private static final String MARK_MESSAGE_AS_READED_QUERY = "update messages set me_status='completed' where me_sender_login=? and me_sender_login_via=? and me_status='new' and me_id=? ";
+    private static final String SET_MESSAGE_STATUS_QUERY = "update messages set me_status=? where me_sender_login=? and me_sender_login_via=? and me_status='new' and me_id=? ";
     private static final String GET_NEW_MESSAGE_COUNT_SENDER = "select count(me_id) as me_count from messages where me_sender_login=? and me_sender_login_via=? and me_status=?";
     private static final String GET_NEW_MESSAGE_COUNT_RECEIVER = "select count(me_id) as me_count from messages where me_receiver_login=? and me_receiver_login_via=? and me_receiver_status=?";
     private static final String UPDATE_MESSAGE_QUERY = "update messages set me_receiver_message=?, me_status='new', me_response_date=now(), me_receiver_status='completed', me_last_update=now() where me_id=? and me_receiver_login=? and me_receiver_login_via=?;";
 
     @Override
-    public void sendMessage(Message message) throws DaoException {
+    public void insertMessage(Message message) throws DaoException {
 
         try(DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_MESSAGE_QUERY)){
             databaseOperation.setParameter(TableColumn.MESSAGE_SENDER_LOGIN, message.getSender().getLogin());
@@ -105,7 +104,7 @@ public class DatabaseMessageDao implements MessageDao {
                 Date date = simpleDateFormat.parse(searchMessageCriteria.getDateTo());
                 date.setHours(23);
                 date.setMinutes(59);
-                date.setSeconds(59);//TODO:исправляшки
+                date.setSeconds(59);
                 databaseOperation.setParameter(paramNumber++, date);
 
             }
@@ -131,10 +130,11 @@ public class DatabaseMessageDao implements MessageDao {
     }
 
     @Override
-    public void markMessageAsReaded(User user, int messageId) throws DaoException {
+    public void setMessageStatus(User user, MessageStatus messageStatus, int messageId) throws DaoException {
 
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(MARK_MESSAGE_AS_READED_QUERY)){
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(SET_MESSAGE_STATUS_QUERY)){
 
+            databaseOperation.setParameter(TableColumn.MESSAGE_STATUS, messageStatus.toString().toLowerCase());
             databaseOperation.setParameter(TableColumn.MESSAGE_SENDER_LOGIN, user.getLogin());
             databaseOperation.setParameter(TableColumn.MESSAGE_SENDER_LOGIN_VIA, user.getRegistrationType().toString().toLowerCase());
             databaseOperation.setParameter(TableColumn.MESSAGE_ID, messageId);

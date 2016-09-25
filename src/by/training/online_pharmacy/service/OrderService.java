@@ -17,7 +17,7 @@ public interface OrderService {
 
     void completeOrder(User user, int orderId) throws InternalServerException, InvalidParameterException, InvalidUserStatusException, OrderNotFoundException;
 
-    List<Order> getOrderById(User user, int orderId) throws InvalidUserStatusException, InvalidParameterException;
+    Order getOrderById(User user, int orderId) throws InvalidUserStatusException, InvalidParameterException;
 
     void reestablishOrder(User user, int orderId) throws InvalidParameterException, OrderNotFoundException;
 

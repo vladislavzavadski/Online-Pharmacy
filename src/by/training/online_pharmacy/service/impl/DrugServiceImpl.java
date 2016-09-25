@@ -124,9 +124,9 @@ public class DrugServiceImpl implements DrugService {
 
             if(part!=null&&part.getSize()>0) {
                inputStream = part.getInputStream();
-               String content = URLConnection.guessContentTypeFromStream(inputStream);
+               String content = part.getContentType();
 
-               if (content == null || !content.startsWith("image/")) {//TODO:
+               if (content == null || !content.startsWith(ImageConstant.IMAGE)) {//TODO:
                   throw new InvalidContentException("This file is not an image");
                }
 
@@ -182,34 +182,6 @@ public class DrugServiceImpl implements DrugService {
     }
 
     @Override
-    public List<Drug> getDrugsByClass(String className, int limit, int startFrom) throws InternalServerException, InvalidParameterException {
-
-        if(className==null||className.isEmpty()){
-            throw new InvalidParameterException("Parameter class name is invalid");
-        }
-
-        if(limit<=0){
-            throw new InvalidParameterException("Invalid parameter limit. Limit can be >0");
-        }
-
-        if(startFrom<0){
-            throw new InvalidParameterException("Invalid parameter startFrom startFrom can be >0");
-        }
-
-        DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
-        DrugDAO drugDAO = daoFactory.getDrugDAO();
-
-        try {
-            return drugDAO.getDrugsByClass(className, limit, startFrom);
-
-        } catch (DaoException e) {
-            logger.error("Something went wrong when trying to get drugs by class", e);
-            throw new InternalServerException(e);
-
-        }
-    }
-
-    @Override
     public Drug getDrugDetails(int drugId) throws InternalServerException, InvalidParameterException {
 
         if(drugId<0){
@@ -254,8 +226,7 @@ public class DrugServiceImpl implements DrugService {
         DrugDAO drugDAO = daoFactory.getDrugDAO();
 
         try {
-            List<Drug> drugs = drugDAO.searchDrugs(query, limit, startFrom);
-            return drugs;
+            return drugDAO.searchDrugs(query, limit, startFrom);
 
         } catch (DaoException e) {
             logger.error("Something went wrong when trying to search drugs", e);
@@ -293,8 +264,7 @@ public class DrugServiceImpl implements DrugService {
         DrugDAO drugDAO = daoFactory.getDrugDAO();
 
         try {
-            List<Drug> drugs = drugDAO.extendedSearching(searchDrugsCriteria, startFrom, limit);
-            return drugs;
+            return drugDAO.extendedSearching(searchDrugsCriteria, startFrom, limit);
 
         } catch (DaoException e) {
             logger.error("Something went wrong when trying to extended search", e);
@@ -577,9 +547,9 @@ public class DrugServiceImpl implements DrugService {
 
             if(part!=null&&part.getSize()>0) {
                 inputStream = part.getInputStream();
-                String content = URLConnection.guessContentTypeFromStream(inputStream);
+                String content = part.getContentType();
 
-                if (content == null || !content.startsWith("image/")) {
+                if (content == null || !content.startsWith(ImageConstant.IMAGE)) {
                     throw new InvalidContentException("This file is not an image");
                 }
 

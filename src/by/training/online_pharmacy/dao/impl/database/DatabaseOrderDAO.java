@@ -37,14 +37,16 @@ public class DatabaseOrderDAO implements OrderDAO {
     private static final String GET_ORDERS_POSTFIX = " order by or_date desc limit ?,?;";
     private static final String GET_ORDER_SUM_QUERY = "select or_sum from orders where or_id=? and or_client_login=? and or_login_via=?;";
     private static final String GET_ALL_ORDERS_QUERY_PREFIX = "select us_first_name, us_second_name, or_id, or_drug_id, or_drug_count, or_drug_dosage, or_status, or_sum, or_date, dr_name from orders inner join drugs on or_drug_id=dr_id inner join users on us_login=or_client_login and login_via=or_login_via where or_id>=0";
-    private static final String COMPLETE_ORDER_QUERY = "update orders set or_status='completed' where or_id=? and or_status='paid';";
+    private static final String COMPLETE_ORDER_QUERY = "update orders set or_status=? where or_id=? and or_status='paid';";
     private static final String GET_ORDER_BY_ID_COMMAND = "select us_first_name, us_second_name, or_id, or_drug_id, or_drug_count, or_drug_dosage, or_status, or_sum, or_date, dr_name from orders inner join drugs on or_drug_id=dr_id inner join users on us_login=or_client_login and login_via=or_login_via where or_id=?;";
 
     @Override
-    public void completeOrder(int orderId) throws DaoException {
+    public void setOrderStatus(OrderStatus orderStatus, int orderId) throws DaoException {
 
         try (DatabaseOperation databaseOperation = new DatabaseOperation(COMPLETE_ORDER_QUERY)){
-            databaseOperation.setParameter(1, orderId);
+
+            databaseOperation.setParameter(1, orderStatus.toString().toLowerCase());
+            databaseOperation.setParameter(2, orderId);
 
             if(databaseOperation.invokeWriteOperation()==0){
                 throw new EntityNotFoundException("Order with id="+orderId+" was not found");
@@ -56,14 +58,14 @@ public class DatabaseOrderDAO implements OrderDAO {
     }
 
     @Override
-    public List<Order> getOrderById(int orderId) throws DaoException {
+    public Order getOrderById(int orderId) throws DaoException {
 
         try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_ORDER_BY_ID_COMMAND)){
             databaseOperation.setParameter(1, orderId);
 
             ResultSet resultSet = databaseOperation.invokeReadOperation();
 
-            return resultSetToOrder(resultSet);
+            return resultSetToOrder(resultSet).get(0);
 
         } catch (SQLException | ConnectionPoolException e) {
             throw new DaoException("Can not search order by id", e);
@@ -91,7 +93,7 @@ public class DatabaseOrderDAO implements OrderDAO {
     }
 
     @Override
-    public List<Order> searchAllOrders(SearchOrderCriteria searchOrderCriteria, int startFrom, int limit) throws DaoException {
+    public List<Order> searchOrders(SearchOrderCriteria searchOrderCriteria, int startFrom, int limit) throws DaoException {
         StringBuilder query = new StringBuilder(GET_ALL_ORDERS_QUERY_PREFIX);
 
         if(searchOrderCriteria.getDateFrom()!=null&&!searchOrderCriteria.getDateFrom().isEmpty()){
@@ -151,7 +153,7 @@ public class DatabaseOrderDAO implements OrderDAO {
     }
 
     @Override
-    public List<Order> searchUsersOrders(User user, SearchOrderCriteria searchOrderCriteria, int startFrom, int limit) throws DaoException {
+    public List<Order> searchOrders(User user, SearchOrderCriteria searchOrderCriteria, int startFrom, int limit) throws DaoException {
         StringBuilder query = new StringBuilder(GET_ORDERS_QUERY_PREFIX);
 
         if(searchOrderCriteria.getDateFrom()!=null&&!searchOrderCriteria.getDateFrom().isEmpty()){

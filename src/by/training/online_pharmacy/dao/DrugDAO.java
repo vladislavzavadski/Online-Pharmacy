@@ -54,21 +54,58 @@ public interface DrugDAO {
      * @throws DaoException if fail occurs while invoke read operation*/
     List<Drug> extendedSearching(SearchDrugsCriteria searchDrugsCriteria, int startFrom, int limit) throws DaoException;
 
-    boolean isPrescriptionEnable(int drugId) throws DaoException, NotFoundException;
+    /**
+     * Retrieve is prescription enable from storage by drug identification
+     * @return <code>true</code> if prescription enable else <code>false</code>
+     * @param drugId drug identification
+     * @throws DaoException if fail occurs while invoke read operation*/
+    boolean isPrescriptionEnable(int drugId) throws DaoException;
 
+    /**
+     * Retrieve is prescription enable by order id
+     * @return <code>true</code> if prescription enable else <code>false</code>
+     * @param orderId order identification
+     * @throws DaoException if fail occurs while invoke read operation*/
     boolean isPrescriptionEnableByOrder(int orderId) throws DaoException;
 
+    /**
+     * Reduce drug count by canceled order
+     * @param user . Object of user that cancel order
+     * @param orderId order identification
+     * @throws DaoException if fail occurs while invoke write operation*/
     void updateDrugCountByCanceledOrder(User user, int orderId) throws DaoException;
 
+    /**
+     * Search drugs by query. Search matches in drug name and description
+     * @param query string query that user enter
+     * @param limit of drugs that will be retrieved from storage
+     * @param startFrom from this number drugs will be retrieved from storage
+     * @return List that contains all searched drugs
+     * @throws DaoException if fail occurs while invoke read operation*/
     List<Drug> searchDrugs(String query, int limit, int startFrom) throws DaoException;
 
-    List<Drug> getDrugsByClass(String drugClass, int limit, int startFrom) throws DaoException;
-
+    /**
+     * Insert new drug into storage
+     * @param drug object that represent new drug
+     * @throws DaoException if fail occurs while invoke write operation*/
     void insertDrug(Drug drug) throws DaoException;
 
+    /**
+     * Update information about drug in storage
+     * @param drug object that represent updated drug
+     * @throws DaoException if fail occurs while invoke write operation*/
     void updateDrug(Drug drug) throws DaoException;
 
+    /**
+     * Delete drug from storage
+     * @param drugId drug identification
+     * @throws DaoException if fail occurs while invoke write operation*/
     void deleteDrug(int drugId) throws DaoException;
 
+    /**
+     * Retrieve drug count that in stock from storage
+     * @return int that contains drug count in stock
+     * @param drugId drug identification
+     * @throws DaoException if fail occurs while invoke read operation*/
     int getDrugCountInStock(int drugId) throws DaoException;
 }

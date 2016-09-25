@@ -13,14 +13,12 @@ import by.training.online_pharmacy.domain.prescription.RequestForPrescriptionCri
 import by.training.online_pharmacy.domain.prescription.RequestStatus;
 import by.training.online_pharmacy.domain.user.RegistrationType;
 import by.training.online_pharmacy.domain.user.User;
-import sun.java2d.pipe.SpanShapeRenderer;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -53,17 +51,17 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
             " from requests_for_prescriptions\n" +
             "where re_status='in_progress' and re_client_login=? and re_drug_id=? and re_user_login_via=?));";
     private static final String SET_REQUEST_FOR_PRESCRIPTION_STATUS = "update requests_for_prescriptions set re_status=?, re_doctors_comment=?, re_response_date=curdate() where re_id=? and re_status='in_progress' and re_doctor=? and re_doctor_login_via=?;";
-    private static final String GET_DOCTORS_NEW_REQUESTS_QUERY = "select count(re_id) as re_count from requests_for_prescriptions where re_doctor=? and re_doctor_login_via=? and re_status='in_progress';";
 
-    private static final String FK_DRUG = "fk_drug";
-    private static final String FK_CLIENT = "fk_client";
+    private static final String GET_DOCTORS_NEW_REQUESTS_QUERY = "select count(re_id) as re_count from requests_for_prescriptions where re_doctor=? and re_doctor_login_via=? and re_status=?;";
 
     @Override
-    public int getInProgressRequestsCount(User user) throws DaoException {
+    public int getRequestsCount(User user, RequestStatus requestStatus) throws DaoException {
 
         try(DatabaseOperation databaseOperation = new DatabaseOperation(GET_DOCTORS_NEW_REQUESTS_QUERY)){
+
             databaseOperation.setParameter(1, user.getLogin());
             databaseOperation.setParameter(2, user.getRegistrationType().toString().toLowerCase());
+            databaseOperation.setParameter(3, requestStatus.toString().toLowerCase());
 
             ResultSet resultSet = databaseOperation.invokeReadOperation();
 

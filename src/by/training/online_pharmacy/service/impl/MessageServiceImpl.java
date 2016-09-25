@@ -3,7 +3,6 @@ package by.training.online_pharmacy.service.impl;
 import by.training.online_pharmacy.dao.DaoFactory;
 import by.training.online_pharmacy.dao.MessageDao;
 import by.training.online_pharmacy.dao.exception.DaoException;
-import by.training.online_pharmacy.dao.exception.EntityDeletedException;
 import by.training.online_pharmacy.dao.exception.EntityNotFoundException;
 import by.training.online_pharmacy.domain.message.Message;
 import by.training.online_pharmacy.domain.message.MessageStatus;
@@ -48,7 +47,7 @@ public class MessageServiceImpl implements MessageService {
         MessageDao messageDAO = daoFactory.getMessageDAO();
 
         try {
-            messageDAO.sendMessage(message);
+            messageDAO.insertMessage(message);
 
         }  catch (DaoException e) {
             logger.error("Something went wrong when trying to insert message");
@@ -108,7 +107,7 @@ public class MessageServiceImpl implements MessageService {
         MessageDao messageDao = daoFactory.getMessageDAO();
 
         try {
-            messageDao.markMessageAsReaded(user, messageId);
+            messageDao.setMessageStatus(user, MessageStatus.COMPLETED, messageId);
 
         } catch (EntityNotFoundException e){
             throw new MessageNotFoundException("Message with id="+messageId+" was not found.");
