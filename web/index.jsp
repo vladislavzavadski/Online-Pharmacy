@@ -184,7 +184,7 @@
                   <div class="modal-body">
                      <div id="div-register-msg">
                         <div id="icon-register-msg" class="glyphicon glyphicon-chevron-right"></div>
-                        <span id="text-register-msg">Регистрация аккаунта</span>
+                        <span id="text-register-msg">${registration}</span>
                      </div>
                      <div class="form_group">    
                         <label for="register_username">${login}: </label>

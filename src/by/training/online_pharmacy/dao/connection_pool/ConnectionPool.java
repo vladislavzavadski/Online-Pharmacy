@@ -22,6 +22,7 @@ public class ConnectionPool {
     private String password;
     private String driver;
     private int poolSize;
+    private String connectionMode;
 
     private static final ConnectionPool instance = new ConnectionPool();
 
@@ -30,11 +31,13 @@ public class ConnectionPool {
     }
 
     private ConnectionPool() {
+
         DBResourceManager dbResourceManager = DBResourceManager.getInstance();
         databaseURL = dbResourceManager.getProperty(DBParameter.DB_URL);
         username = dbResourceManager.getProperty(DBParameter.DB_USERNAME);
         password = dbResourceManager.getProperty(DBParameter.DB_PASSWORD);
         driver = dbResourceManager.getProperty(DBParameter.DB_DRIVER);
+        connectionMode = dbResourceManager.getProperty(DBParameter.DB_MODE);
 
         try {
             poolSize = Integer.parseInt(dbResourceManager.getProperty(DBParameter.DB_POOL_SIZE));
@@ -238,12 +241,15 @@ public class ConnectionPool {
 
         @Override
         public void commit() throws SQLException {
-            connection.commit();
+
+            if(!connectionMode.equals(DBParameter.DB_TEST)) {
+                connection.commit();
+            }
         }
 
         @Override
         public void rollback() throws SQLException {
-            connection.commit();
+            connection.rollback();
         }
 
 

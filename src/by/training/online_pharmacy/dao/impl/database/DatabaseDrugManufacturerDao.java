@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class DatabaseDrugManufacturerDao implements DrugManufacturerDAO {
     private static final String INSERT_MANUFACTURER_QUERY = "INSERT INTO drugs_manufactures (dm_name, dm_country, dm_description) VALUES (?, ?, ?);";
-    private static final String GET_MANUFACTURES_NAMES = "select dm_name, dm_country from drugs_manufactures order by dm_name;";
+    private static final String GET_MANUFACTURES_NAMES = "select dm_name, dm_country, dm_description from drugs_manufactures order by dm_name;";
     private static final String IS_MANUFACTURE_EXIST = "select dm_name from drugs_manufactures where dm_name=? and dm_country=?;";
 
     @Override
@@ -63,6 +63,8 @@ public class DatabaseDrugManufacturerDao implements DrugManufacturerDAO {
                 DrugManufacturer drugManufacturer = new DrugManufacturer();
                 drugManufacturer.setName(resultSet.getString(TableColumn.DRUG_MANUFACTURE_NAME));
                 drugManufacturer.setCountry(resultSet.getString(TableColumn.DRUG_MANUFACTURE_COUNTRY));
+                drugManufacturer.setDescription(resultSet.getString(TableColumn.DRUG_MANUFACTURE_DESCRIPTION));
+
                 result.add(drugManufacturer);
             }
 

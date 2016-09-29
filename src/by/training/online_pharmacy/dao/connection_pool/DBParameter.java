@@ -10,4 +10,6 @@ public class DBParameter {
     public static final String DB_PASSWORD = "db.password";
     public static final String DB_URL = "db.url";
     public static final String DB_POOL_SIZE = "db.poolsize";
+    public static final String DB_MODE = "db.mode";
+    public static final String DB_TEST = "test";
 }

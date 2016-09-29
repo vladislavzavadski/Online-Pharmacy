@@ -23,8 +23,8 @@ import java.util.List;
  */
 public class GetDoctorsCommand implements Command{
 
-    private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger();
     private static final int LIMIT = 6;
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);
@@ -37,6 +37,7 @@ public class GetDoctorsCommand implements Command{
         boolean pageOverload = Boolean.parseBoolean(request.getParameter(Parameter.OVERLOAD));
 
         int page = Integer.parseInt(request.getParameter(Parameter.PAGE));
+
         UserDescription userDescription = new UserDescription();
         userDescription.setSpecialization(request.getParameter(Parameter.SPECIALIZATION));
 
@@ -44,10 +45,13 @@ public class GetDoctorsCommand implements Command{
         UserService userService = serviceFactory.getUserService();
 
         try {
+
             List<User> doctors = userService.getDoctors(userDescription, LIMIT, (page-1)*LIMIT, request.getServletContext().getRealPath(ImageConstant.USER_IMAGES));
 
+            System.out.println(doctors);
+
             request.setAttribute(Parameter.DOCTOR_LIST, doctors);
-            logger.error(doctors);
+
             if(pageOverload){
                 List<UserDescription> userDescriptions = userService.getAllSpecializations();
 

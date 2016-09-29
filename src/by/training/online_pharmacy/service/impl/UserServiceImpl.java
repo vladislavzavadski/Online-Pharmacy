@@ -413,6 +413,10 @@ public class UserServiceImpl implements UserService {
         try {
             User user = userDAO.getUserDetails(userLogin, registrationType);
 
+            if(user.getUserRole()!=UserRole.DOCTOR){
+                throw new InvalidParameterException("This user is not a doctor");
+            }
+
             return user;
 
         } catch (DaoException e) {

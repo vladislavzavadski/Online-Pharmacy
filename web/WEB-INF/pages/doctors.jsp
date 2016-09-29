@@ -150,6 +150,9 @@
                             downloadContent();
                         }
                     });
+                    if(leftH < 200){
+                        downloadContent();
+                    }
                 });
             </script>
             <c:if test="${user.userRole eq 'PHARMACIST'}">

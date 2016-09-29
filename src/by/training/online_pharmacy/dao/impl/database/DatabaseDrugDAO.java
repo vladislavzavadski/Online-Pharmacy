@@ -182,6 +182,7 @@ public class DatabaseDrugDAO implements DrugDAO {
             databaseOperation.setParameter(2, orderId);
             databaseOperation.setParameter(3, user.getLogin());
             databaseOperation.setParameter(4, user.getRegistrationType().toString().toLowerCase());
+
             databaseOperation.invokeWriteOperation();
             databaseOperation.endTransaction();
 
@@ -234,6 +235,7 @@ public class DatabaseDrugDAO implements DrugDAO {
     public Drug getDrugById(int drugId) throws DaoException {
 
         try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_DRUGS_BY_ID_QUERY);){
+
             databaseOperation.setParameter(TableColumn.DRUG_ID, drugId);
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             List<Drug> result = resultSetToDrug(resultSet);
@@ -272,7 +274,7 @@ public class DatabaseDrugDAO implements DrugDAO {
     @Override
     public boolean isPrescriptionEnableByOrder(int orderId) throws DaoException {
 
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(IS_PRESCRIPTION_ENABLE_BY_ORDER);){
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(IS_PRESCRIPTION_ENABLE_BY_ORDER)){
 
             databaseOperation.setParameter(1, orderId);
             ResultSet resultSet = databaseOperation.invokeReadOperation();
@@ -293,11 +295,14 @@ public class DatabaseDrugDAO implements DrugDAO {
     public void updateDrugCountByCanceledOrder(User user, int orderId) throws DaoException {
 
         try (DatabaseOperation databaseOperation = new DatabaseOperation(INCREASE_DRUG_COUNT_BY_ORDER_QUERY)){
+
             databaseOperation.setParameter(1, orderId);
             databaseOperation.setParameter(2, orderId);
             databaseOperation.setParameter(3, user.getLogin());
             databaseOperation.setParameter(4, user.getRegistrationType().toString().toLowerCase());
+
             databaseOperation.invokeWriteOperation();
+
             databaseOperation.endTransaction();
 
         } catch (SQLException | ConnectionPoolException e) {
@@ -310,11 +315,13 @@ public class DatabaseDrugDAO implements DrugDAO {
     public List<Drug> searchDrugs(String query, int limit, int startFrom) throws DaoException {
 
         try (DatabaseOperation databaseOperation = new DatabaseOperation(SEARCH_DRUGS_QUERY)){
+
             databaseOperation.setParameter(TableColumn.DRUG_NAME, Param.PER_CENT+query+Param.PER_CENT);
             databaseOperation.setParameter(TableColumn.DRUG_ACTIVE_SUBSTANCE, Param.PER_CENT+query+Param.PER_CENT);
             databaseOperation.setParameter(TableColumn.DRUG_DESCRIPTION, Param.PER_CENT+query+Param.PER_CENT);
             databaseOperation.setParameter(TableColumn.LIMIT, 1, startFrom);
             databaseOperation.setParameter(TableColumn.LIMIT, 2, limit);
+
             ResultSet resultSet = databaseOperation.invokeReadOperation();
 
             return resultSetToDomainOnSearch(resultSet);
@@ -329,6 +336,7 @@ public class DatabaseDrugDAO implements DrugDAO {
     public void insertDrug(Drug drug) throws DaoException {
 
         try (DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_DRUG_QUERY)){
+
             databaseOperation.setParameter(1, drug.getName());
             databaseOperation.setParameter(2, drug.getPrice());
             databaseOperation.setParameter(3, drug.getPathToImage());
@@ -386,8 +394,10 @@ public class DatabaseDrugDAO implements DrugDAO {
     @Override
     public void deleteDrug(int drugId) throws DaoException {
 
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(DELETE_DRUG_QUERY);){
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(DELETE_DRUG_QUERY)){
+
             databaseOperation.setParameter(1, drugId);
+
             databaseOperation.invokeWriteOperation();
 
         } catch (ConnectionPoolException | SQLException e) {

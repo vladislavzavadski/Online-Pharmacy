@@ -15,7 +15,7 @@
 <fmt:message bundle="${loc}" key="locale.specialization" var="specialization"/>
 <fmt:message bundle="${loc}" key="locale.not_found" var="notFound"/>
 <c:forEach items="${doctorList}" var="doctor">
-    <div class="col-lg-4">
+    <div class="col-lg-6">
         <a href="/controller?command=GET_USER_DETAILS&login=${doctor.login}&register_type=${doctor.registrationType}">
             <h2>${doctor.secondName} ${doctor.firstName}</h2>
             <img src="/controller?command=GET_USER_IMAGE&login=${doctor.login}&register_type=${doctor.registrationType}" class="img-responsive" width="150" height="200" alt="Фото доктора"/>

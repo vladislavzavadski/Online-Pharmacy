@@ -222,7 +222,7 @@
                                     </select>
                                 </div>
                                 <div class="form_group">
-                                    <label id="drug_class">${drugClass}:</label>
+                                    <label id="drug_class">${drugClas}:</label>
                                     <select id="drug_class_select" class="form-control" name="dr_class">
                                         <c:forEach items="${drugClasses}" var="cls">
                                             <option value="${cls.name}">${cls.name}</option>

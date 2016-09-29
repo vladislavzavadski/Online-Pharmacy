@@ -55,10 +55,11 @@
 </div><!-- /container -->
 <script>
     $('#input_login').blur(function () {
+        var secretMessage = $('#secret_message');
         var login = $(this).val();
         $('#submit_button').prop('disabled', true);
         if(login==""){
-            $('#secret_message').html("");
+            secretMessage.html("");
             return;
         }
         $.ajax({
@@ -68,11 +69,11 @@
             data:{command:'GET_SECRET', login:login},
             success:function (data) {
                 if(data.result==true&&data.question!=""){
-                    $('#secret_message').html("<span style=\"color:green\">${question}: "+data.question+"</span>");
+                    secretMessage.html("<span style=\"color:green\">${question}: "+data.question+"</span>");
                     $('#submit_button').prop('disabled', false);
                 }
                 else {
-                    $('#secret_message').html("<span style=\"color:red\"${userNotFoundQuestion}</span>");
+                    secretMessage.html("<span style=\"color:red\">${userNotFoundQuestion}: </span>");
                 }
             }
         });

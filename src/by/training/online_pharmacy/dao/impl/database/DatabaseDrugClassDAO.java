@@ -25,6 +25,7 @@ public class DatabaseDrugClassDAO implements DrugClassDAO {
     public void insertDrugClass(DrugClass drugClass) throws DaoException {
 
         try (DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_DRUG_CLASS_QUERY)){
+
             databaseOperation.setParameter(1, drugClass.getName());
             databaseOperation.setParameter(2, drugClass.getDescription());
             databaseOperation.invokeWriteOperation();
@@ -39,6 +40,7 @@ public class DatabaseDrugClassDAO implements DrugClassDAO {
     public List<DrugClass> getAllDrugClasses() throws DaoException{
 
         try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_ALL_CLASSES)){
+
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             return resultSetToDrugClass(resultSet);
 
@@ -52,8 +54,11 @@ public class DatabaseDrugClassDAO implements DrugClassDAO {
     public boolean isDrugClassExist(String className) throws DaoException {
 
         try (DatabaseOperation databaseOperation = new DatabaseOperation(IS_DRUG_CLASS_EXIST_QUERY)){
+
             databaseOperation.setParameter(1, className);
+
             ResultSet resultSet = databaseOperation.invokeReadOperation();
+
             return resultSet.next();
 
         } catch (SQLException | ConnectionPoolException e) {
@@ -67,9 +72,11 @@ public class DatabaseDrugClassDAO implements DrugClassDAO {
         List<DrugClass> result = new ArrayList<>();
 
         while (resultSet.next()) {
+
             DrugClass drugClass = new DrugClass();
             drugClass.setName(resultSet.getString(TableColumn.DRUG_CLASS_NAME));
             drugClass.setDescription(resultSet.getString(TableColumn.DRUG_CLASS_DESCRIPTION));
+
             result.add(drugClass);
         }
 

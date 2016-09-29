@@ -106,7 +106,7 @@
                         </span>
                         <br/>
                         <b>
-                            ${drugClass}:
+                            ${drugClas}:
                         </b>&nbsp;
                         <span title="${drug.drugClass.description}" id="drug_class_desc">
                             ${drug.drugClass.name}

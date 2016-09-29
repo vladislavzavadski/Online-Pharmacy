@@ -27,6 +27,7 @@ import java.util.List;
  * Created by vladislav on 19.06.16.
  */
 public class DatabaseOrderDAO implements OrderDAO {
+
     private static final String INSERT_ORDER_QUERY = "INSERT INTO orders (or_client_login, or_login_via, or_drug_id, or_drug_count, or_drug_dosage, or_status, or_sum, or_date) VALUES(?, ?, ?, ?, ?, ?, (select dr_price*? from drugs where dr_id=?),curdate());";
     private static final String CHANGE_ORDER_STATUS = "update orders set or_status=? where or_client_login=? and or_login_via=? and or_id=? and or_status!='paid' and or_status!='completed';";
     private static final String GET_ORDERS_QUERY_PREFIX = "select us_first_name, us_second_name, or_id, or_drug_id, or_drug_count, or_drug_dosage, or_status, or_sum, or_date, dr_name from orders inner join drugs on or_drug_id=dr_id inner join users on us_login=or_client_login and login_via=or_login_via where or_client_login=? and or_login_via=?";
@@ -79,13 +80,16 @@ public class DatabaseOrderDAO implements OrderDAO {
             databaseOperation.setParameter(1, orderId);
             databaseOperation.setParameter(2, user.getLogin());
             databaseOperation.setParameter(3, user.getRegistrationType().toString().toLowerCase());
+
             ResultSet resultSet = databaseOperation.invokeReadOperation();
+
             if(resultSet.next()){
                 return resultSet.getFloat(TableColumn.ORDER_SUM);
             }
             else {
                 throw new EntityNotFoundException("Order with id="+orderId+" was not found");
             }
+
         } catch (ConnectionPoolException | SQLException e) {
             throw new DaoException("Can not load  order sum from database");
         }
@@ -209,9 +213,7 @@ public class DatabaseOrderDAO implements OrderDAO {
 
             ResultSet resultSet = databaseOperation.invokeReadOperation();
 
-            List<Order> orders = resultSetToOrder(resultSet);
-
-            return orders;
+            return resultSetToOrder(resultSet);
         } catch (SQLException | ConnectionPoolException|ParseException e) {
             throw new DaoException("Can not search orders in database by query="+query, e);
         }
@@ -252,8 +254,6 @@ public class DatabaseOrderDAO implements OrderDAO {
             databaseOperation.setParameter(7, order.getDrugCount());
             databaseOperation.setParameter(8, order.getDrug().getId());
             databaseOperation.invokeWriteOperation();
-
-            //databaseOperation.endTransaction();
 
         } catch (ConnectionPoolException | SQLException e) {
             throw new DaoException("Can not insert new order "+ order +" to database", e);

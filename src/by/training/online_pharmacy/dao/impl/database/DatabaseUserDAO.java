@@ -246,14 +246,16 @@ public class DatabaseUserDAO implements UserDAO {
 
             while (resultSet.next()){
                 User user = new User();
-                user.setUserDescription(userDescription);
+                UserDescription searchedDescription = new UserDescription();
+
+                user.setUserDescription(searchedDescription);
+
+                searchedDescription.setSpecialization(resultSet.getString(TableColumn.USER_SPECIALIZATION));
                 user.setLogin(resultSet.getString(TableColumn.USER_LOGIN));
                 user.setRegistrationType(RegistrationType.valueOf(resultSet.getString(TableColumn.LOGIN_VIA).toUpperCase()));
                 user.setFirstName(resultSet.getString(TableColumn.USER_FIRST_NAME));
                 user.setSecondName(resultSet.getString(TableColumn.USER_SECOND_NAME));
                 user.setPathToImage(resultSet.getString(TableColumn.USER_IMAGE));
-                userDescription.setSpecialization(resultSet.getString(TableColumn.USER_SPECIALIZATION));
-
                 result.add(user);
             }
 
