@@ -86,7 +86,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         PrescriptionDAO prescriptionDAO = daoFactory.getPrescriptionDAO();
 
         try {
-            return prescriptionDAO.getUserPrescription(user, drugId);
+            return prescriptionDAO.getActiveUserPrescription(user, drugId);
 
         } catch (DaoException e) {
             logger.error("Something went wrong when trying to check", e);

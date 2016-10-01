@@ -77,9 +77,9 @@ public class DatabaseUserDescriptionDAO implements UserDescriptionDAO {
         }
     }
 
-
     @Override
     public List<UserDescription> getAllSpecializations() throws DaoException {
+
         List<UserDescription> result = new ArrayList<>();
 
         try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_DOCTORS_SPECIALIZATION);){
@@ -89,10 +89,12 @@ public class DatabaseUserDescriptionDAO implements UserDescriptionDAO {
             while (resultSet.next()){
                 UserDescription userDescription = new UserDescription();
                 userDescription.setSpecialization(resultSet.getString(TableColumn.USER_SPECIALIZATION));
+
                 result.add(userDescription);
             }
 
             return result;
+
         } catch (SQLException | ConnectionPoolException e) {
             throw new DaoException("Can not load doctors specializations from database", e);
         }

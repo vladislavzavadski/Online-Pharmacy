@@ -2,12 +2,10 @@ package by.training.online_pharmacy.dao;
 
 
 import by.training.online_pharmacy.dao.exception.DaoException;
-import by.training.online_pharmacy.domain.Period;
 import by.training.online_pharmacy.domain.prescription.Prescription;
 import by.training.online_pharmacy.domain.prescription.PrescriptionCriteria;
 import by.training.online_pharmacy.domain.user.User;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -36,7 +34,7 @@ public interface PrescriptionDAO {
      * @param drugId drug identification
      * @return Prescription that represent user prescription and return <code>null</code> if prescription not found
      * @throws DaoException if fail occurs while invoke read operation*/
-    Prescription getUserPrescription(User user, int drugId) throws DaoException;
+    Prescription getActiveUserPrescription(User user, int drugId) throws DaoException;
 
     /**
      * Reduce drug count by order identification

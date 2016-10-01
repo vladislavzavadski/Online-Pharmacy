@@ -50,6 +50,7 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
             "re_doctor_login_via  order by count limit 1) as doc where not exists (select re_client_login, re_drug_id, re_user_login_via" +
             " from requests_for_prescriptions\n" +
             "where re_status='in_progress' and re_client_login=? and re_drug_id=? and re_user_login_via=?));";
+
     private static final String SET_REQUEST_FOR_PRESCRIPTION_STATUS = "update requests_for_prescriptions set re_status=?, re_doctors_comment=?, re_response_date=curdate() where re_id=? and re_status='in_progress' and re_doctor=? and re_doctor_login_via=?;";
 
     private static final String GET_DOCTORS_NEW_REQUESTS_QUERY = "select count(re_id) as re_count from requests_for_prescriptions where re_doctor=? and re_doctor_login_via=? and re_status=?;";
@@ -79,6 +80,7 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
 
     @Override
     public void insertRequest(RequestForPrescription requestForPrescription) throws DaoException {
+
         try(DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_REQUEST_QUERY)){
 
             databaseOperation.setParameter(1, requestForPrescription.getClient().getLogin());
@@ -102,6 +104,7 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
 
     @Override
     public void updateRequestForPrescription(RequestForPrescription requestForPrescription) throws DaoException {
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(SET_REQUEST_FOR_PRESCRIPTION_STATUS)){
 
             if(requestForPrescription.getRequestStatus()==RequestStatus.CONFIRMED){

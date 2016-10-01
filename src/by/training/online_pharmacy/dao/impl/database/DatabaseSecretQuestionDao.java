@@ -15,7 +15,8 @@ import java.util.List;
 /**
  * Created by vladislav on 04.09.16.
  */
-public class SecretQuestionDaoImpl implements SecretQuestionDao {
+public class DatabaseSecretQuestionDao implements SecretQuestionDao {
+
     private static final String GET_ALL_QUESTIONS_QUERY = "select sq_id, sq_question from secret_questions order by sq_question";
     private static final String GET_USERS_QUESTION_QUERY = "select sq_question from secret_questions inner join secret_word on sq_id=sw_question where sw_user_login=? and sw_login_via='native';";
 

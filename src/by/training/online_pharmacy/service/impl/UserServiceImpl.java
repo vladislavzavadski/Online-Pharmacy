@@ -384,7 +384,7 @@ public class UserServiceImpl implements UserService {
         UserDAO userDAO = daoFactory.getUserDAO();
 
         try {
-            List<User> doctors = userDAO.searchUsers(query.split(" "), limit, startFrom);
+            List<User> doctors = userDAO.searchDoctors(query.split(" "), limit, startFrom);
             doctors.stream().filter(user -> user.getPathToImage()==null).forEach(user -> user.setPathToImage(defaultImage+ImageConstant.PHARMACY_DEFAULT_IMAGE));
             return doctors;
 

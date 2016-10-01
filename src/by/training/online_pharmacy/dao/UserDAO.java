@@ -48,7 +48,7 @@ public interface UserDAO {
      * @param startFrom first entity of result
      * @return List that contains searched users
      * @throws DaoException if fail occurs while invoke read operation*/
-    List<User> searchUsers(String[] criteria, int limit, int startFrom) throws DaoException;
+    List<User> searchDoctors(String[] criteria, int limit, int startFrom) throws DaoException;
 
     /**
      * User authentication while login with social networks

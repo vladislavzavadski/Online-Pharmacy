@@ -13,7 +13,8 @@ import java.sql.SQLException;
 /**
  * Created by vladislav on 04.09.16.
  */
-public class SecretWordDaoImpl implements SecretWordDao {
+public class DatabaseSecretWordDao implements SecretWordDao {
+
     private static final String CREATE_SECRET_QUERY = "insert into secret_word (sw_user_login, sw_login_via, sw_question, sw_response) values (?,?,?,md5(?)) on duplicate key update sw_question=values(sw_question), sw_response=values(sw_response);";
 
     @Override

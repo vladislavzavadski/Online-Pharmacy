@@ -21,6 +21,7 @@ import java.util.List;
 
 import static by.training.online_pharmacy.dao.impl.database.Param.AND;
 import static by.training.online_pharmacy.dao.impl.database.Param.OR;
+import static by.training.online_pharmacy.dao.impl.database.Param.PER_CENT;
 
 /**
  * Created by vladislav on 14.06.16.
@@ -32,7 +33,7 @@ public class DatabaseUserDAO implements UserDAO {
     private static final String INSERT_USER_QUERY = "INSERT INTO users (us_login, us_password, us_first_name, us_second_name, us_group, us_image, us_mail, us_phone, login_via, us_gender) VALUES (?,md5(?),?,?,?,?,?,?,?,?)";
     private static final String GET_COUNT_OF_USERS_WITH_LOGIN = "select count(us_login) login_count from users where us_login=?;";
     private static final String UPDATE_PERSONAL_INFORMATION_QUERY = "update users set us_first_name=?, us_second_name=?, us_gender=? where us_login=? and login_via=?;";
-    private static final String UPDATE_PASSWORD = "update online_pharmacy.users set us_password=md5(?) where us_login=? and login_via=?;";
+    private static final String UPDATE_PASSWORD = "update users set us_password=md5(?) where us_login=? and login_via=?;";
     private static final String UPDATE_CONTACTS = "update users set us_mail=?, us_phone=? where us_login=? and login_via=?;";
     private static final String UPLOAD_PROFILE_IMAGE = "update users set us_image=? where us_login=? and login_via=?;";
     private static final String GET_DOCTORS_QUERY_PREFIX= "select us_login, login_via, us_first_name, us_second_name, us_image, sd_specialization from users inner join staff_descriptions on us_login=sd_user_login and login_via=sd_login_via where us_group='doctor' ";
@@ -43,7 +44,7 @@ public class DatabaseUserDAO implements UserDAO {
     private static final String SEARCH_DOCTOR_BY_NAME_QUERY = "select us_login, login_via, us_first_name, us_second_name, us_image, sd_specialization from users inner join staff_descriptions on us_login=sd_user_login and login_via=sd_login_via where us_group='doctor' and (";
     private static final String GET_IMAGE_QUERY = "select us_image from users where us_login=? and login_via=?;";
     private static final String TEMPLATE = " (us_first_name like ? and us_second_name like ?) ";
-    private static final String QUERY_TAIL = ") order by us_first_name limit ?, ?";
+    private static final String QUERY_TAIL = ") order by us_second_name limit ?, ?";
     private static final String WITHDRAW_MONEY_QUERY = "update users set us_balance=us_balance-? where us_login=? and login_via=?;";
     private static final String ADD_MONEY_TO_BALANCE_QUERY = "update users set us_balance=us_balance+? where us_login=? and login_via=?";
     private static final String GET_USER_MAIL_BY_SECRET_WORD = "select us_mail from users inner join secret_word on us_login=sw_user_login and login_via=sw_login_via where us_login=? and login_via='native' and sw_response=md5(?);";
@@ -51,6 +52,7 @@ public class DatabaseUserDAO implements UserDAO {
 
     @Override
     public String getUserMailBySecretWord(SecretWord secretWord) throws DaoException {
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_USER_MAIL_BY_SECRET_WORD);){
 
             databaseOperation.setParameter(1, secretWord.getUser().getLogin());
@@ -72,6 +74,7 @@ public class DatabaseUserDAO implements UserDAO {
     public void addMoneyToBalance(User user, float payment) throws DaoException {
 
         try (DatabaseOperation databaseOperation = new DatabaseOperation(ADD_MONEY_TO_BALANCE_QUERY);){
+
             databaseOperation.setParameter(1, payment);
             databaseOperation.setParameter(2, user.getLogin());
             databaseOperation.setParameter(3, user.getRegistrationType().toString().toLowerCase());
@@ -124,8 +127,7 @@ public class DatabaseUserDAO implements UserDAO {
             List<User> result = resultSetToUser(resultSet);
 
             if(!result.isEmpty()){
-                User user = result.get(0);
-                return user;
+                return result.get(0);
             }
 
             return null;
@@ -135,10 +137,11 @@ public class DatabaseUserDAO implements UserDAO {
     }
 
     @Override
-    public List<User> searchUsers(String[] criteria, int limit, int startFrom) throws DaoException {
+    public List<User> searchDoctors(String[] criteria, int limit, int startFrom) throws DaoException {
         List<String> items;
 
-        int pairNumber = criteria.length != 1 ? (int)((double)criteria.length/2) * (criteria.length-1)*2:1;
+        /*Идёт подсчет количества пар слов в введенном запросе*/
+        int pairNumber = criteria.length != 1 ? (int)((double)criteria.length/2) * (criteria.length-1) * 2 : 1;
 
         items = new ArrayList<>(Collections.nCopies(pairNumber, TEMPLATE.replaceAll(AND, OR)));
 
@@ -156,7 +159,7 @@ public class DatabaseUserDAO implements UserDAO {
                     databaseOperation.setParameter(paramNumber, Param.PER_CENT+criteria[i]+Param.PER_CENT);
                     databaseOperation.setParameter(paramNumber+1, Param.PER_CENT+criteria[j]+Param.PER_CENT);
                     databaseOperation.setParameter(paramNumber+2, Param.PER_CENT+criteria[j]+Param.PER_CENT);
-                    databaseOperation.setParameter(paramNumber+3, criteria[i]);
+                    databaseOperation.setParameter(paramNumber+3, PER_CENT+criteria[i]+PER_CENT);
                     paramNumber+=4;
                 }
 
@@ -166,9 +169,8 @@ public class DatabaseUserDAO implements UserDAO {
             databaseOperation.setParameter(TableColumn.LIMIT, 2, limit);
 
             ResultSet resultSet = databaseOperation.invokeReadOperation();
-            List<User> result = resultSetToUsersOnSearch(resultSet);
 
-            return result;
+            return resultSetToUsersOnSearch(resultSet);
         } catch (SQLException | ConnectionPoolException | ParameterNotFoundException e) {
             throw new DaoException("Can not search doctors by name", e);
         }
@@ -178,17 +180,16 @@ public class DatabaseUserDAO implements UserDAO {
     public User userAuthentication(String login, RegistrationType registrationType) throws DaoException {
 
 
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_USER_QUERY);){
-            User user;
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_USER_QUERY)){
 
             databaseOperation.setParameter(TableColumn.USER_LOGIN, login);
             databaseOperation.setParameter(TableColumn.REGISTRATION_TYPE, registrationType.toString().toLowerCase());
+
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             List<User> result = resultSetToUser(resultSet);
 
             if(!result.isEmpty()){
-                user = result.get(0);
-                return user;
+                return result.get(0);
             }
 
             return null;
@@ -204,10 +205,13 @@ public class DatabaseUserDAO implements UserDAO {
         User user = null;
 
         try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_USER_NATIVE_QUERY)){
+
             databaseOperation.setParameter(TableColumn.USER_LOGIN, login);
             databaseOperation.setParameter(TableColumn.USER_PASSWORD, password);
             databaseOperation.setParameter(TableColumn.LOGIN_VIA, registrationType.toString().toLowerCase());
+
             ResultSet resultSet = databaseOperation.invokeReadOperation();
+
             List<User> result = resultSetToUser(resultSet);
 
             if(!result.isEmpty()){
@@ -267,7 +271,8 @@ public class DatabaseUserDAO implements UserDAO {
 
     @Override
     public void insertUser(User user) throws DaoException {
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_USER_QUERY);){
+
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_USER_QUERY)){
 
             if(user.getUserRole()==UserRole.DOCTOR){
                 databaseOperation.beginTransaction();
@@ -293,6 +298,7 @@ public class DatabaseUserDAO implements UserDAO {
 
     @Override
     public boolean isLoginUsed(String login) throws DaoException {
+
         try(DatabaseOperation databaseOperation = new DatabaseOperation(GET_COUNT_OF_USERS_WITH_LOGIN)) {
             databaseOperation.setParameter(TableColumn.USER_LOGIN, login);
 
@@ -312,6 +318,7 @@ public class DatabaseUserDAO implements UserDAO {
     public void updatePersonalInformation(User user) throws DaoException {
 
         try (DatabaseOperation databaseOperation = new DatabaseOperation(UPDATE_PERSONAL_INFORMATION_QUERY)){
+
             databaseOperation.setParameter(TableColumn.USER_LOGIN, user.getLogin());
             databaseOperation.setParameter(TableColumn.USER_FIRST_NAME, user.getFirstName());
             databaseOperation.setParameter(TableColumn.USER_SECOND_NAME, user.getSecondName());
@@ -330,7 +337,9 @@ public class DatabaseUserDAO implements UserDAO {
 
     @Override
     public void updateUsersPassword(User user, String newPassword) throws DaoException {
+
         try(DatabaseOperation databaseOperation = new DatabaseOperation(UPDATE_PASSWORD)) {
+
             databaseOperation.setParameter(TableColumn.USER_PASSWORD, newPassword);
             databaseOperation.setParameter(TableColumn.USER_LOGIN, user.getLogin());
             databaseOperation.setParameter(TableColumn.REGISTRATION_TYPE, user.getRegistrationType().toString().toLowerCase());
@@ -349,6 +358,7 @@ public class DatabaseUserDAO implements UserDAO {
     public void updateUsersContacts(User user) throws DaoException {
 
         try(DatabaseOperation databaseOperation = new DatabaseOperation(UPDATE_CONTACTS)){
+
             databaseOperation.setParameter(TableColumn.USER_LOGIN, user.getLogin());
             databaseOperation.setParameter(TableColumn.REGISTRATION_TYPE, user.getRegistrationType().toString().toLowerCase());
             databaseOperation.setParameter(TableColumn.USER_MAIL, user.getMail());
@@ -365,7 +375,9 @@ public class DatabaseUserDAO implements UserDAO {
 
     @Override
     public void uploadProfileImage(User user) throws DaoException {
+
         try(DatabaseOperation databaseOperation = new DatabaseOperation(UPLOAD_PROFILE_IMAGE)) {
+
             databaseOperation.setParameter(TableColumn.USER_LOGIN, user.getLogin());
             databaseOperation.setParameter(TableColumn.REGISTRATION_TYPE, user.getRegistrationType().toString().toLowerCase());
             databaseOperation.setParameter(TableColumn.USER_IMAGE, user.getPathToImage());
@@ -381,7 +393,9 @@ public class DatabaseUserDAO implements UserDAO {
 
     @Override
     public void withdrawMoneyFromBalance(User user, float orderSum) throws DaoException {
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(WITHDRAW_MONEY_QUERY)){
+
             databaseOperation.setParameter(1, orderSum);
             databaseOperation.setParameter(2, user.getLogin());
             databaseOperation.setParameter(3, user.getRegistrationType().toString().toLowerCase());

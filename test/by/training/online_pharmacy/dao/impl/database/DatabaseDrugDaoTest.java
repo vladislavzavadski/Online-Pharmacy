@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static by.training.online_pharmacy.dao.impl.database.Constant.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 
@@ -313,11 +314,9 @@ public class DatabaseDrugDaoTest {
 
         drugDAO.insertDrug(drug);
 
-        drug.setDoctorSpecialization(null);
-
         Drug actual = drugDAO.getDrugById(3);
 
-        assertEquals(drug, actual);
+        assertThat(actual).isEqualToIgnoringGivenFields(drug, IGNORED_DOCTOR_SPECIALIZATION);
 
     }
 
@@ -330,11 +329,9 @@ public class DatabaseDrugDaoTest {
 
         drugDAO.updateDrug(drug);
 
-        drug.setDoctorSpecialization(null);
-
         Drug actual = drugDAO.getDrugById(1);
 
-        assertEquals(drug, actual);
+        assertThat(actual).isEqualToIgnoringGivenFields(drug, IGNORED_DOCTOR_SPECIALIZATION);
     }
 
     private void resetAutoIncrement(Connection connection) throws SQLException {

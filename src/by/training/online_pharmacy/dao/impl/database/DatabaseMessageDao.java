@@ -47,6 +47,7 @@ public class DatabaseMessageDao implements MessageDao {
     public void insertMessage(Message message) throws DaoException {
 
         try(DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_MESSAGE_QUERY)){
+
             databaseOperation.setParameter(TableColumn.MESSAGE_SENDER_LOGIN, message.getSender().getLogin());
             databaseOperation.setParameter(TableColumn.MESSAGE_SENDER_LOGIN_VIA, message.getSender().getRegistrationType().toString().toLowerCase());
             databaseOperation.setParameter(TableColumn.MESSAGE_SENDER_MESSAGE, message.getSenderMessage());
@@ -88,6 +89,7 @@ public class DatabaseMessageDao implements MessageDao {
 
         try(DatabaseOperation databaseOperation = new DatabaseOperation(query.toString())){
             int paramNumber = 1;
+
             databaseOperation.setParameter(paramNumber++, user.getLogin());
             databaseOperation.setParameter(paramNumber++, user.getRegistrationType().toString().toLowerCase());
             databaseOperation.setParameter(paramNumber++, user.getLogin());
@@ -118,7 +120,8 @@ public class DatabaseMessageDao implements MessageDao {
             }
 
             databaseOperation.setParameter(paramNumber++, startFrom);
-            databaseOperation.setParameter(paramNumber++, limit);
+            databaseOperation.setParameter(paramNumber, limit);
+
             ResultSet resultSet = databaseOperation.invokeReadOperation();
 
             return resultSetToMessages(resultSet);
@@ -153,6 +156,7 @@ public class DatabaseMessageDao implements MessageDao {
     public void updateMessage(Message message) throws DaoException {
 
         try (DatabaseOperation databaseOperation = new DatabaseOperation(UPDATE_MESSAGE_QUERY)){
+
             databaseOperation.setParameter(1, message.getReceiverMessage());
             databaseOperation.setParameter(2, message.getId());
             databaseOperation.setParameter(3, message.getReceiver().getLogin());

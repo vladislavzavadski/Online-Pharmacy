@@ -50,7 +50,7 @@ public class DatabaseOrderDAO implements OrderDAO {
             databaseOperation.setParameter(2, orderId);
 
             if(databaseOperation.invokeWriteOperation()==0){
-                throw new EntityNotFoundException("Order with id="+orderId+" was not found");
+                throw new EntityNotFoundException("Order with id="+orderId+" was not found or not paid");
             }
 
         } catch (SQLException | ConnectionPoolException e) {
@@ -223,7 +223,7 @@ public class DatabaseOrderDAO implements OrderDAO {
     @Override
     public void setOrderStatus(User user, OrderStatus orderStatus, int orderId) throws DaoException {
 
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(CHANGE_ORDER_STATUS);){
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(CHANGE_ORDER_STATUS)){
             databaseOperation.beginTransaction();
 
             databaseOperation.setParameter(TableColumn.ORDER_US_LOGIN, user.getLogin());
@@ -253,6 +253,7 @@ public class DatabaseOrderDAO implements OrderDAO {
             databaseOperation.setParameter(6, order.getOrderStatus().toString().toLowerCase());
             databaseOperation.setParameter(7, order.getDrugCount());
             databaseOperation.setParameter(8, order.getDrug().getId());
+
             databaseOperation.invokeWriteOperation();
 
         } catch (ConnectionPoolException | SQLException e) {

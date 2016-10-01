@@ -172,7 +172,7 @@
                         </div>
                         <form class="form-horizontal" id="resp-form">
                             <div class="modal-body">
-                                <b>${for}:</b>
+                                <b>${forr}:</b>
                                 <span id="receiver"></span>
                                 <br/>
 

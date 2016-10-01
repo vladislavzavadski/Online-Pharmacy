@@ -29,7 +29,9 @@ import java.text.SimpleDateFormat;
  * Created by vladislav on 08.09.16.
  */
 public class AnswerToRequestForPrescriptionCommand implements Command {
+
     private static final Logger logger = LogManager.getLogger();
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);
@@ -87,15 +89,19 @@ public class AnswerToRequestForPrescriptionCommand implements Command {
         try {
             requestService.sendResponseForRequestForPrescription(user, prescription, requestForPrescription);
             jsonObject.put(Parameter.RESULT, true);
+
         } catch (InvalidParameterException e) {
             jsonObject.put(Parameter.RESULT, false);
             jsonObject.put(Parameter.MESSAGE, "One of parameters is invalid");
+
         } catch (InvalidUserStatusException e) {
             jsonObject.put(Parameter.RESULT, false);
             jsonObject.put(Parameter.MESSAGE, "This user can not create prescriptions or answer to request for prescription");
+
         } catch (RequestForPrescriptionNotFoundException e) {
             jsonObject.put(Parameter.RESULT, false);
             jsonObject.put(Parameter.MESSAGE, "This request for prescription was not found");
+
         }finally {
             InitConnectionService initConnectionService = serviceFactory.getInitConnectionService();
             initConnectionService.freeConnection();

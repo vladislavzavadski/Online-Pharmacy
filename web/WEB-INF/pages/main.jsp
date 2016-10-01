@@ -47,8 +47,11 @@
                 </div>
                 <div class="col-lg-6">
                     <h1><jsp:getProperty name="user" property="firstName"/> <jsp:getProperty name="user" property="secondName"/></h1>
-                    <b>${phoneNumber}: </b>&nbsp
-                    <span><jsp:getProperty name="user" property="phone"/></span>
+                    <c:if test="${user.phone ne null}">
+                        <b>${phoneNumber}: </b>&nbsp
+
+                        <span><jsp:getProperty name="user" property="phone"/></span>
+                    </c:if>
                     <br/>
                     <b>e-mail: </b>&nbsp
                     <span><a href="mailto:<jsp:getProperty name="user" property="mail"/>"><jsp:getProperty name="user" property="mail"/></a> </span>

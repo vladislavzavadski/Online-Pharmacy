@@ -2,7 +2,6 @@ package by.training.online_pharmacy.dao.impl.database;
 
 
 import by.training.online_pharmacy.dao.*;
-import by.training.online_pharmacy.dao.exception.DaoException;
 
 /**
  * Created by vladislav on 13.06.16.
@@ -45,8 +44,8 @@ public class DatabaseDAOFactory extends DaoFactory {
 
     public MessageDao getMessageDAO(){return  new DatabaseMessageDao();}
 
-    public SecretWordDao getSecretWordDao() {return new SecretWordDaoImpl();}
+    public SecretWordDao getSecretWordDao() {return new DatabaseSecretWordDao();}
 
-    public SecretQuestionDao getSecretQuestionDao(){ return new SecretQuestionDaoImpl();}
+    public SecretQuestionDao getSecretQuestionDao(){ return new DatabaseSecretQuestionDao();}
 }
 

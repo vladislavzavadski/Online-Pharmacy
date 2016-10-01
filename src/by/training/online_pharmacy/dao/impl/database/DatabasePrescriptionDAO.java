@@ -6,7 +6,6 @@ import by.training.online_pharmacy.dao.connection_pool.exception.ConnectionPoolE
 import by.training.online_pharmacy.dao.exception.DaoException;
 import by.training.online_pharmacy.dao.exception.EntityNotFoundException;
 import by.training.online_pharmacy.dao.impl.database.util.DatabaseOperation;
-import by.training.online_pharmacy.domain.Period;
 import by.training.online_pharmacy.domain.drug.Drug;
 import by.training.online_pharmacy.domain.prescription.Prescription;
 import by.training.online_pharmacy.domain.prescription.PrescriptionCriteria;
@@ -16,7 +15,6 @@ import by.training.online_pharmacy.domain.user.User;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -27,7 +25,7 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
             "\nfrom prescriptions inner join users as doc on pr_doctor=us_login and login_via=pr_doctor_login_via inner join drugs on dr_id=pr_drug_id inner join users as clients on clients.us_login=pr_client_login and clients.login_via=pr_login_via where pr_client_login=? and pr_login_via=? ";
 
     private static final String GET_ALL_DOCTOR_PRESCRIPTIONS_QUERY_PREFIX = "select clients.us_login as cli_login, clients.login_via as cli_login_via, clients.us_first_name as cli_first_name, clients.us_second_name as cli_second_name, pr_drug_id, pr_appointment_date, pr_expiration_date, pr_drug_count, pr_drug_dosage, dr_name, dr_id, pr_doctor, pr_doctor_login_via, doc.us_first_name as doc_first_name, doc.us_second_name as doc_second_name, doc.us_login as doc_login, doc.login_via as doc_login_via" +
-            "\nfrom prescriptions inner join users as doc on pr_doctor=us_login and login_via=pr_doctor_login_via inner join drugs on dr_id=pr_drug_id inner join users as clients on clients.us_login=pr_client_login and clients.login_via=pr_login_via where pr_client_login=? and pr_login_via=? ";
+            "\nfrom prescriptions inner join users as doc on pr_doctor=us_login and login_via=pr_doctor_login_via inner join drugs on dr_id=pr_drug_id inner join users as clients on clients.us_login=pr_client_login and clients.login_via=pr_login_via where pr_doctor=? and pr_doctor_login_via=? ";
 
     private static final String DRUG_NAME = " and dr_name like ? ";
     private static final String ACTIVE_PRESCRIPTIONS = " and pr_expiration_date>=curdate() ";
@@ -47,6 +45,7 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
     public void createPrescription(Prescription prescription, int requestForPrescriptionId) throws DaoException {
 
         try (DatabaseOperation databaseOperation = new DatabaseOperation(UPDATE_PRESCRIPTION)){
+
             databaseOperation.setParameter(1, requestForPrescriptionId);
             databaseOperation.setParameter(2, requestForPrescriptionId);
             databaseOperation.setParameter(3, requestForPrescriptionId);
@@ -66,7 +65,8 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
 
     @Override
     public void increaseDrugCountByOrder(User user, int orderId) throws DaoException {
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(INCREASE_DRUG_COUNT_IN_PRESCRIPTION_BY_NEW_ORDER);){
+
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(INCREASE_DRUG_COUNT_IN_PRESCRIPTION_BY_NEW_ORDER)){
 
             databaseOperation.setParameter(1, orderId);
             databaseOperation.setParameter(2, user.getLogin());
@@ -80,8 +80,10 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
     }
 
     @Override
-    public Prescription getUserPrescription(User user, int drugId) throws DaoException {
+    public Prescription getActiveUserPrescription(User user, int drugId) throws DaoException {
+
         try(DatabaseOperation databaseOperation = new DatabaseOperation(GET_ACTIVE_PRESCRIPTION_QUERY)){
+
             databaseOperation.setParameter(1, user.getLogin());
             databaseOperation.setParameter(2, user.getRegistrationType().toString().toLowerCase());
             databaseOperation.setParameter(3, drugId);
@@ -126,6 +128,7 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
     public void reduceDrugCount(User user, int drugId, int drugCount, int drugDosage) throws DaoException {
 
         try (DatabaseOperation databaseOperation = new DatabaseOperation(REDUCE_DRUG_COUNT)){
+
             databaseOperation.setParameter(1, drugCount);
             databaseOperation.setParameter(2, user.getLogin());
             databaseOperation.setParameter(3, user.getRegistrationType().toString().toLowerCase());
