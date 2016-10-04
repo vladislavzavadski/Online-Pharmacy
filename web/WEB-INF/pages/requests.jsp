@@ -186,7 +186,7 @@
                             <input id="re_id" type="hidden" name="request_id" >
                         <div class="form-group">
                             <label for="drug_count">${drugCount}:</label>
-                            <input placeholder="${drugCount}" class="form-control" id="drug_count" type="number" min="1" max="15" step="1" name="drug_count" required>
+                            <input placeholder="${drugCount}" class="form-control" id="drug_count" type="number" min="1" max="10" step="1" name="drug_count" required>
                         </div>
                         <div class="form-group">
                             <label for="drug_dosage">${dosage}:</label>

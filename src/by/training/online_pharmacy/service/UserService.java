@@ -10,6 +10,7 @@ import javax.servlet.http.Part;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by vladislav on 18.07.16.
@@ -17,7 +18,7 @@ import java.util.List;
 public interface UserService {
     User userLogin(String login, String password, String defaultImage) throws InternalServerException, UserNotFoundException, InvalidParameterException;
 
-    void userRegistration(User user) throws InvalidParameterException;
+    void userRegistration(User user, Locale language) throws InvalidParameterException;
 
     boolean isUserExist(String login) throws InvalidParameterException;
 
@@ -39,13 +40,13 @@ public interface UserService {
 
     InputStream getUserImage(User user, String defaultImage) throws InvalidParameterException;
 
-    void staffRegistration(User user, User newUser) throws InvalidParameterException, InvalidUserStatusException;
+    void staffRegistration(User user, User newUser, Locale language) throws InvalidParameterException, InvalidUserStatusException;
 
     void addFunds(User user, String cardNumber, float summ) throws InvalidParameterException, InvalidUserStatusException;
 
     void createSecretWord(SecretWord secretWord) throws InvalidParameterException, InvalidUserStatusException, NotFoundException;
 
-    void reestablishAccount(SecretWord secretWord) throws InvalidParameterException, NotFoundException;
+    void reestablishAccount(SecretWord secretWord, Locale language) throws InvalidParameterException, NotFoundException;
 
     void updateUserDescription(User user, UserDescription userDescription) throws InvalidParameterException, InvalidUserStatusException;
 }

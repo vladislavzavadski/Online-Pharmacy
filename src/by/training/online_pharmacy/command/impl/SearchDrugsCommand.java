@@ -26,6 +26,7 @@ import java.util.List;
  */
 public class SearchDrugsCommand implements Command {
     private static final int DRUGS_ON_PAGE = 6;
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);

@@ -50,7 +50,8 @@ public class RequestServiceImpl implements RequestService {
             throw new InvalidParameterException("Parameter Drug is invalid");
         }
 
-        if(requestForPrescription.getClientComment()==null||requestForPrescription.getClientComment().isEmpty()||requestForPrescription.getClientComment().length()>400){
+        if(requestForPrescription.getClientComment()==null||requestForPrescription.getClientComment().isEmpty()
+                ||requestForPrescription.getClientComment().length()>400){
             throw new InvalidParameterException("Parameter Client Comment is invalid");
         }
 
@@ -65,7 +66,8 @@ public class RequestServiceImpl implements RequestService {
             requestForPrescriptionDAO.insertRequest(requestForPrescription);
 
         } catch (EntityDeletedException e){
-            throw new NotFoundException("Drug with id="+requestForPrescription.getDrug().getId()+" was not found or you can buy it without prescription or you allready have request in progress to this drug", e);
+            throw new NotFoundException("Drug with id="+requestForPrescription.getDrug().getId()+" was not found or you" +
+                    " can buy it without prescription or you allready have request in progress to this drug", e);
 
         } catch (DaoException e) {
             logger.error("Something went wrong when trying to insert request", e);
@@ -190,7 +192,8 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public int getRequestsCount(User user) throws InvalidParameterException, InternalServerException, InvalidUserStatusException {
+    public int getRequestsCount(User user)
+            throws InvalidParameterException, InternalServerException, InvalidUserStatusException {
 
         if(user==null){
             throw new InvalidParameterException("Parameter user is invalid");

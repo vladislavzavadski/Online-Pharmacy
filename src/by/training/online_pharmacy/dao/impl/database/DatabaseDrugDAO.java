@@ -6,6 +6,7 @@ import by.training.online_pharmacy.dao.connection_pool.exception.ConnectionPoolE
 import by.training.online_pharmacy.dao.exception.DaoException;
 import by.training.online_pharmacy.dao.exception.EntityDeletedException;
 import by.training.online_pharmacy.dao.exception.EntityNotFoundException;
+import by.training.online_pharmacy.dao.exception.MultipleRecordsException;
 import by.training.online_pharmacy.dao.impl.database.util.DatabaseOperation;
 import by.training.online_pharmacy.dao.impl.database.util.ListConverter;
 import by.training.online_pharmacy.dao.impl.database.util.exception.ParameterNotFoundException;
@@ -108,7 +109,8 @@ public class DatabaseDrugDAO implements DrugDAO {
 
         }
 
-        if(searchDrugsCriteria.getOnlyInStock()!=null && !searchDrugsCriteria.getOnlyInStock().isEmpty() && Boolean.parseBoolean(searchDrugsCriteria.getOnlyInStock())){
+        if(searchDrugsCriteria.getOnlyInStock()!=null && !searchDrugsCriteria.getOnlyInStock().isEmpty()
+                && Boolean.parseBoolean(searchDrugsCriteria.getOnlyInStock())){
 
             if(isCriteriaStarted){
                 query.append(Param.AND).append(IN_STOCK);
@@ -239,6 +241,10 @@ public class DatabaseDrugDAO implements DrugDAO {
             databaseOperation.setParameter(TableColumn.DRUG_ID, drugId);
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             List<Drug> result = resultSetToDrug(resultSet);
+
+            if(result.size()>1){
+                throw new MultipleRecordsException("The are more than 1 drug as searched by id");
+            }
 
             if(!result.isEmpty()){
                 return result.get(0);

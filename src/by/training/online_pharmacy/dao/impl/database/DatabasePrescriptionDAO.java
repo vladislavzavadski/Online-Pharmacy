@@ -147,16 +147,19 @@ public class DatabasePrescriptionDAO implements PrescriptionDAO {
     }
 
     @Override
-    public List<Prescription> getUserPrescriptions(User user, PrescriptionCriteria prescriptionCriteria, int limit, int startFrom) throws DaoException {
+    public List<Prescription> getUserPrescriptions(User user, PrescriptionCriteria prescriptionCriteria, int limit,
+                                                   int startFrom) throws DaoException {
         return searchPrescriptions(user, prescriptionCriteria, GET_ALL_CLIENT_PRESCRIPTIONS_QUERY_PREFIX, limit, startFrom);
     }
 
     @Override
-    public List<Prescription> getDoctorPrescriptions(User user, PrescriptionCriteria prescriptionCriteria, int limit, int startFrom) throws DaoException {
+    public List<Prescription> getDoctorPrescriptions(User user, PrescriptionCriteria prescriptionCriteria, int limit,
+                                                     int startFrom) throws DaoException {
         return searchPrescriptions(user, prescriptionCriteria, GET_ALL_DOCTOR_PRESCRIPTIONS_QUERY_PREFIX, limit, startFrom);
     }
 
-    private List<Prescription> searchPrescriptions(User user, PrescriptionCriteria prescriptionCriteria, String queryPrefix, int limit, int startFrom) throws DaoException {
+    private List<Prescription> searchPrescriptions(User user, PrescriptionCriteria prescriptionCriteria,
+                                                   String queryPrefix, int limit, int startFrom) throws DaoException {
         StringBuilder query = new StringBuilder(queryPrefix);
 
         if(prescriptionCriteria.getDrugName()!=null&&!prescriptionCriteria.getDrugName().isEmpty()){

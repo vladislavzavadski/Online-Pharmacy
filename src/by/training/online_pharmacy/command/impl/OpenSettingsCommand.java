@@ -19,6 +19,7 @@ import java.util.List;
  * Created by vladislav on 04.09.16.
  */
 public class OpenSettingsCommand implements Command {
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);

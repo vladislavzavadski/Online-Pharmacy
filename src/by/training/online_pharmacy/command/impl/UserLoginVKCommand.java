@@ -1,7 +1,6 @@
 package by.training.online_pharmacy.command.impl;
 
 import by.training.online_pharmacy.command.Command;
-import by.training.online_pharmacy.command.util.UrlBuilder;
 import by.training.online_pharmacy.domain.message.MessageStatus;
 import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.domain.user.UserRole;
@@ -23,6 +22,7 @@ import java.io.IOException;
  * Created by vladislav on 18.07.16.
  */
 public class UserLoginVKCommand implements Command {
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User user;
@@ -51,7 +51,6 @@ public class UserLoginVKCommand implements Command {
             user.setPassword(request.getParameter(Parameter.PASSWORD));
 
             httpSession.setAttribute(Parameter.USER, user);
-            httpSession.setAttribute(Parameter.PREV_REQUEST, UrlBuilder.build(request));
 
             response.sendRedirect(Page.ROOT);
 

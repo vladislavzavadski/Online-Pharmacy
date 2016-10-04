@@ -200,7 +200,7 @@ public class DatabaseUserDaoTest {
 
         UserDescription userDescription = new UserDescription();
 
-        userDescription.setSpecialization(DERMATOLOG);
+        userDescription.setSpecialization(DERMATOLOGIST);
 
         UserDAO userDAO = new DatabaseUserDAO();
 

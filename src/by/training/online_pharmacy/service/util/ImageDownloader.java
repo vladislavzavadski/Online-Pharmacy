@@ -15,8 +15,10 @@ public final class ImageDownloader {
     public static void download(String sourceUrl, String destinationFolder, String fileName) throws IOException {
         URL website = new URL(sourceUrl);
         ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+
         File uploads = new File(destinationFolder);
         File file = new File(uploads, fileName+ImageConstant.IMAGE_JPG);
+
         FileOutputStream fos = new FileOutputStream(file);
         fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
     }

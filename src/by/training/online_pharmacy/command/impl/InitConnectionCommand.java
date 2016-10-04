@@ -13,6 +13,7 @@ import java.io.IOException;
  * Created by vladislav on 01.08.16.
  */
 public class InitConnectionCommand implements Command {
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response)  {
         ServiceFactory serviceFactory = ServiceFactory.getInstance();

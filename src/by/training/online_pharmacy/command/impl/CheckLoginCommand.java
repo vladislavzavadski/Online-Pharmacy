@@ -17,6 +17,7 @@ import java.io.IOException;
  * Created by vladislav on 28.07.16.
  */
 public class CheckLoginCommand implements Command {
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String login = request.getParameter(Parameter.LOGIN);

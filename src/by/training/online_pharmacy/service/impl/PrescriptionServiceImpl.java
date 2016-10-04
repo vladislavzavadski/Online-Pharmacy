@@ -23,7 +23,8 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     private static final Logger logger = LogManager.getLogger();
 
     @Override
-    public List<Prescription> searchPrescriptions(User user, String drugName, String prescriptionStatus, int limit, int startFrom)
+    public List<Prescription> searchPrescriptions(User user, String drugName, String prescriptionStatus,
+                                                  int limit, int startFrom)
             throws InternalServerException, InvalidParameterException, InvalidUserStatusException {
 
         if(user==null||user.getLogin()==null||user.getLogin().isEmpty()||user.getRegistrationType()==null){
@@ -72,7 +73,8 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     }
 
     @Override
-    public Prescription getActivePrescription(User user, int drugId) throws InternalServerException, InvalidParameterException {
+    public Prescription getActivePrescription(User user, int drugId)
+            throws InternalServerException, InvalidParameterException {
 
         if(user==null||user.getLogin()==null||user.getLogin().isEmpty()||user.getRegistrationType()==null){
             throw new InvalidParameterException("Parameter user is invalid");

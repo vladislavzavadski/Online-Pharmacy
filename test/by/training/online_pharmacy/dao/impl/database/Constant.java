@@ -20,7 +20,6 @@ public class Constant {
     public static final String IODOMARIN_IMAGE = "/home/vladislav/Online Pharmacy/out/artifacts/Online_Pharmacy_war_exploded/pictures/drugs/ЙодомаринlkermflekrmfЙод";
     public static final String IOD = "Йод";
     public static final String USER_LOGIN = "qweerty";
-    public static final String SPECIALIZATION = "wefhoi";
     public static final String MAN_NAME = "lkermf";
     public static final String MAN_DESCRIPTION = "erklger";
     public static final String MAN_COUNTRY = "lekrmf";
@@ -74,7 +73,7 @@ public class Constant {
     public static final String DOCTOR_NAME = "aaaa";
     public static final String DOCTOR_LOGIN1 = "zzpp";
     public static final String DOCTOR_PASSWORD = "qq";
-    public static final String DERMATOLOG = "Дерматолог";
+    public static final String DERMATOLOGIST = "Дерматолог";
     public static final String NEW_LOGIN = "log";
     public static final String IGNORED_PASSWORD = "password";
     public static final String IGNORED_DESCRIPTION = "userDescription";
@@ -86,11 +85,11 @@ public class Constant {
     public static final String SOME_SPECIALIZATION = "specialization";
     public static final String SOME_DESCRIPTION = "description";
     public static final String USER_LOGIN11 = "11zavadski";
-    public static final String OFT_SPECIALIZATION = "Офтальмолог";
-    public static final String LOR_SPEC = "Лор";
-    public static final String TERAPEVT_SPEC = "Терапевт";
-    public static final String HIRURG_SPEC = "Хирург";
-    public static final String END_SPEC = "Эндокринолог";
+    public static final String OPHTHALMOLOGIST = "Офтальмолог";
+    public static final String LOHR = "Лор";
+    public static final String THERAPIST = "Терапевт";
+    public static final String SURGEON = "Хирург";
+    public static final String ENDOCRINOLOGIST = "Эндокринолог";
     public static final String HOW_ARE_YOU_QUESTION = "Как дела";
 
 }

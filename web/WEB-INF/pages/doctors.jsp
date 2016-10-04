@@ -126,12 +126,6 @@
                             $("#LoadedContent").html($("#LoadedContent").html()+" "+data);
                             thisPageNum = thisPageNum + 1;
                             thisWork = 1;
-                            if(data.toString().contains('<div')){
-                                console.log("not empty");
-                            }
-                            else {
-                                console.log("empty");
-                            }
                         });
                     }
                 }
@@ -243,7 +237,11 @@
                             $(this).trigger('reset');
                             if(data.result==true){
                                 Notify.generate('${docCreated}', '${completed}', 1);
-
+                                $.get(loadUrl + 1, function (data) {
+                                    $("#doctors").html(data);
+                                    thisPageNum = 2;
+                                    thisWork = 1;
+                                });
                             }
                             else {
                                 Notify.generate('${serverResponse} '+data.message, '${error}', 3);

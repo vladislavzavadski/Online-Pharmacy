@@ -7,7 +7,6 @@ import by.training.online_pharmacy.service.ServiceFactory;
 import by.training.online_pharmacy.service.UserService;
 import by.training.online_pharmacy.service.exception.InvalidParameterException;
 import by.training.online_pharmacy.service.exception.InvalidUserStatusException;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
@@ -16,11 +15,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Locale;
 
 /**
  * Created by vladislav on 04.09.16.
  */
 public class DoctorRegistrationCommand implements Command {
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);
@@ -56,7 +57,7 @@ public class DoctorRegistrationCommand implements Command {
         UserService userService = serviceFactory.getUserService();
 
         try {
-            userService.staffRegistration(user, newUser);
+            userService.staffRegistration(user, newUser, (Locale)httpSession.getAttribute(Parameter.LANGUAGE));
             jsonObject.put(Parameter.RESULT, true);
 
         } catch (InvalidParameterException e) {

@@ -22,6 +22,7 @@ import java.io.IOException;
  * Created by vladislav on 02.09.16.
  */
 public class CreateDrugClassCommand implements Command {
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);

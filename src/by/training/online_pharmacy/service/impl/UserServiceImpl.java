@@ -19,6 +19,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by vladislav on 18.07.16.
@@ -31,6 +32,7 @@ public class UserServiceImpl implements UserService {
                     + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 
     private static final String PHONE_PATTERN = "^\\+(?:[0-9]●?){6,14}[0-9]$";
+    private static final String CARD_NUMBER_PATTERN = "[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}";
     private static final int PASSWORD_LENGTH = 7;
 
     @Override
@@ -69,7 +71,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void userRegistration(User user) throws InternalServerException, InvalidParameterException {
+    public void userRegistration(User user, Locale language) throws InternalServerException, InvalidParameterException {
 
         if(user==null){
             throw new InvalidParameterException("Parameter user is invalid");
@@ -107,7 +109,10 @@ public class UserServiceImpl implements UserService {
             userDAO.insertUser(user);
 
             EmailSender emailSender = new EmailSender(EmailProperties.EMAIL, EmailProperties.PASSWORD);
-            emailSender.send(EmailProperties.TITLE, String.format(EmailProperties.MESSAGE_BODY, user.getFirstName(), user.getLogin(), user.getPassword()), user.getMail());
+
+            emailSender.send(EmailProperties.getRegisterTitle(language.getLanguage()),
+                    String.format(EmailProperties.getRegistrationBody(language.getLanguage()), user.getFirstName(),
+                            user.getLogin(), user.getPassword()), user.getMail());
 
         } catch (DaoException e) {
             logger.error("Something went wrong when trying to register as native user", e);
@@ -137,7 +142,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updatePersonalInformation(User user) throws InternalServerException, InvalidParameterException, NotFoundException {
+    public void updatePersonalInformation(User user)
+            throws InternalServerException, InvalidParameterException, NotFoundException {
 
         if(user==null){
             throw new InvalidParameterException("Parameter user is invalid");
@@ -264,7 +270,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void uploadProfileImage(User user, Part part, String pathToImages) throws InternalServerException, InvalidContentException, InvalidParameterException, NotFoundException {
+    public void uploadProfileImage(User user, Part part, String pathToImages)
+            throws InternalServerException, InvalidContentException, InvalidParameterException, NotFoundException {
 
         if(user==null){
             throw new InvalidParameterException("Parameter user is invalid");
@@ -354,7 +361,9 @@ public class UserServiceImpl implements UserService {
 
         try {
             List<User> doctors = userDAO.searchDoctors(userDescription, limit, startFrom);
-            doctors.stream().filter(user -> user.getPathToImage()==null).forEach(user -> user.setPathToImage(defaultImage+ImageConstant.PHARMACY_DEFAULT_IMAGE));
+            doctors.stream().filter(user -> user.getPathToImage()==null).forEach(user ->
+                    user.setPathToImage(defaultImage+ImageConstant.PHARMACY_DEFAULT_IMAGE));
+
             return doctors;
 
         } catch (DaoException e) {
@@ -385,7 +394,9 @@ public class UserServiceImpl implements UserService {
 
         try {
             List<User> doctors = userDAO.searchDoctors(query.split(" "), limit, startFrom);
-            doctors.stream().filter(user -> user.getPathToImage()==null).forEach(user -> user.setPathToImage(defaultImage+ImageConstant.PHARMACY_DEFAULT_IMAGE));
+            doctors.stream().filter(user -> user.getPathToImage()==null).forEach(user ->
+                    user.setPathToImage(defaultImage+ImageConstant.PHARMACY_DEFAULT_IMAGE));
+
             return doctors;
 
         } catch (DaoException e) {
@@ -427,7 +438,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public InputStream getUserImage(User user, String defaultImage) throws InternalServerException, InvalidParameterException {
+    public InputStream getUserImage(User user, String defaultImage)
+            throws InternalServerException, InvalidParameterException {
 
         if(user==null||user.getLogin()==null||
                 user.getLogin().isEmpty()||user.getRegistrationType()==null){
@@ -469,7 +481,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void staffRegistration(User pharmacist, User newUser)
+    public void staffRegistration(User pharmacist, User newUser, Locale language)
             throws InternalServerException, InvalidParameterException, InvalidUserStatusException {
 
         if(pharmacist==null){
@@ -491,7 +503,7 @@ public class UserServiceImpl implements UserService {
         userDescription.setUserLogin(newUser.getLogin());
         userDescription.setRegistrationType(newUser.getRegistrationType());
 
-        userRegistration(newUser);
+        userRegistration(newUser, language);
 
         DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
         UserDescriptionDAO userDescriptionDAO = daoFactory.getUserDescriptionDao();
@@ -526,7 +538,7 @@ public class UserServiceImpl implements UserService {
             throw new InvalidParameterException("Parameter summ is invalid");
         }
 
-        if(cardNumber==null||cardNumber.isEmpty()){
+        if(cardNumber==null||cardNumber.isEmpty()||!cardNumber.matches(CARD_NUMBER_PATTERN)){
             throw new InvalidParameterException("Parameter card number is invalid");
         }
 
@@ -606,7 +618,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void reestablishAccount(SecretWord secretWord)
+    public void reestablishAccount(SecretWord secretWord, Locale language)
             throws InternalServerException, InvalidParameterException, NotFoundException {
 
         if(secretWord==null){
@@ -643,7 +655,11 @@ public class UserServiceImpl implements UserService {
             userDAO.updateUsersPassword(secretWord.getUser(), newPassword);
 
             EmailSender emailSender = new EmailSender(EmailProperties.EMAIL, EmailProperties.PASSWORD);
-            emailSender.send(EmailProperties.REESTABLISH_ACCOUNT, String.format(EmailProperties.REESTABLISH_BODY, secretWord.getUser().getLogin(), newPassword), email);
+
+            emailSender.send(EmailProperties.getReestablishTitle(language.getLanguage()),
+                    String.format(EmailProperties.getReestablishBody(language.getLanguage()),
+                            secretWord.getUser().getLogin(), newPassword), email);
+
         } catch (DaoException e) {
             logger.error("Something went wrong when trying to reestablish account", e);
             throw new InternalServerException(e);

@@ -21,6 +21,7 @@ import java.io.IOException;
  * Created by vladislav on 13.09.16.
  */
 public class UpdateUserDescriptionCommand implements Command {
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);

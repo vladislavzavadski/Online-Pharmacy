@@ -23,7 +23,9 @@ public class OrderServiceImpl implements OrderService {
     private static final Logger logger = LogManager.getLogger();
 
     @Override
-    public void createOrder(Order order) throws InternalServerException, InvalidParameterException, NotFoundException, PrescriptionNotFoundException, AmbiguousValueException, InvalidUserStatusException {
+    public void createOrder(Order order)
+            throws InternalServerException, InvalidParameterException, NotFoundException,
+            PrescriptionNotFoundException, AmbiguousValueException, InvalidUserStatusException {
 
         if (order.getClient() == null) {
             throw new InvalidParameterException("Parameter order is invalid");
@@ -129,7 +131,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void completeOrder(User user, int orderId) throws InternalServerException, InvalidParameterException, InvalidUserStatusException, OrderNotFoundException {
+    public void completeOrder(User user, int orderId)
+            throws InternalServerException, InvalidParameterException, InvalidUserStatusException, OrderNotFoundException {
 
         if(user==null){
             throw new InvalidParameterException("Parameter user is invalid");

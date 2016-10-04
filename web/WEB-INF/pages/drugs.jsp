@@ -42,7 +42,7 @@
             <div id="sidebar-wrapper">
                 <ul class="sidebar-nav">
                     <li class="sidebar-brand">
-                        ${drugClass}:
+                        ${drugClas}:
                     </li>
                     <div id="drug_classes">
                         <c:forEach items="${drugClasses}" var="drugClass">
@@ -131,6 +131,7 @@
                     var load = true;
                     var thisWork = true;
                     var loadUrl = "/controller?query=${param.query}&command=${param.command}&name=${param.name}&active_substance=${param.active_substance}&max_price=${param.max_price}&dr_class=${param.dr_class}&dr_manufacture=${param.dr_manufacture}&only_in_stock=${param.only_in_stock}&only_free=${param.only_free}&overload=false&page="
+
                     function downloadContent(){
                         if(thisWork) {
                             thisWork = false;
@@ -138,10 +139,6 @@
                                     $("#LoadedContent").html($("#LoadedContent").html() + " " + data);
                                     thisWork = true;
                                     thisPageNum = thisPageNum + 1;
-                                    if(data)
-                                        console.log("empty");
-                                    else
-                                        console.log("not empty");
                                 });
 
 
@@ -325,6 +322,11 @@
                                 $('#new-drug-modal').modal('toggle');
                                 $('#dos_message').html("");
                                 Notify.generate("${newDrugCreated}", "${completed}!", 1);
+
+                                $.get(loadUrl + 1, function (data) {
+                                    $("#drugs").html(data);
+                                });
+                                thisPageNum = 2;
                             }
                             else {
                                 if(data.message.contains("dosages")){
@@ -517,7 +519,7 @@
                             $('#create_man_message').html("");
                             if(data.result==true){
                                 Notify.generate("${manufacturerCreated}", "${completed}!", 1);
-                                $('#drug_manufacturer_s').html("<option value='"+manName+","+manCountry+"'>"+manName+"("+manCountry+")"+"</option>>"+$('#drug_manufacturer_s').html());
+                                $('#manufacturer_name').html("<option value='"+manName+","+manCountry+"'>"+manName+"("+manCountry+")"+"</option>>"+$('#manufacturer_name').html());
                             }
                             else {
                                 Notify.generate("${serverResponse}: "+data.message, '${error}', 3);

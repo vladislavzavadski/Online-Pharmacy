@@ -31,7 +31,10 @@ public class DrugServiceImpl implements DrugService {
 
 
     @Override
-    public void createDrug(User user, Drug drug, Part part, String pathToImages) throws InternalServerException,InvalidParameterException, InvalidUserStatusException, SpecializationNotFoundException, InvalidContentException {
+    public void createDrug(User user, Drug drug, Part part, String pathToImages)
+            throws InternalServerException,InvalidParameterException, InvalidUserStatusException,
+            SpecializationNotFoundException, InvalidContentException {
+
         if(user==null){
             throw new InvalidParameterException("Parameter user is invalid");
         }
@@ -115,6 +118,11 @@ public class DrugServiceImpl implements DrugService {
             drug.setDoctorSpecialization(new String(drug.getDoctorSpecialization().getBytes(Encoding.ISO_8859), Encoding.UTF8));
             drug.setActiveSubstance(new String(drug.getActiveSubstance().getBytes(Encoding.ISO_8859), Encoding.UTF8));
             drug.setName(new String(drug.getName().getBytes(Encoding.ISO_8859), Encoding.UTF8));
+
+            DrugManufacturer drugManufacturer = drug.getDrugManufacturer();
+
+            drugManufacturer.setName(new String(drugManufacturer.getName().getBytes(Encoding.ISO_8859), Encoding.UTF8));
+            drugManufacturer.setCountry(new String(drugManufacturer.getCountry().getBytes(Encoding.ISO_8859), Encoding.UTF8));
 
             if(drug.getDescription()!=null&&!drug.getDescription().isEmpty()){
                 drug.setDescription(new String(drug.getDescription().getBytes(Encoding.ISO_8859), Encoding.UTF8));
@@ -236,7 +244,8 @@ public class DrugServiceImpl implements DrugService {
     }
 
     @Override
-    public List<Drug> extendedDrugSearch(SearchDrugsCriteria searchDrugsCriteria, int limit, int startFrom) throws InternalServerException, InvalidParameterException {
+    public List<Drug> extendedDrugSearch(SearchDrugsCriteria searchDrugsCriteria, int limit, int startFrom)
+            throws InternalServerException, InvalidParameterException {
 
         if(limit<=0){
             throw new InvalidParameterException("Invalid parameter limit. Limit can be >0");
@@ -346,7 +355,8 @@ public class DrugServiceImpl implements DrugService {
     }
 
     @Override
-    public void createDrugClass(User user, DrugClass drugClass) throws InternalServerException, InvalidParameterException, InvalidUserStatusException {
+    public void createDrugClass(User user, DrugClass drugClass)
+            throws InternalServerException, InvalidParameterException, InvalidUserStatusException {
 
         if(user==null){
             throw new InvalidParameterException("Parameter user is invalid");
@@ -382,7 +392,8 @@ public class DrugServiceImpl implements DrugService {
     }
 
     @Override
-    public boolean isManufacturerExist(DrugManufacturer drugManufacturer) throws InternalServerException, InvalidParameterException {
+    public boolean isManufacturerExist(DrugManufacturer drugManufacturer)
+            throws InternalServerException, InvalidParameterException {
 
         if(drugManufacturer==null){
             throw new InvalidParameterException("Parameter drug manufacturer is invalid");
@@ -452,7 +463,9 @@ public class DrugServiceImpl implements DrugService {
     }
 
     @Override
-    public void updateDrug(User user, Drug drug, Part part, String pathToImages) throws InternalServerException, InvalidParameterException, InvalidUserStatusException, DrugNotFoundException, InvalidContentException, SpecializationNotFoundException {
+    public void updateDrug(User user, Drug drug, Part part, String pathToImages)
+            throws InternalServerException, InvalidParameterException, InvalidUserStatusException,
+            DrugNotFoundException, InvalidContentException, SpecializationNotFoundException {
 
         if(user==null){
             throw new InvalidParameterException("Parameter user is invalid");
@@ -535,6 +548,11 @@ public class DrugServiceImpl implements DrugService {
             drug.setDoctorSpecialization(new String(drug.getDoctorSpecialization().getBytes(Encoding.ISO_8859), Encoding.UTF8));
             drug.setActiveSubstance(new String(drug.getActiveSubstance().getBytes(Encoding.ISO_8859), Encoding.UTF8));
 
+            DrugManufacturer drugManufacturer = drug.getDrugManufacturer();
+
+            drugManufacturer.setName(new String(drugManufacturer.getName().getBytes(Encoding.ISO_8859), Encoding.UTF8));
+            drugManufacturer.setCountry(new String(drugManufacturer.getCountry().getBytes(Encoding.ISO_8859), Encoding.UTF8));
+
             if(drug.getDescription()!=null&&!drug.getDescription().isEmpty()){
                 drug.setDescription(new String(drug.getDescription().getBytes(Encoding.ISO_8859), Encoding.UTF8));
             }
@@ -564,7 +582,8 @@ public class DrugServiceImpl implements DrugService {
                 throw new SpecializationNotFoundException("Specialization with name="+drug.getDoctorSpecialization()+" was not found");
             }
 
-            String drugImagePath = pathToImages+"/"+drug.getName()+drug.getDrugManufacturer().getName()+drug.getDrugManufacturer().getCountry()+drug.getActiveSubstance();
+            String drugImagePath = pathToImages+"/"+drug.getName()+drug.getDrugManufacturer().getName()+
+                    drug.getDrugManufacturer().getCountry()+drug.getActiveSubstance();
 
             if(part!=null&&part.getSize()>0) {
                 File file = new File(drugImagePath);

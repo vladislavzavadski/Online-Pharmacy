@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
  * Created by vladislav on 03.09.16.
  */
 public class UpdateDrugCommand implements Command {
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);

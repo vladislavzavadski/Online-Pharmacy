@@ -24,6 +24,7 @@
 <fmt:message bundle="${loc}" key="locale.contacts_saved" var="contactsSaved"/>
 <fmt:message bundle="${loc}" key="locale.new_photo_saved" var="newPhotoSaved"/>
 <fmt:message bundle="${loc}" key="locale.photo_not_selected" var="photoNotSelected"/>
+<fmt:message bundle="${loc}" key="locale.stuff_description" var="stuffDescription"/>
 
 <!DOCTYPE html>
 <html lang="ru">
@@ -133,20 +134,21 @@
                     </fieldset>
                 </div>
                 </c:if>
-                <div class="form-horizontal">
+                <form id="cont_form" class="form-horizontal">
+                    <input type="hidden" name="command" value="UPDATE_CONTACTS">
                     <fieldset>
                         <legend>${contacts}</legend>
                         <span id="contacts_inf"></span>
                         <div class="form-group">
                             <label class="col-md-4 control-label" for="e-mail">E-mail:</label>  
                             <div class="col-md-4">
-                                <input id="e-mail" maxlength="45"  name="e-mail" type="email" value="${user.mail}" class="form-control input-md span3" required="">
+                                <input id="e-mail" maxlength="45"  name="email" type="email" value="${user.mail}" class="form-control input-md span3" required="">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-4 control-label" for="phone_number">${phoneNumber}:</label>
                             <div class="col-md-4">
-                                <input id="phone_number" maxlength="15"  name="phone_number" type="text" value="${user.phone}" class="form-control input-md span3" required="">
+                                <input pattern="^\+(?:[0-9]●?){6,14}[0-9]$" id="phone_number" maxlength="15"  name="phone" type="text" value="${user.phone}" class="form-control input-md span3" required="">
                             </div>
                         </div>
                         <div class="form-group">
@@ -157,7 +159,7 @@
                         </div>
 
                     </fieldset>
-                </div>
+                </form>
                <!-- <form id="image_form" class="form-horizontal" action="/controller" method="post" enctype="multipart/form-data" name="contact">-->
                 <div class="form-horizontal">
                 <fieldset>
@@ -235,7 +237,7 @@
                 <c:if test="${user.userRole eq 'DOCTOR'}">
                     <form class="form-horizontal" id="staff_description">
                         <input type="hidden" name="command" value="UPDATE_DESCRIPTION">
-                        <legeng>Описание персонала</legeng>
+                        <legeng>${stuffDescription}</legeng>
                         <div class="form-group">
                             <label for="specialization" class="col-md-4 control-label">${specialization}</label>
                             <div class="col-md-4">
@@ -335,23 +337,17 @@
                         });
                     });
 
-                    $("#save_contacts").click(function () {
-                        var mail = $("#e-mail").val();
-                        var phone = $("#phone_number").val();
+                    $("#cont_form").submit(function () {
 
-                        if(mail==""||phone==""){
-                            Notify.generate('${allFieldsMust}', '${error}', 2);
-                            return;
-                        }
-
+                        var data = $(this).serialize();
                         $.ajax({
                             url: "controller",
                             type: "POST",
                             dataType:"json",
-                            data:{command:"UPDATE_CONTACTS", email:mail, phone:phone},
+                            data:data,
                             success: function (data) {
                                 if(data.result==true){
-                                    Notify.generate('К${contactsSaved}', '${completed}', 1);
+                                    Notify.generate('${contactsSaved}', '${completed}', 1);
                                 }
                                 else {
                                     Notify.generate("${serverResponse} "+data.message, '${error}', 2);
@@ -359,6 +355,7 @@
 
                             }
                         });
+                        return false;
                     });
 
                     $('#save_image').click(function(){

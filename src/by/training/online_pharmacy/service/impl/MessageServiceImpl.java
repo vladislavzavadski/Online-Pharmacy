@@ -120,7 +120,8 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public int getMessageCount(User user, MessageStatus messageStatus) throws InternalServerException, InvalidParameterException {
+    public int getMessageCount(User user, MessageStatus messageStatus)
+            throws InternalServerException, InvalidParameterException {
 
         if(user==null||user.getLogin()==null||user.getLogin().isEmpty()||user.getRegistrationType()==null){
             throw new InvalidParameterException("Parameter user is invalid");

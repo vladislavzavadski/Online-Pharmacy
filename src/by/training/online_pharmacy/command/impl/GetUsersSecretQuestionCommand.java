@@ -21,6 +21,7 @@ import java.nio.charset.Charset;
  * Created by vladislav on 05.09.16.
  */
 public class GetUsersSecretQuestionCommand implements Command {
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User user = new User();

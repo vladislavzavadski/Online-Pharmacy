@@ -21,6 +21,7 @@ import java.io.*;
  * Created by vladislav on 14.08.16.
  */
 public class GetProfileImageCommand implements Command {
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);

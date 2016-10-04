@@ -20,6 +20,7 @@ import java.io.IOException;
  * Created by vladislav on 14.08.16.
  */
 public class GetUserDetailsCommand implements Command {
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);

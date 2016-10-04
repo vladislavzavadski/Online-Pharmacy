@@ -23,7 +23,8 @@ public class SocialNetworkServiceImpl implements SocialNetworkService {
     private static final Logger logger = LogManager.getRootLogger();
 
     @Override
-    public User userLoginVk(String code, String pathToImages) throws InternalServerException, CanceledAuthorizationException, InvalidParameterException {
+    public User userLoginVk(String code, String pathToImages)
+            throws InternalServerException, CanceledAuthorizationException, InvalidParameterException {
 
         if(code==null){
             throw new CanceledAuthorizationException("User cancel authorization");
@@ -50,7 +51,8 @@ public class SocialNetworkServiceImpl implements SocialNetworkService {
     }
 
     @Override
-    public User userLoginFb(String code, String pathToImages) throws InternalServerException, CanceledAuthorizationException, InvalidParameterException {
+    public User userLoginFb(String code, String pathToImages)
+            throws InternalServerException, CanceledAuthorizationException, InvalidParameterException {
 
         if(code==null){
             throw new CanceledAuthorizationException("User cancel exception");
@@ -77,7 +79,8 @@ public class SocialNetworkServiceImpl implements SocialNetworkService {
     }
 
     @Override
-    public User userLoginLi(String code, String pathToImages) throws InternalServerException, CanceledAuthorizationException, InvalidParameterException {
+    public User userLoginLi(String code, String pathToImages)
+            throws InternalServerException, CanceledAuthorizationException, InvalidParameterException {
 
         if(code==null){
             throw new CanceledAuthorizationException("User cancel exception");

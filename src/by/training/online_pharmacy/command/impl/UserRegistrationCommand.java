@@ -1,6 +1,7 @@
 package by.training.online_pharmacy.command.impl;
 
 import by.training.online_pharmacy.command.Command;
+import by.training.online_pharmacy.dao.impl.database.Param;
 import by.training.online_pharmacy.domain.user.Gender;
 import by.training.online_pharmacy.domain.user.RegistrationType;
 import by.training.online_pharmacy.domain.user.User;
@@ -18,18 +19,19 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Locale;
 
 /**
  * Created by vladislav on 18.07.16.
  */
 public class UserRegistrationCommand implements Command {
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        /*request.setCharacterEncoding(Encoding.UTF8);
-        response.setCharacterEncoding(Encoding.UTF8);*/
-
+        HttpSession session = request.getSession();
         User user = new User();
 
         String email = request.getParameter(Parameter.MAIL);
@@ -50,7 +52,7 @@ public class UserRegistrationCommand implements Command {
         UserService userService = serviceFactory.getUserService();
 
         try {
-            userService.userRegistration(user);
+            userService.userRegistration(user, (Locale) session.getAttribute(Parameter.LANGUAGE));
             jsonObject.put(Parameter.RESULT, true);
 
         } catch (InvalidParameterException e) {

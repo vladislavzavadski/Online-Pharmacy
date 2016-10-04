@@ -147,6 +147,7 @@
 <fmt:message bundle="${loc}" key="locale.ins_funds" var="insFunds"/>
 <fmt:message bundle="${loc}" key="locale.proceed" var="proceed"/>
 <fmt:message bundle="${loc}" key="locale.expired" var="expired"/>
+<fmt:message bundle="${loc}" key="locale.drug_class" var="drugClas"/>
 <c:if test="${sessionScope.user eq null}">
     <c:redirect url="/index.jsp"/>
 </c:if>
@@ -218,7 +219,8 @@
         <!-- Brand and toggle get grouped for better mobile display -->
         <c:if test="${param.command eq 'GET_ALL_DRUGS' or param.command eq 'GET_DOCTORS'
          or param.command eq 'GET_DRUGS_BY_CLASS' or param.command eq 'EXTENDED_DRUG_SEARCH'
-          or param.command eq 'SEARCH_DRUGS' or param.command eq 'SEARCH_DOCTORS' or param.command eq 'GET_DOCTORS_BY_SPECIALIZATION'}">
+          or param.command eq 'SEARCH_DRUGS' or param.command eq 'SEARCH_DOCTORS' or param.command eq 'GET_DOCTORS_BY_SPECIALIZATION'
+          or param.command eq 'GET_ALL_ORDERS'}">
             <a href="#menu-toggle" type="button" class="navbar-toggle" style="display:block; background:white;" id="menu-toggle">
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>

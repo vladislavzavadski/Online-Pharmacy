@@ -1,7 +1,6 @@
 package by.training.online_pharmacy.command.impl;
 
 import by.training.online_pharmacy.command.Command;
-import by.training.online_pharmacy.command.util.UrlBuilder;
 import by.training.online_pharmacy.domain.message.MessageStatus;
 import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.domain.user.UserRole;
@@ -14,7 +13,6 @@ import org.json.JSONObject;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -54,7 +52,6 @@ public class UserLoginCommand implements Command {
             user.setPassword(request.getParameter(Parameter.PASSWORD));
 
             httpSession.setAttribute(Parameter.USER, user);
-            httpSession.setAttribute(Parameter.PREV_REQUEST, UrlBuilder.build(request));
 
             response.sendRedirect(Page.ROOT);
 

@@ -7,9 +7,8 @@ public class Page {
     public static final String INDEX = "/index.jsp";
     public static final String MAIN = "/main.jsp";
     public static final String AUTHORIZATION = "/authorization.jsp";
-    public static final String REGISTRATION = "/registration.jsp";
     public static final String USER_IMAGES = "/images/user";
-    public static final String DRUGS_REDIRECT = "/controller?command=EXTENDED_SEARCH&overload=true&page=1";
+    public static final String DRUGS_REDIRECT = "/controller?command=EXTENDED_DRUG_SEARCH&overload=true&page=1";
     public static final String DRUG = "/drug";
     public static final String DOCTOR = "/doctor";
     public static final String DOCTORS = "/doctors";

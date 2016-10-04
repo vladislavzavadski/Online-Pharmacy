@@ -6,6 +6,7 @@ import by.training.online_pharmacy.dao.connection_pool.exception.ConnectionPoolE
 import by.training.online_pharmacy.dao.exception.DaoException;
 import by.training.online_pharmacy.dao.exception.EntityDeletedException;
 import by.training.online_pharmacy.dao.exception.EntityNotFoundException;
+import by.training.online_pharmacy.dao.exception.MultipleRecordsException;
 import by.training.online_pharmacy.dao.impl.database.util.DatabaseOperation;
 import by.training.online_pharmacy.dao.impl.database.util.exception.ParameterNotFoundException;
 import by.training.online_pharmacy.domain.user.*;
@@ -126,6 +127,10 @@ public class DatabaseUserDAO implements UserDAO {
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             List<User> result = resultSetToUser(resultSet);
 
+            if(result.size()>1){
+                throw new MultipleRecordsException("The are more then one user searched");
+            }
+
             if(!result.isEmpty()){
                 return result.get(0);
             }
@@ -188,6 +193,10 @@ public class DatabaseUserDAO implements UserDAO {
             ResultSet resultSet = databaseOperation.invokeReadOperation();
             List<User> result = resultSetToUser(resultSet);
 
+            if(result.size()>1){
+                throw new MultipleRecordsException("The are more then one user searched");
+            }
+
             if(!result.isEmpty()){
                 return result.get(0);
             }
@@ -213,6 +222,10 @@ public class DatabaseUserDAO implements UserDAO {
             ResultSet resultSet = databaseOperation.invokeReadOperation();
 
             List<User> result = resultSetToUser(resultSet);
+
+            if(result.size()>1){
+                throw new MultipleRecordsException("The are more then one user searched");
+            }
 
             if(!result.isEmpty()){
                 user = result.get(0);

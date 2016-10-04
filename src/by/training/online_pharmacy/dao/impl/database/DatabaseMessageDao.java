@@ -63,7 +63,8 @@ public class DatabaseMessageDao implements MessageDao {
     }
 
     @Override
-    public List<Message> getMessages(User user, SearchMessageCriteria searchMessageCriteria, int startFrom, int limit) throws DaoException {
+    public List<Message> getMessages(User user, SearchMessageCriteria searchMessageCriteria, int startFrom, int limit)
+            throws DaoException {
         StringBuilder query = new StringBuilder(GET_ALL_MESSAGES_QUERY_PREFIX);
 
         if(searchMessageCriteria.getMessageStatus()!=null&&!searchMessageCriteria.getMessageStatus().isEmpty()){

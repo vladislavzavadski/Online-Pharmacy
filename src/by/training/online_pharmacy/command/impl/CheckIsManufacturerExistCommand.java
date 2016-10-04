@@ -39,6 +39,7 @@ public class CheckIsManufacturerExistCommand implements Command {
 
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         DrugService drugService = serviceFactory.getDrugService();
+
         try {
             boolean result = drugService.isManufacturerExist(drugManufacturer);
             jsonObject.put(Parameter.RESULT, true);

@@ -138,8 +138,8 @@
                             <input id="replenish-sum" class="form-control" max="${999.99-user.balance}" type="number" min="1" step="0.1" placeholder="${sum}" name="payment" required>
                         </div>
                         <div class="form-group">
-                            <label for="replenish-card">${cardNumber}:</label>
-                            <input id="replenish-card" class="form-control" type="text" placeholder="${cardNumber}" name="card_number" required>
+                            <label for="replenish-card">${cardNumber}(XXXX-XXXX-XXXX-XXXX):</label>
+                            <input pattern="[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}" id="replenish-card" class="form-control" type="text" placeholder="${cardNumber}" name="card_number" required>
                         </div>
 
                     </div>
@@ -156,7 +156,7 @@
             $('#replenish-balance').submit(function () {
                 var data  = $(this).serialize();
                 var currentBalance = parseFloat($('#us_balance').html());
-                var addSum = parseFloat($('#replenish-sum').html());
+                var addSum = parseFloat($('#replenish-sum').val());
                 $.ajax({
                     url:'controller',
                     type:'POST',

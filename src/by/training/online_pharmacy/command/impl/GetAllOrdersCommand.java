@@ -25,6 +25,7 @@ import java.util.List;
 public class GetAllOrdersCommand implements Command {
 
     private static final int LIMIT = 6;
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);

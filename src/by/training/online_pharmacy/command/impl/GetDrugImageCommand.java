@@ -21,6 +21,7 @@ import java.io.InputStream;
  * Created by vladislav on 16.08.16.
  */
 public class GetDrugImageCommand implements Command {
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);

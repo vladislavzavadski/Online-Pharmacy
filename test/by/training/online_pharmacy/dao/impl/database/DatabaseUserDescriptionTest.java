@@ -17,7 +17,6 @@ import java.util.List;
 
 import static by.training.online_pharmacy.dao.impl.database.Constant.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -81,7 +80,7 @@ public class DatabaseUserDescriptionTest {
 
         UserDescriptionDAO userDescriptionDAO = new DatabaseUserDescriptionDAO();
 
-        boolean isExist = userDescriptionDAO.isSpecializationExist(OFT_SPECIALIZATION);
+        boolean isExist = userDescriptionDAO.isSpecializationExist(OPHTHALMOLOGIST);
 
         assertEquals(true, isExist);
     }
@@ -113,30 +112,30 @@ public class DatabaseUserDescriptionTest {
 
         UserDescription userDescription = new UserDescription();
 
-        userDescription.setSpecialization(DERMATOLOG);
+        userDescription.setSpecialization(DERMATOLOGIST);
 
         expected.add(userDescription);
 
         userDescription = new UserDescription();
-        userDescription.setSpecialization(LOR_SPEC);
+        userDescription.setSpecialization(LOHR);
 
         expected.add(userDescription);
 
         userDescription = new UserDescription();
-        userDescription.setSpecialization(OFT_SPECIALIZATION);
+        userDescription.setSpecialization(OPHTHALMOLOGIST);
 
         expected.add(userDescription);
         userDescription = new UserDescription();
-        userDescription.setSpecialization(TERAPEVT_SPEC);
+        userDescription.setSpecialization(THERAPIST);
 
         expected.add(userDescription);
         userDescription = new UserDescription();
-        userDescription.setSpecialization(HIRURG_SPEC);
+        userDescription.setSpecialization(SURGEON);
 
         expected.add(userDescription);
 
         userDescription = new UserDescription();
-        userDescription.setSpecialization(END_SPEC);
+        userDescription.setSpecialization(ENDOCRINOLOGIST);
 
         expected.add(userDescription);
 

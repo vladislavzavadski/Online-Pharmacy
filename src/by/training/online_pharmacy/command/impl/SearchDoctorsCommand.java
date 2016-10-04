@@ -22,7 +22,9 @@ import java.util.List;
  * Created by vladislav on 13.08.16.
  */
 public class SearchDoctorsCommand implements Command {
+
     private static final int LIMIT = 6;
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);

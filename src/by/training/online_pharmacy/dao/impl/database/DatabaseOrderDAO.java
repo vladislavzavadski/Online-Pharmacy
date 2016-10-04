@@ -7,6 +7,7 @@ import by.training.online_pharmacy.dao.OrderDAO;
 import by.training.online_pharmacy.dao.connection_pool.exception.ConnectionPoolException;
 import by.training.online_pharmacy.dao.exception.DaoException;
 import by.training.online_pharmacy.dao.exception.EntityNotFoundException;
+import by.training.online_pharmacy.dao.exception.MultipleRecordsException;
 import by.training.online_pharmacy.dao.impl.database.util.DatabaseOperation;
 import by.training.online_pharmacy.dao.impl.database.util.exception.ParameterNotFoundException;
 import by.training.online_pharmacy.domain.drug.Drug;
@@ -66,8 +67,17 @@ public class DatabaseOrderDAO implements OrderDAO {
 
             ResultSet resultSet = databaseOperation.invokeReadOperation();
 
-            return resultSetToOrder(resultSet).get(0);
+            List<Order> result = resultSetToOrder(resultSet);
 
+            if(result.size()>1){
+                throw new MultipleRecordsException("The are more than one value was found");
+            }
+
+            if(!result.isEmpty()){
+                return result.get(0);
+            }
+
+            return null;
         } catch (SQLException | ConnectionPoolException e) {
             throw new DaoException("Can not search order by id", e);
         }
@@ -97,7 +107,8 @@ public class DatabaseOrderDAO implements OrderDAO {
     }
 
     @Override
-    public List<Order> searchOrders(SearchOrderCriteria searchOrderCriteria, int startFrom, int limit) throws DaoException {
+    public List<Order> searchOrders(SearchOrderCriteria searchOrderCriteria, int startFrom, int limit)
+            throws DaoException {
         StringBuilder query = new StringBuilder(GET_ALL_ORDERS_QUERY_PREFIX);
 
         if(searchOrderCriteria.getDateFrom()!=null&&!searchOrderCriteria.getDateFrom().isEmpty()){

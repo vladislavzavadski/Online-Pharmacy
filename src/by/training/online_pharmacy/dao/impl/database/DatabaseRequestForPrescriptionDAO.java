@@ -127,16 +127,19 @@ public class DatabaseRequestForPrescriptionDAO implements RequestForPrescription
     }
 
     @Override
-    public List<RequestForPrescription> getDoctorsRequest(User user, RequestForPrescriptionCriteria criteria, int limit, int startFrom) throws DaoException {
+    public List<RequestForPrescription> getDoctorsRequest(User user, RequestForPrescriptionCriteria criteria,
+                                                          int limit, int startFrom) throws DaoException {
         return getRequestsForPrescriptions(user, criteria, limit, startFrom, SEARCH_DOCTORS_REQUESTS_PREFIX);
     }
 
     @Override
-    public List<RequestForPrescription> getClientRequests(User user, RequestForPrescriptionCriteria criteria, int limit, int startFrom) throws DaoException {
+    public List<RequestForPrescription> getClientRequests(User user, RequestForPrescriptionCriteria criteria,
+                                                          int limit, int startFrom) throws DaoException {
         return getRequestsForPrescriptions(user, criteria, limit, startFrom, SEARCH_REQESTS_QUERY_PREFIX);
     }
 
-    private List<RequestForPrescription> getRequestsForPrescriptions(User user, RequestForPrescriptionCriteria criteria, int limit, int startFrom, String prefix) throws DaoException {
+    private List<RequestForPrescription> getRequestsForPrescriptions(User user, RequestForPrescriptionCriteria criteria,
+                                                                     int limit, int startFrom, String prefix) throws DaoException {
         StringBuilder query = new StringBuilder(prefix);
 
         if(criteria.getDrugName()!=null&&!criteria.getDrugName().isEmpty()){

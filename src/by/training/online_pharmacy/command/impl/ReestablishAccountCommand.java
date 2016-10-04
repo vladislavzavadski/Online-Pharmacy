@@ -14,15 +14,22 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Locale;
 
 /**
  * Created by vladislav on 05.09.16.
  */
 public class ReestablishAccountCommand implements Command {
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        HttpSession session = request.getSession();
+
         SecretWord secretWord = new SecretWord();
+
         User user = new User();
         user.setLogin(request.getParameter(Parameter.LOGIN));
 
@@ -37,7 +44,7 @@ public class ReestablishAccountCommand implements Command {
         UserService userService = serviceFactory.getUserService();
 
         try {
-            userService.reestablishAccount(secretWord);
+            userService.reestablishAccount(secretWord, (Locale) session.getAttribute(Parameter.LANGUAGE));
             jsonObject.put(Parameter.RESULT, true);
 
         } catch (InvalidParameterException e) {

@@ -23,6 +23,7 @@ import java.io.InputStream;
  * Created by vladislav on 15.08.16.
  */
 public class GetUserImageCommand implements Command {
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);
