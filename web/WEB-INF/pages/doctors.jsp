@@ -203,7 +203,7 @@
             </div>
             <script>
                 $("#register_username").blur(function () {
-                    if($(this)==""){
+                    if($(this).val()==""){
                         return false;
                     }
 
@@ -213,11 +213,11 @@
                         dataType:'json',
                         success:function (data) {
                             if(data.isExist==false){
-                                $("#login_message").html("<span style=\"color:green\">Данный логин свободен</span>");
+                                $("#login_message").html("<span style=\"color:green\">${loginFree}</span>");
                                 $("#reg_button").prop("disabled", false);
                             }
                             else {
-                                $("#login_message").html("<span style=\"color:red\">Данный логин занят</span>");
+                                $("#login_message").html("<span style=\"color:red\">${loginUsed}</span>");
                                 $("#reg_button").prop("disabled", true);
                             }
 

@@ -99,4 +99,5 @@ public class TableColumn {
     public static final String CLIENT_LOGIN_VIA = "cli_login_via";
     public static final String CLIENT_FIRST_NAME = "cli_first_name";
     public static final String CLIENT_SECOND_NAME = "cli_second_name";
+    public static final String AUTO_INCREMENT = "AUTO_INCREMENT";
 }

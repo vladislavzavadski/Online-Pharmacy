@@ -316,7 +316,7 @@ public class DatabaseDrugDaoTest {
 
         Drug actual = drugDAO.getDrugById(3);
 
-        assertThat(actual).isEqualToIgnoringGivenFields(drug, IGNORED_DOCTOR_SPECIALIZATION);
+        assertThat(actual).isEqualToIgnoringGivenFields(drug, IGNORED_DOCTOR_SPECIALIZATION, IGNORED_PATH_TO_IMAGE);
 
     }
 

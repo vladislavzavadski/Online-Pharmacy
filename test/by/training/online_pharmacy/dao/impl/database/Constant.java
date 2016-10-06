@@ -91,5 +91,6 @@ public class Constant {
     public static final String SURGEON = "Хирург";
     public static final String ENDOCRINOLOGIST = "Эндокринолог";
     public static final String HOW_ARE_YOU_QUESTION = "Как дела";
+    public static final String IGNORED_PATH_TO_IMAGE = "pathToImage";
 
 }

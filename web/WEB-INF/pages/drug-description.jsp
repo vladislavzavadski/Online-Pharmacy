@@ -307,7 +307,7 @@
                                 </div>
                                 <div class="form_group">
                                     <label for="drug_name">${drugName}: </label>
-                                    <input type="text" maxlength="20" class="form-control" id="drug_name" value="${drug.name}" name="drug_name" required/>
+                                    <input type="text" maxlength="100" class="form-control" id="drug_name" value="${drug.name}" name="drug_name" required/>
                                 </div>
                                 <div class="form_group">
                                     <label for="drug_image">${photo}: </label>
@@ -323,7 +323,7 @@
                                     </select>
                                 </div>
                                 <div class="form_group">
-                                    <label for="drug_class">${drugClass}:</label>
+                                    <label for="drug_class">${drugClas}:</label>
                                     <select id="drug_class" class="form-control" name="dr_class">
                                         <c:forEach items="${drugClasses}" var="drugClass">
                                             <option value="${drugClass.name}" <c:if test="${drug.drugClass.name eq drugClass.name}">selected</c:if>>${drugClass.name}</option>
@@ -367,7 +367,7 @@
                                     <input class="form-control" maxlength="45" type="text" id="drug_active_substance" name="active_substance" value="${drug.activeSubstance}" required/>
                                 </div>
                                 <div class="form_group">
-                                    <label for="drug_price">${drugPrice}: </label>
+                                    <label for="drug_price">${drugPrice}$: </label>
                                     <input class="form-control" max="999.99" type="number" min="0" id="drug_price" step="0.1" name="drug_price" value="${drug.price}" required/>
                                 </div>
                                 <div class="form_group">

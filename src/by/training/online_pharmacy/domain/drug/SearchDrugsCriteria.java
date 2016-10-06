@@ -8,7 +8,7 @@ public class SearchDrugsCriteria {
     private String activeSubstance;
     private String drugMaxPrice;
     private String drugClass;
-    private String drugManufacture;
+    private DrugManufacturer drugManufacture;
     private String onlyInStock;
     private String prescriptionEnable;
 
@@ -89,11 +89,11 @@ public class SearchDrugsCriteria {
         this.drugClass = drugClass;
     }
 
-    public String getDrugManufacture() {
+    public DrugManufacturer getDrugManufacture() {
         return drugManufacture;
     }
 
-    public void setDrugManufacture(String drugManufacture) {
+    public void setDrugManufacture(DrugManufacturer drugManufacture) {
         this.drugManufacture = drugManufacture;
     }
 

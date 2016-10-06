@@ -27,10 +27,8 @@ import java.util.List;
 public class DatabaseDrugDAO implements DrugDAO {
 
     private static final String GET_DRUGS_BY_ID_QUERY = "SELECT dr_id, dr_class, dr_description, dr_image, dr_in_stock, dr_name, dr_prescription_enable, dr_price, dr_type,  dr_dosage, dr_active_substance, dm_name, dm_country, dm_description, dr_class_name, dr_class_description FROM drugs inner join drugs_manufactures on dr_man_name = dm_name and dr_man_country=dm_country inner join drug_classes on dr_class = dr_class_name WHERE dr_id=?;";
-
     private static final String SEARCH_DRUGS_QUERY = "select dr_price, dr_id, dr_image, dr_description, dr_name, dr_active_substance, dr_class from drugs where dr_name like ? or dr_description like ?  or dr_active_substance like ? order by dr_name limit ?, ?;";
     private static final String EXTENDED_DRUGS_SEARCH_QUERY_PREFIX = "select dr_id, dr_image, dr_description, dr_price, dr_name, dr_active_substance, dr_class from drugs ";
-
     private static final String IS_PRESCRIPTION_ENABLE_QUERY = "select dr_prescription_enable from drugs where dr_id=?;";
     private static final String GET_DRUG_IMAGE_QUERY = "select dr_image from drugs where dr_id=?";
     private static final String INCREASE_DRUG_COUNT_BY_ORDER_QUERY = "update drugs set dr_in_stock=dr_in_stock+(select or_drug_count from orders where or_id=?) where dr_id=(select or_drug_id from orders where or_id=? and or_client_login=? and or_login_via=?)";
@@ -49,91 +47,53 @@ public class DatabaseDrugDAO implements DrugDAO {
     private static final String DELETE_DRUG_QUERY = "delete from drugs where dr_id=?;";
     private static final String REDUCE_DRUG_COUNT_BY_NEW_ORDER = "update drugs set dr_in_stock=dr_in_stock-? where dr_id=?;";
     private static final String GET_DRUG_COUNT_IN_STOCK_QUERY = "select dr_in_stock from drugs where dr_id=?;";
+    private static final String GET_AUTO_INCREMENT = "SELECT `AUTO_INCREMENT`\n" +
+            "FROM  INFORMATION_SCHEMA.TABLES\n" +
+            "WHERE TABLE_SCHEMA = 'online_pharmacy'\n" +
+            "AND   TABLE_NAME   = 'drugs';";
 
     @Override
     public List<Drug> extendedSearching(SearchDrugsCriteria searchDrugsCriteria, int startFrom, int limit)
             throws DaoException {
 
-        boolean isCriteriaStarted = false;
-
+        List<String> queryCriteria = new ArrayList<>();
         StringBuilder query = new StringBuilder(EXTENDED_DRUGS_SEARCH_QUERY_PREFIX);
 
         if(searchDrugsCriteria.getName()!=null && !searchDrugsCriteria.getName().isEmpty()){
-            isCriteriaStarted = true;
-            query.append(Param.WHERE).append(DRUG_NAME);
+            queryCriteria.add(DRUG_NAME);
         }
 
         if(searchDrugsCriteria.getDrugMaxPrice()!=null && !searchDrugsCriteria.getDrugMaxPrice().isEmpty()){
-            if(isCriteriaStarted){
-                query.append(Param.AND).append(DRUG_PRICE);
-            }
-            else {
-                query.append(Param.WHERE).append(DRUG_PRICE);
-                isCriteriaStarted = true;
-            }
+            queryCriteria.add(DRUG_PRICE);
         }
 
         if(searchDrugsCriteria.getActiveSubstance()!=null && !searchDrugsCriteria.getActiveSubstance().isEmpty()){
-
-            if(isCriteriaStarted){
-                query.append(Param.AND).append(ACTIVE_SUBSTANCE);
-            }
-            else {
-                query.append(Param.WHERE).append(ACTIVE_SUBSTANCE);
-                isCriteriaStarted = true;
-            }
-
+            queryCriteria.add(ACTIVE_SUBSTANCE);
         }
 
         if(searchDrugsCriteria.getDrugClass()!=null && !searchDrugsCriteria.getDrugClass().isEmpty()){
-
-            if(isCriteriaStarted){
-                query.append(Param.AND).append(DRUG_CLASS);
-            }
-            else {
-                query.append(Param.WHERE).append(DRUG_CLASS);
-                isCriteriaStarted = true;
-            }
-
+            queryCriteria.add(DRUG_CLASS);
         }
 
-        if(searchDrugsCriteria.getDrugManufacture()!=null && !searchDrugsCriteria.getDrugManufacture().isEmpty()){
-
-            if(isCriteriaStarted){
-                query.append(Param.AND).append(DRUG_MANUFACTURER);
-            }
-            else {
-                query.append(Param.WHERE).append(DRUG_MANUFACTURER);
-                isCriteriaStarted = true;
-            }
-
+        if(searchDrugsCriteria.getDrugManufacture()!=null){
+            queryCriteria.add(DRUG_MANUFACTURER);
         }
 
         if(searchDrugsCriteria.getOnlyInStock()!=null && !searchDrugsCriteria.getOnlyInStock().isEmpty()
                 && Boolean.parseBoolean(searchDrugsCriteria.getOnlyInStock())){
-
-            if(isCriteriaStarted){
-                query.append(Param.AND).append(IN_STOCK);
-            }
-            else {
-                query.append(Param.WHERE).append(IN_STOCK);
-                isCriteriaStarted = true;
-            }
-
+            queryCriteria.add(IN_STOCK);
         }
 
         if(searchDrugsCriteria.getPrescriptionEnable()!=null && !searchDrugsCriteria.getPrescriptionEnable().isEmpty()
                 && !Boolean.parseBoolean(searchDrugsCriteria.getPrescriptionEnable())){
-
-            if(isCriteriaStarted){
-                query.append(Param.AND).append(PRESCRIPTION_ENABLE);
-            }
-            else {
-                query.append(Param.WHERE).append(PRESCRIPTION_ENABLE);
-            }
-
+            queryCriteria.add(PRESCRIPTION_ENABLE);
         }
 
+        if(!queryCriteria.isEmpty()){
+            query.append(Param.WHERE);
+        }
+
+        query.append(String.join(Param.AND, queryCriteria));
         query.append(EXTENDED_DRUG_SEARCH_TAIL);
 
         try (DatabaseOperation databaseOperation = new DatabaseOperation(query.toString())){
@@ -155,11 +115,9 @@ public class DatabaseDrugDAO implements DrugDAO {
                 databaseOperation.setParameter(paramNumber++, searchDrugsCriteria.getDrugClass());
             }
 
-            if(searchDrugsCriteria.getDrugManufacture()!=null && !searchDrugsCriteria.getDrugManufacture().isEmpty()){
-                String[] nameCountry = searchDrugsCriteria.getDrugManufacture().split(Param.COMMA);
-
-                databaseOperation.setParameter(paramNumber++, nameCountry[0]);
-                databaseOperation.setParameter(paramNumber++, nameCountry[1]);
+            if(searchDrugsCriteria.getDrugManufacture()!=null){
+                databaseOperation.setParameter(paramNumber++, searchDrugsCriteria.getDrugManufacture().getName());
+                databaseOperation.setParameter(paramNumber++, searchDrugsCriteria.getDrugManufacture().getCountry());
             }
 
             databaseOperation.setParameter(paramNumber++, startFrom);
@@ -339,13 +297,14 @@ public class DatabaseDrugDAO implements DrugDAO {
     }
 
     @Override
-    public void insertDrug(Drug drug) throws DaoException {
+    public int insertDrug(Drug drug) throws DaoException {
 
         try (DatabaseOperation databaseOperation = new DatabaseOperation(INSERT_DRUG_QUERY)){
+            int drugId = getInsertedDrugId();
 
             databaseOperation.setParameter(1, drug.getName());
             databaseOperation.setParameter(2, drug.getPrice());
-            databaseOperation.setParameter(3, drug.getPathToImage());
+            databaseOperation.setParameter(3, drug.getPathToImage()+drugId);
             databaseOperation.setParameter(4, drug.isPrescriptionEnable());
             databaseOperation.setParameter(5, drug.getDescription());
             databaseOperation.setParameter(6, drug.getDrugManufacturer().getName());
@@ -359,10 +318,13 @@ public class DatabaseDrugDAO implements DrugDAO {
 
             databaseOperation.invokeWriteOperation();
 
+            return drugId;
+
         } catch (SQLException | ConnectionPoolException e) {
             throw new DaoException("Can not insert new drug in database", e);
 
         }
+
     }
 
 
@@ -370,7 +332,7 @@ public class DatabaseDrugDAO implements DrugDAO {
     @Override
     public void updateDrug(Drug drug) throws DaoException {
 
-        try (DatabaseOperation databaseOperation = new DatabaseOperation(UPDATE_DRUG_QUERY);){
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(UPDATE_DRUG_QUERY)){
 
             databaseOperation.setParameter(1, drug.getName());
             databaseOperation.setParameter(2, drug.getPathToImage());
@@ -452,6 +414,17 @@ public class DatabaseDrugDAO implements DrugDAO {
 
         return result;
     }
+
+    private int getInsertedDrugId() throws ConnectionPoolException, SQLException {
+        try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_AUTO_INCREMENT)){
+
+            ResultSet resultSet = databaseOperation.invokeReadOperation();
+            resultSet.next();
+
+            return resultSet.getInt(TableColumn.AUTO_INCREMENT);
+        }
+    }
+
 
 
     private List<Drug> resultSetToDrug(ResultSet resultSet) throws SQLException {

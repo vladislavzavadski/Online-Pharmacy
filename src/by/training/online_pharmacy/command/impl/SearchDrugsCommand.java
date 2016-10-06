@@ -3,6 +3,7 @@ package by.training.online_pharmacy.command.impl;
 import by.training.online_pharmacy.command.Command;
 import by.training.online_pharmacy.domain.drug.Drug;
 import by.training.online_pharmacy.domain.drug.DrugClass;
+import by.training.online_pharmacy.domain.drug.DrugManufacturer;
 import by.training.online_pharmacy.domain.user.User;
 import by.training.online_pharmacy.domain.user.UserDescription;
 import by.training.online_pharmacy.domain.user.UserRole;
@@ -60,6 +61,10 @@ public class SearchDrugsCommand implements Command {
 
                     request.setAttribute(Parameter.SPECIALIZATIONS, userDescriptions);
                 }
+
+                List<DrugManufacturer> drugManufacturers = drugService.getDrugManufactures();
+
+                request.setAttribute(Parameter.DRUG_MANUFACTURES, drugManufacturers);
 
                 request.getRequestDispatcher(Page.DRUGS).forward(request, response);
             }

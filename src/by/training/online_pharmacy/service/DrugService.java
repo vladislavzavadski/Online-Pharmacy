@@ -24,7 +24,7 @@ public interface DrugService {
 
     List<Drug> searchDrugs(String query, int limit, int startFrom) throws InvalidParameterException;
 
-    List<Drug> extendedDrugSearch(SearchDrugsCriteria searchDrugsCriteria, int limit, int startFrom) throws InvalidParameterException;
+    List<Drug> searchDrugs(SearchDrugsCriteria searchDrugsCriteria, int limit, int startFrom) throws InvalidParameterException;
 
     InputStream getDrugImage(int drugId, String defaultImage) throws InvalidParameterException;
 

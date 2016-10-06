@@ -5,7 +5,6 @@ import by.training.online_pharmacy.dao.exception.DaoException;
 import by.training.online_pharmacy.domain.drug.Drug;
 import by.training.online_pharmacy.domain.drug.SearchDrugsCriteria;
 import by.training.online_pharmacy.domain.user.User;
-import by.training.online_pharmacy.service.exception.NotFoundException;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -88,7 +87,7 @@ public interface DrugDAO {
      * Insert new drug into storage
      * @param drug object that represent new drug
      * @throws DaoException if fail occurs while invoke write operation*/
-    void insertDrug(Drug drug) throws DaoException;
+    int insertDrug(Drug drug) throws DaoException;
 
     /**
      * Update information about drug in storage

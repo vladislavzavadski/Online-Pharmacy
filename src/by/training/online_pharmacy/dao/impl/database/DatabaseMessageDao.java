@@ -102,12 +102,10 @@ public class DatabaseMessageDao implements MessageDao {
 
             if(searchMessageCriteria.getDateTo()!=null&&!searchMessageCriteria.getDateTo().isEmpty()){
 
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Param.DATE_PATTERN);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Param.DATE_TIME_PATTERN);
 
-                Date date = simpleDateFormat.parse(searchMessageCriteria.getDateTo());
-                date.setHours(23);
-                date.setMinutes(59);
-                date.setSeconds(59);
+                Date date = simpleDateFormat.parse(searchMessageCriteria.getDateTo()+Param.TIME);
+
                 databaseOperation.setParameter(paramNumber++, date);
 
             }

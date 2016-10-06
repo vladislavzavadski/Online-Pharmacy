@@ -117,7 +117,7 @@
                             success:function (data) {
                                 if(data.result){
                                     Notify.generate('${mesSended}', '${completed}', 1);
-                                    comment.val("");
+                                    $("#comment").val("");
                                 }
                                 else {
                                     Notify.generate('${mesError}', '${error}', 2);

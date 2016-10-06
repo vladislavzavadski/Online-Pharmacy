@@ -148,6 +148,8 @@
 <fmt:message bundle="${loc}" key="locale.proceed" var="proceed"/>
 <fmt:message bundle="${loc}" key="locale.expired" var="expired"/>
 <fmt:message bundle="${loc}" key="locale.drug_class" var="drugClas"/>
+<fmt:message bundle="${loc}" key="locale.login_free" var="loginFree"/>
+<fmt:message bundle="${loc}" key="locale.login_used" var="loginUsed"/>
 <c:if test="${sessionScope.user eq null}">
     <c:redirect url="/index.jsp"/>
 </c:if>
@@ -271,7 +273,7 @@
                                         <input type="number" class="form-control" name="max_price" min="10" id="dr_price" step="0.1"/>
                                     </div>
                                     <li style="text-align: center;">
-                                        <label>${drugClass}</label>
+                                        <label>${drugClas}</label>
                                         <select id="dr_class_select" class="form-control" name="dr_class">
                                             <option value="" selected>${unknown}</option>
                                             <c:forEach items="${drugClasses}" var="drugClass">
@@ -281,9 +283,9 @@
                                     </li>
                                     <li style="text-align: center;">
                                         <label>${manufacturer}</label>
-                                        <select id="drug_manufacturer_s" class="form-control" name="dr_manufacture">
+                                        <select id="drug_manufacturer_s" class="form-control" name="dr_manufacturer">
                                             <option value="" selected>${unknown}</option>
-                                            <c:forEach items="${drugManufactures}" var="man">
+                                            <c:forEach items="${drugManufacturers}" var="man">
                                                 <option value="${man.name},${man.country}">${man.name}(${man.country})</option>
                                             </c:forEach>
                                         </select>

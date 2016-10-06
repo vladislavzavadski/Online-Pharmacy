@@ -1,22 +1,19 @@
 package by.training.online_pharmacy.dao.connection_pool;
 
 import by.training.online_pharmacy.dao.connection_pool.exception.ConnectionPoolException;
-import org.gjt.mm.mysql.*;
-import org.gjt.mm.mysql.Driver;
 
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.LongAccumulator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  * Created by vladislav on 09.06.16.
  */
 public class ConnectionPool {
     private final List<Connection> freeConnections = new LinkedList<>();
-    private Map<Long, Connection> reservedConnections = new Hashtable<>();
+    private Map<Long, Connection> reservedConnections = new ConcurrentHashMap<>();
     private String databaseURL;
     private String username;
     private String password;

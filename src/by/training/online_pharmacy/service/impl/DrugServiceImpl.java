@@ -18,7 +18,6 @@ import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.Part;
 import java.io.*;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
@@ -47,7 +46,7 @@ public class DrugServiceImpl implements DrugService {
             throw new InvalidParameterException("Parameter drug is invalid");
         }
 
-        if(drug.getName()==null||drug.getName().isEmpty()||drug.getName().length()>20){
+        if(drug.getName()==null||drug.getName().isEmpty()||drug.getName().length()>100){
             throw new InvalidParameterException("Parameter drug name is invalid");
         }
 
@@ -140,8 +139,7 @@ public class DrugServiceImpl implements DrugService {
 
             }
 
-            String drugPathToImage = pathToImages+"/"+drug.getName()+drug.getDrugManufacturer().getName();
-            drugPathToImage+=drug.getDrugManufacturer().getCountry()+drug.getActiveSubstance();
+            String drugPathToImage = pathToImages+"/";
 
             drug.setPathToImage(drugPathToImage);
 
@@ -155,10 +153,10 @@ public class DrugServiceImpl implements DrugService {
             }
 
             DrugDAO drugDAO = daoFactory.getDrugDAO();
-            drugDAO.insertDrug(drug);
+            int drugId = drugDAO.insertDrug(drug);
 
             if(part!=null&&part.getSize()>0) {
-                File file = new File(drug.getPathToImage());
+                File file = new File(drug.getPathToImage()+drugId);
                 Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
             }
 
@@ -216,7 +214,8 @@ public class DrugServiceImpl implements DrugService {
     }
 
     @Override
-    public List<Drug> searchDrugs(String query, int limit, int startFrom) throws InternalServerException, InvalidParameterException {
+    public List<Drug> searchDrugs(String query, int limit, int startFrom)
+            throws InternalServerException, InvalidParameterException {
 
         if(limit<=0){
             throw new InvalidParameterException("Invalid parameter limit. Limit can be >0");
@@ -244,7 +243,7 @@ public class DrugServiceImpl implements DrugService {
     }
 
     @Override
-    public List<Drug> extendedDrugSearch(SearchDrugsCriteria searchDrugsCriteria, int limit, int startFrom)
+    public List<Drug> searchDrugs(SearchDrugsCriteria searchDrugsCriteria, int limit, int startFrom)
             throws InternalServerException, InvalidParameterException {
 
         if(limit<=0){
@@ -257,16 +256,6 @@ public class DrugServiceImpl implements DrugService {
 
         if(searchDrugsCriteria==null){
             throw new InvalidParameterException("Invalid parameter search criteria");
-        }
-
-        if(searchDrugsCriteria.getDrugManufacture()!=null && !searchDrugsCriteria.getDrugManufacture().isEmpty()){
-            String[] nameCountry = searchDrugsCriteria.getDrugManufacture().split(",");
-
-            if(nameCountry.length != 2){
-
-                throw new InvalidParameterException("Parameter drug manufacture is invalid");
-
-            }
         }
 
         DaoFactory daoFactory = DaoFactory.takeFactory(DaoFactory.DATABASE_DAO_IMPL);
@@ -483,7 +472,7 @@ public class DrugServiceImpl implements DrugService {
             throw new InvalidParameterException("Parameter drug id is invalid");
         }
 
-        if(drug.getName()==null||drug.getName().isEmpty()||drug.getName().length()>20){
+        if(drug.getName()==null||drug.getName().isEmpty()||drug.getName().length()>100){
             throw new InvalidParameterException("Parameter drug name is invalid");
         }
 
@@ -582,8 +571,7 @@ public class DrugServiceImpl implements DrugService {
                 throw new SpecializationNotFoundException("Specialization with name="+drug.getDoctorSpecialization()+" was not found");
             }
 
-            String drugImagePath = pathToImages+"/"+drug.getName()+drug.getDrugManufacturer().getName()+
-                    drug.getDrugManufacturer().getCountry()+drug.getActiveSubstance();
+            String drugImagePath = pathToImages+"/"+drug.getId();
 
             if(part!=null&&part.getSize()>0) {
                 File file = new File(drugImagePath);

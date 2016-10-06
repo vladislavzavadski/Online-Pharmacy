@@ -35,6 +35,7 @@
     <jsp:useBean id="drugList" scope="request" class="java.util.ArrayList"/>
     <jsp:useBean id="drugClasses" scope="request" class="java.util.ArrayList"/>
     <jsp:useBean id="specializations" scope="request" class="java.util.ArrayList"/>
+    <jsp:useBean id="drugManufacturers" scope="request" class="java.util.ArrayList"/>
         <div id="wrapper">
         <div class="container content">
             <div id="notifies"></div>
@@ -184,7 +185,7 @@
 
         </div>
             <c:if test="${user.userRole eq 'PHARMACIST'}">
-                <jsp:useBean id="drugManufacturers" scope="request" class="java.util.ArrayList"/>
+
             <div class="modal fade" id="new-drug-modal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -203,7 +204,7 @@
                                 </div>
                                 <div class="form_group">
                                     <label for="drug_name11">${drugName}: </label>
-                                    <input type="text" class="form-control" id="drug_name11" maxlength="20" name="drug_name" required/>
+                                    <input type="text" class="form-control" id="drug_name11" maxlength="100" name="drug_name" required/>
                                 </div>
                                 <div class="form_group">
                                     <label for="drug_image">${photo}: </label>
@@ -263,7 +264,7 @@
                                     <input class="form-control" maxlength="45"  type="text" id="drug_active_substance" name="active_substance" required/>
                                 </div>
                                 <div class="form_group">
-                                    <label for="drug_price">Цена: </label>
+                                    <label for="drug_price">${drugPrice}$: </label>
                                     <input class="form-control" type="number" max="999.99" min="0" id="drug_price" step="0.1" name="drug_price" required/>
                                 </div>
                                 <div class="form_group">

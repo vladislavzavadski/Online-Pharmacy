@@ -23,6 +23,8 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
 
+import static by.training.online_pharmacy.command.impl.Parameter.COMMA;
+
 /**
  * Created by vladislav on 09.08.16.
  */
@@ -48,7 +50,21 @@ public class ExtendedSearchCommand implements Command {
         searchDrugsCriteria.setActiveSubstance(request.getParameter(Parameter.ACTIVE_SUBSTANCE));
         searchDrugsCriteria.setDrugMaxPrice(request.getParameter(Parameter.MAX_PRICE));
         searchDrugsCriteria.setDrugClass(request.getParameter(Parameter.CLASS));
-        searchDrugsCriteria.setDrugManufacture(request.getParameter(Parameter.MANUFACTURER));
+
+        String drugMan = request.getParameter(Parameter.MANUFACTURER);
+
+        if(drugMan!=null && !drugMan.isEmpty()){
+            String[] nameCountry = drugMan.split(COMMA);
+
+            if(nameCountry.length==2){
+                DrugManufacturer drugManufacturer = new DrugManufacturer();
+                drugManufacturer.setName(nameCountry[0]);
+                drugManufacturer.setCountry(nameCountry[1]);
+
+                searchDrugsCriteria.setDrugManufacture(drugManufacturer);
+            }
+        }
+
         searchDrugsCriteria.setOnlyInStock(request.getParameter(Parameter.ONLY_IN_STOCK));
         searchDrugsCriteria.setPrescriptionEnable(request.getParameter(Parameter.ONLY_FREE));
 
@@ -56,7 +72,7 @@ public class ExtendedSearchCommand implements Command {
         DrugService drugService = serviceFactory.getDrugService();
 
         try {
-            List<Drug> drugs = drugService.extendedDrugSearch(searchDrugsCriteria,  LIMIT, (pageNumber-1)*LIMIT);
+            List<Drug> drugs = drugService.searchDrugs(searchDrugsCriteria,  LIMIT, (pageNumber-1)*LIMIT);
             request.setAttribute(Parameter.DRUG_LIST, drugs);
 
             if(pageOverload){
@@ -71,10 +87,11 @@ public class ExtendedSearchCommand implements Command {
 
                     request.setAttribute(Parameter.SPECIALIZATIONS, userDescriptions);
 
-                    List<DrugManufacturer> drugManufacturers = drugService.getDrugManufactures();
-
-                    request.setAttribute(Parameter.DRUG_MANUFACTURES, drugManufacturers);
                 }
+
+                List<DrugManufacturer> drugManufacturers = drugService.getDrugManufactures();
+
+                request.setAttribute(Parameter.DRUG_MANUFACTURES, drugManufacturers);
 
                 request.getRequestDispatcher(Page.DRUGS).forward(request, response);
             }
