@@ -11,6 +11,7 @@ import java.util.Map;
  */
 public final class CommandHelper {
     private static final Map<CommandName, Command> commands = new HashMap<>();
+
     static {
         commands.put(CommandName.USER_LOGIN, new UserLoginCommand());
         commands.put(CommandName.USER_LOGIN_VK, new UserLoginVKCommand());
@@ -67,6 +68,7 @@ public final class CommandHelper {
         commands.put(CommandName.COMPLETE_ORDER, new CompleteOrderCommand());
         commands.put(CommandName.GET_ORDER_BY_ID, new GetOrderByIdCommand());
     }
+
     public static Command getCommand(CommandName commandName){
         return commands.get(commandName);
     }

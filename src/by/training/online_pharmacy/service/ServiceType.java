@@ -1,0 +1,10 @@
+package by.training.online_pharmacy.service;
+
+/**
+ * Created by vladislav on 08.10.16.
+ */
+enum ServiceType {
+    USER_SERVICE, SOCIAL_NETWORK_SERVICE, INIT_CONNECTION_SERVICE,
+    DRUG_SERVICE, ORDER_SERVICE, REQUEST_SERVICE, MESSAGE_SERVICE,
+    PRESCRIPTION_SERVICE, SECRET_QUESTION_SERVICE
+}

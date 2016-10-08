@@ -1,6 +1,5 @@
 package by.training.online_pharmacy.dao;
 
-import by.training.online_pharmacy.dao.exception.DaoException;
 import by.training.online_pharmacy.dao.impl.database.DatabaseDAOFactory;
 
 /**

@@ -28,7 +28,14 @@ public class GetRequestCountCommand implements Command {
         HttpSession httpSession = request.getSession(false);
         User user;
 
-        if(httpSession==null||(user=(User)httpSession.getAttribute(Parameter.USER))==null){
+        if(httpSession==null){
+            response.sendRedirect(Page.INDEX);
+            return;
+        }
+
+        user = (User)httpSession.getAttribute(Parameter.USER);
+
+        if(user==null){
             response.sendRedirect(Page.INDEX);
             return;
         }

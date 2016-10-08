@@ -24,7 +24,7 @@ public class CheckIsManufacturerExistCommand implements Command {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(false);
 
-        if(httpSession==null||httpSession.getAttribute(Parameter.USER)==null){
+        if(httpSession==null || httpSession.getAttribute(Parameter.USER)==null){
             response.sendRedirect(Page.INDEX);
             return;
         }

@@ -85,6 +85,7 @@ public class DatabaseOrderDAO implements OrderDAO {
 
     @Override
     public float getOrderSum(User user, int orderId) throws DaoException {
+
         try (DatabaseOperation databaseOperation = new DatabaseOperation(GET_ORDER_SUM_QUERY)){
 
             databaseOperation.setParameter(1, orderId);

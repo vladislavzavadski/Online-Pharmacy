@@ -227,7 +227,7 @@ public class OrderServiceImpl implements OrderService {
     public void payForOrder(User user, int orderId) throws InternalServerException, InvalidParameterException,
             OrderNotFoundException, AmbiguousValueException {
 
-        if(user==null||user.getLogin()==null||user.getLogin().isEmpty()||user.getRegistrationType()==null){
+        if(user==null||user.getLogin()==null  || user.getLogin().isEmpty() || user.getRegistrationType()==null){
             throw new InvalidParameterException("Parameter user is invalid");
         }
 
