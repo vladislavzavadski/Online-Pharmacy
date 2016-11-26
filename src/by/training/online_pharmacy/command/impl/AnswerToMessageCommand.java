@@ -35,6 +35,9 @@ public class AnswerToMessageCommand implements Command {
 
         user = (User)httpSession.getAttribute(Parameter.USER);
 
+
+
+//erherhr
         if(user==null){
             response.sendRedirect(Page.INDEX);
             return;
